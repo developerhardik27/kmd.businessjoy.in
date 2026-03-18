@@ -210,7 +210,8 @@ function formatINR($amount)
                 <strong>Transport Name:</strong> <span
                     style="text-transform: uppercase">{{ $orders['transport_name'] ?? '-' }}</span> &nbsp;|&nbsp;
                 <strong>Total Net KG:</strong> {{ $orders['totalNetKg'] ?? '-' }} &nbsp;|&nbsp;
-                <strong>Order Date:</strong> {{ $orders['order_date'] ? \Carbon\Carbon::parse($orders['order_date'])->format('d-m-Y') : '-'}}
+                <strong>Order Date:</strong> {{ $orders['order_date'] ? \Carbon\Carbon::parse($orders['order_date'])->format('d-m-Y') : '-'}} <br>
+                <strong>Invoice Status:</strong> {{ $orders['invoice_status'] ?? '-' }} 
             </div>
 
             <table class="payment-table">

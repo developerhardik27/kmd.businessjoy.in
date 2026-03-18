@@ -120,297 +120,222 @@
         </div>
     </form>
 @endsection
-
 @push('ajax')
-    <script>
-        $('document').ready(function() {
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
-            // get selected party data and show it into fields
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$('document').ready(function () {
 
-
-            // show country data in dropdown
-            $('#party_type').on('change', function() {
-                var type = $(this).val();
-
-                if (type === 'Transport') {
-                    // Remove red asterisk from State (and other fields if needed)
-                    $('#state').prev('label').find('span').remove(); // Removes <span style="color:red;">*</span>
-                    $('#error-state').text('');
-                } else if (type === 'Buyer') {
-                    // Add it back if needed
-                    if ($('#state').prev('label').find('span').length === 0) {
-                        $('#state').prev('label').append('<span style="color:red;">*</span>');
-                        $('#error-state').text('');
-                    }
-                }
-            });
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('country.index') }}",
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                    } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`);
-                    }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-
-            // get & set party old data in the form input
-            var edit_id = @json($edit_id);
-            let partySearchUrl = "{{ route('party.edit', '__editId__') }}".replace('__editId__',
-                edit_id);
-            $.ajax({
-                type: 'GET',
-                url: partySearchUrl,
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    user_id: " {{ session()->get('user_id') }} "
-                },
-                success: function(response) {
-                    if (response.status == 200) {
-                        data = response.party;
-
-                        // You can update your HTML with the data here if needed
-                        $('#name').val(data.name);
-                        $('#email').val(data.email);
-                        $('#contact_person_name').val(data.contact_person_name);
-                        $('#mobile_1').val(data.mobile_1);
-                        $('#mobile_2').val(data.mobile_2);
-                        $('#pincode').val(data.pincode);
-                        $('#address').val(data.address);
-                        $('#gst_no').val(data.gst_no);
-                        $('#pan').val(data.pan);
-                        if (data.party_type != null) {
-                            $('#party_type').val(data.party_type);
-                        }
-                         if (data.party_type === 'Transport') {
-                        // Remove red asterisk from State (and other fields if needed)
-                            $('#state').prev('label').find('span').remove(); // Removes <span style="color:red;">*</span>
-                            $('#error-state').text('');
-                        } else if (data.party_type === 'Buyer') {
-                            // Add it back if needed
-                            if ($('#state').prev('label').find('span').length === 0) {
-                                $('#state').prev('label').append('<span style="color:red;">*</span>');
-                                $('#error-state').text('');
-                            }
-                        }
-                        country = data.country_id;
-                        state = data.state_id;
-                        city = data.city_id;
-                        if (country != null) {
-                            $('#country').val(country);
-                        }
-                        loadstate(country, state);
-                        loadcity(state, city);
-
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-                    loaderhide();
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
-                }
-            });
-
-
-            //show state data in dropdown
-            function loadstate(country, state) {
-                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
-                    country);
-                $.ajax({
-                    type: 'GET',
-                    url: stateSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#state').append(
-                                    `<option  value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            });
-                            $('#state').val(state);
-                        } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-
-            // show city data in dropdown
-            function loadcity(state, city) {
-                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
-                $.ajax({
-                    type: 'GET',
-                    url: citySearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            $.each(response.city, function(key, value) {
-                                // You can update your HTML with the data here if needed
-                                $('#city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                            if (city == null) {
-                                $('#city').val('');
-                            } else {
-                                $('#city').val(city);
-                            }
-
-                        } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-
-
-            // load state data of selected country when country change
-            $('#country').on('change', function() {
-                loadershow();
-                var country = $(this).val();
-                $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
-                    country);
-                $.ajax({
-                    type: 'GET',
-                    url: stateSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#state').append(
-                                    `<option value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            })
-                        } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`);
-                        }
-                        loaderhide();
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            // load city data of selected state when state change
-            $('#state').on('change', function() {
-                loadershow();
-                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
-                var state = $(this).val();
-                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
-                $.ajax({
-                    type: 'GET',
-                    url: citySearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            $.each(response.city, function(key, value) {
-                                $('#city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                        } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`);
-                        }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            // redirect on party list page on click cancel btn
-            $('#cancelbtn').on('click', function() {
-                loadershow();
-                window.location.href = "{{ route('admin.party') }}";
-            });
-
-            // subimt form
-            $('#partyupdateform').submit(function(event) {
-                event.preventDefault();
-
-                loadershow();
-                $('.error-msg').text('');
-                const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'PUT',
-                    url: "{{ route('party.update', $edit_id) }}",
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });;
-                            window.location.href =
-                                "{{ route('admin.party') }}";
-
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-            })
+    // ── Initialize Select2 ──────────────────────────────────────────
+    function initSelect2(selector, placeholder) {
+        $(selector).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
         });
-    </script>
+    }
+    initSelect2('#party_type', 'Select your Party Type');
+    initSelect2('#country',    'Select your Country');
+    initSelect2('#state',      'Select your State');
+    initSelect2('#city',       'Select your City');
+
+    // ── Asterisk toggle helper ──────────────────────────────────────
+    function toggleStateAsterisk(type) {
+        var $label = $('#state').closest('.col-sm-6').find('label');
+        if (type === 'Transport') {
+            $label.find('span.required-star').remove();
+            $('#error-state').text('');
+        } else if (type === 'Buyer') {
+            if ($label.find('span.required-star').length === 0) {
+                $label.append('<span class="required-star" style="color:red;">*</span>');
+            }
+            $('#error-state').text('');
+        }
+    }
+
+    // ── Party type change ───────────────────────────────────────────
+    $('#party_type').on('change', function () {
+        toggleStateAsterisk($(this).val());
+    });
+
+    // ── Load Countries ──────────────────────────────────────────────
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('country.index') }}",
+        data: { token: "{{ session()->get('api_token') }}" },
+        success: function (response) {
+            if (response.status == 200 && response.country != '') {
+                $.each(response.country, function (key, value) {
+                    var option = new Option(value.country_name, value.id, false, false);
+                    $('#country').append(option);
+                });
+                $('#country').trigger('change'); // refresh Select2
+            } else {
+                $('#country').append('<option disabled>No Data Found</option>').trigger('change');
+            }
+            loadPartyData(); // load edit data AFTER countries are ready
+        },
+        error: function (xhr) { handleAjaxError(xhr); }
+    });
+
+    // ── Load party edit data and pre-fill form ──────────────────────
+    function loadPartyData() {
+        var edit_id = @json($edit_id);
+        var url = "{{ route('party.edit', '__id__') }}".replace('__id__', edit_id);
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: {
+                token: "{{ session()->get('api_token') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                user_id: "{{ session()->get('user_id') }}"
+            },
+            success: function (response) {
+                if (response.status == 200) {
+                    var data = response.party;
+
+                    // Fill plain inputs
+                    $('#name').val(data.name);
+                    $('#email').val(data.email);
+                    $('#contact_person_name').val(data.contact_person_name);
+                    $('#mobile_1').val(data.mobile_1);
+                    $('#mobile_2').val(data.mobile_2);
+                    $('#pincode').val(data.pincode);
+                    $('#address').val(data.address);
+                    $('#gst_no').val(data.gst_no);
+                    $('#pan').val(data.pan);
+
+                    // Set party type + trigger Select2 + toggle asterisk
+                    if (data.party_type) {
+                        $('#party_type').val(data.party_type).trigger('change');
+                        toggleStateAsterisk(data.party_type);
+                    }
+
+                    // Set country + trigger Select2
+                    if (data.country_id) {
+                        $('#country').val(data.country_id).trigger('change');
+                    }
+
+                    // Load states → pre-select state → load cities → pre-select city
+                    loadstate(data.country_id, data.state_id, data.city_id);
+
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message });
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Load States (with optional pre-select for state & city) ─────
+    function loadstate(countryId, selectedStateId = null, selectedCityId = null) {
+        $('#state').html('<option selected disabled value="">Select your State</option>').trigger('change');
+        $('#city').html('<option selected disabled value="">Select your City</option>').trigger('change');
+
+        if (!countryId) return;
+
+        var url = "{{ route('state.search', '__id__') }}".replace('__id__', countryId);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: { token: "{{ session()->get('api_token') }}" },
+            success: function (response) {
+                if (response.status == 200 && response.state != '') {
+                    $.each(response.state, function (key, value) {
+                        var option = new Option(value.state_name, value.id, false, false);
+                        $('#state').append(option);
+                    });
+                    if (selectedStateId) {
+                        $('#state').val(selectedStateId).trigger('change'); // pre-select + refresh Select2
+                        loadcity(selectedStateId, selectedCityId);          // load cities inside callback
+                    } else {
+                        $('#state').trigger('change');
+                    }
+                } else {
+                    $('#state').append('<option disabled>No Data Found</option>').trigger('change');
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Load Cities (with optional pre-select) ──────────────────────
+    function loadcity(stateId, selectedCityId = null) {
+        $('#city').html('<option selected disabled value="">Select your City</option>').trigger('change');
+
+        if (!stateId) return;
+
+        var url = "{{ route('city.search', '__id__') }}".replace('__id__', stateId);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: { token: "{{ session()->get('api_token') }}" },
+            success: function (response) {
+                if (response.status == 200 && response.city != '') {
+                    $.each(response.city, function (key, value) {
+                        var option = new Option(value.city_name, value.id, false, false);
+                        $('#city').append(option);
+                    });
+                    if (selectedCityId) {
+                        $('#city').val(selectedCityId).trigger('change'); // pre-select + refresh Select2
+                    } else {
+                        $('#city').trigger('change');
+                    }
+                } else {
+                    $('#city').append('<option disabled>No Data Found</option>').trigger('change');
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Country change (manual) ─────────────────────────────────────
+    $('#country').on('change', function () {
+        var countryId = $(this).val();
+        if (!countryId) return;
+        loadershow();
+        loadstate(countryId);
+    });
+
+    // ── State change (manual) ───────────────────────────────────────
+    $('#state').on('change', function () {
+        var stateId = $(this).val();
+        if (!stateId) return;
+        loadershow();
+        loadcity(stateId);
+    });
+
+    // ── Cancel button ────────────────────────────────────────────────
+    $('#cancelbtn').on('click', function () {
+        loadershow();
+        window.location.href = "{{ route('admin.party') }}";
+    });
+
+    // ── Form submit ──────────────────────────────────────────────────
+    $('#partyupdateform').submit(function (event) {
+        event.preventDefault();
+        loadershow();
+        $('.error-msg').text('');
+        $.ajax({
+            type: 'PUT',
+            url: "{{ route('party.update', $edit_id) }}",
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.status == 200) {
+                    Toast.fire({ icon: 'success', title: response.message });
+                    window.location.href = "{{ route('admin.party') }}";
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message });
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    });
+
+});
+</script>
 @endpush

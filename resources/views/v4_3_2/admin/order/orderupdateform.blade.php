@@ -506,8 +506,8 @@ $(document).ready(function () {
                     </div>
                     <div>
                         <label class="f-label">Net Kg</label>
-                        <input type="number" step="0.01" class="f-ctrl net-kg" name="net_kg[]"
-                            value="${val('net_kg', 0)}" disabled placeholder="0.00">
+                        <input type="number" step="0.01" class="f-ctrl net-kg calculationfield" name="net_kg[]"
+                            value="${val('net_kg', 0)}"  placeholder="0.00">
                     </div>
                     <div>
                         <label class="f-label">Rate / Kg <span style="color:var(--c-danger)">*</span></label>
@@ -528,6 +528,20 @@ $(document).ready(function () {
 
     function addNewRow(detail) {
         rowCount++;
+        
+        // Get the most recently selected garden for auto-population (only for new rows)
+        let autoSelectGarden = null;
+        
+        if (!detail) {
+            const $lastGardenSelect = $('.garden-select').filter(function() {
+                return $(this).val() && $(this).val() !== 'add_new';
+            }).last();
+            
+            if ($lastGardenSelect.length > 0) {
+                autoSelectGarden = $lastGardenSelect.val();
+            }
+        }
+        
         $('#li-empty').before(buildCard(rowCount, detail || null));
 
         // If detail has pre-selected dropdown values, set them after DOM insert
@@ -554,6 +568,11 @@ $(document).ready(function () {
             allowClear: true,
             search: true
         });
+        
+        // Auto-select the garden if determined (only for new rows, not existing detail rows)
+        if (autoSelectGarden && !detail) {
+            $(`#garden_${rowCount}`).val(autoSelectGarden).trigger('change');
+        }
     }
 
     /* ════════════════════════════════
@@ -561,11 +580,19 @@ $(document).ready(function () {
     ════════════════════════════════ */
     function calculateTotals() {
         let totalNetKg = 0, totalAmount = 0;
-        $('.net-kg').each(function () { totalNetKg += parseFloat($(this).val()) || 0; });
-        $('.amount').each(function ()  { totalAmount += parseFloat($(this).val()) || 0; });
-        const discountPct    = parseFloat($('#discount').val()) || 0;
+
+        $('.net-kg').each(function () {
+            totalNetKg += parseFloat($(this).val()) || 0;
+        });
+
+        $('.amount').each(function () {
+            totalAmount += parseFloat($(this).val()) || 0;
+        });
+
+        const discountPct = parseFloat($('#discount').val()) || 0;
         const discountAmount = (totalAmount * discountPct) / 100;
-        const finalAmount    = totalAmount - discountAmount;
+        const finalAmount = totalAmount - discountAmount;
+
         $('#totalNetKg').text(totalNetKg.toFixed(2));
         $('#totalAmount').text(totalAmount.toFixed(2));
         $('#discountAmount').text(discountAmount.toFixed(2));
@@ -573,22 +600,72 @@ $(document).ready(function () {
         $('#discountBadge').text(discountPct + '%');
     }
 
+
+    // 🔥 MAIN LOGIC
     $(document).on('keyup change', '.calculationfield', function () {
+
         const card = $(this).closest('.order-row-card');
-        const bags   = parseFloat(card.find('.bags').val())  || 0;
-        const kg     = parseFloat(card.find('.kg').val())    || 0;
-        const rate   = parseFloat(card.find('.rate').val())  || 0;
-        const netKg  = bags * kg;
+
+        let bags  = parseFloat(card.find('.bags').val()) || 0;
+        let kg    = parseFloat(card.find('.kg').val()) || 0;
+        let netKg = parseFloat(card.find('.net-kg').val()) || 0;
+        let rate  = parseFloat(card.find('.rate').val()) || 0;
+
+        const isBagsChanged  = $(this).hasClass('bags');
+        const isKgChanged    = $(this).hasClass('kg') && !$(this).hasClass('net-kg');
+        const isNetKgChanged = $(this).hasClass('net-kg');
+
+        // ✅ Core logic
+        if (isNetKgChanged) {
+            if (kg > 0) {
+                bags = netKg / kg;
+            } else if (bags > 0) {
+                kg = netKg / bags;
+            }
+        } 
+        else if (isBagsChanged) {
+            if (kg > 0) {
+                netKg = bags * kg;
+            } else if (netKg > 0 && bags > 0) {
+                kg = netKg / bags;
+            }
+        } 
+        else if (isKgChanged) {
+            if (bags > 0) {
+                netKg = bags * kg;
+            } else if (netKg > 0 && kg > 0) {
+                bags = netKg / kg;
+            }
+        }
+
+        // ✅ Update fields
+        card.find('.bags').val(bags > 0 ? bags.toFixed(0) : '');
+        card.find('.kg').val(kg > 0 ? kg.toFixed(2) : '');
+        card.find('.net-kg').val(netKg > 0 ? netKg.toFixed(2) : '');
+
+        // 💰 Amount
         const amount = netKg * rate;
-        card.find('.net-kg').val(netKg.toFixed(2));
         card.find('.amount').val(amount.toFixed(2));
+
         calculateTotals();
     });
 
     /* ════════════════════════════════
        ADD / REMOVE ROW
     ════════════════════════════════ */
-    $('#addRowBtn').on('click', () => addNewRow(null));
+    $('#addRowBtn').on('click', function() {
+        // Check if first row has garden selected
+        const $firstRowGarden = $('.garden-select').first();
+        if ($firstRowGarden.length > 0 && !$firstRowGarden.val()) {
+            Toast.fire({ 
+                icon: 'warning', 
+                title: 'Please select a garden in the first row before adding new rows.' 
+            });
+            return;
+        }
+        
+        addNewRow(null);
+    });
 
     $(document).on('click', '.remove-row', function () {
         const card = $(this).closest('.order-row-card');
@@ -599,6 +676,13 @@ $(document).ready(function () {
         }).then(result => {
             if (result.isConfirmed) { card.remove(); calculateTotals(); updateRowCount(); }
         });
+    });
+
+    /* ════════════════════════════════
+       GARDEN SELECTION CHANGE VALIDATION
+    ════════════════════════════════ */
+    $(document).on('change', '.garden-select', function () {
+        // No validation needed - user can select any garden in any row
     });
 
     /* ════════════════════════════════
@@ -702,6 +786,11 @@ $(document).ready(function () {
 
                 // Build a card for each existing row
                 order_details.forEach(function (detail) {
+                    $('#credit_days').select2({
+                        placeholder: 'Select Credit Days',
+                        allowClear: true,
+                        width: '100%'
+                    });
                     addNewRow(detail);
                 });
 

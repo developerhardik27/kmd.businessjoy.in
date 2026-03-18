@@ -499,7 +499,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
             <div class="row">
                 <div class="col-sm-6 mb-3">
                     <label class="f-label">Credit Days <span class="req">*</span></label>
-                    <select class="f-ctrl" name="credit_days" id="credit_days">
+                   <select class="f-ctrl credit_days" name="credit_days" id="credit_days">
                         <option value="" disabled selected>Select Day</option>
                         <option value="CD">CD</option>
                         <option value="15">15</option>
@@ -591,7 +591,6 @@ $(document).ready(function () {
     /* ── focus/blur for number fields ── */
     $(document).on('focus', '.calculationfield', function () { if ($(this).val() == '0') $(this).val(''); });
     $(document).on('blur',  '.calculationfield', function () { if ($(this).val() === '') $(this).val('0'); });
-
     /* ════════════════════════════════
        ROW COUNT BADGE
     ════════════════════════════════ */
@@ -606,6 +605,17 @@ $(document).ready(function () {
     ════════════════════════════════ */
     function addNewRow() {
         rowCount++;
+        
+        // Get the most recently selected garden for auto-population
+        let lastSelectedGarden = null;
+        const $lastGardenSelect = $('.garden-select').filter(function() {
+            return $(this).val() && $(this).val() !== 'add_new';
+        }).last();
+        
+        if ($lastGardenSelect.length > 0) {
+            lastSelectedGarden = $lastGardenSelect.val();
+        }
+        
         const card = `
         <div class="order-row-card" id="row_${rowCount}">
             <div class="order-card-head">
@@ -645,7 +655,7 @@ $(document).ready(function () {
                     </div>
                     <div>
                         <label class="f-label">Net Kg</label>
-                        <input type="number" step="0.01" class="f-ctrl net-kg" name="net_kg[]" disabled placeholder="0.00">
+                        <input type="number" step="0.01" class="f-ctrl net-kg calculationfield" name="net_kg[]"  placeholder="0.00">
                     </div>
                     <div>
                         <label class="f-label">Rate / Kg <span style="color:var(--c-danger)">*</span></label>
@@ -680,6 +690,11 @@ $(document).ready(function () {
             allowClear: true,
             search: true
         });
+        
+        // Auto-select the last selected garden if it exists
+        if (lastSelectedGarden) {
+            $(`#row_${rowCount} .garden-select`).val(lastSelectedGarden).trigger('change');
+        }
     }
 
     /* ════════════════════════════════
@@ -687,11 +702,19 @@ $(document).ready(function () {
     ════════════════════════════════ */
     function calculateTotals() {
         let totalNetKg = 0, totalAmount = 0;
-        $('.net-kg').each(function () { totalNetKg += parseFloat($(this).val()) || 0; });
-        $('.amount').each(function ()  { totalAmount += parseFloat($(this).val()) || 0; });
-        const discountPct    = parseFloat($('#discount').val()) || 0;
+
+        $('.net-kg').each(function () {
+            totalNetKg += parseFloat($(this).val()) || 0;
+        });
+
+        $('.amount').each(function () {
+            totalAmount += parseFloat($(this).val()) || 0;
+        });
+
+        const discountPct = parseFloat($('#discount').val()) || 0;
         const discountAmount = (totalAmount * discountPct) / 100;
-        const finalAmount    = totalAmount - discountAmount;
+        const finalAmount = totalAmount - discountAmount;
+
         $('#totalNetKg').text(totalNetKg.toFixed(2));
         $('#totalAmount').text(totalAmount.toFixed(2));
         $('#discountAmount').text(discountAmount.toFixed(2));
@@ -699,22 +722,74 @@ $(document).ready(function () {
         $('#discountBadge').text(discountPct + '%');
     }
 
+
+    // MAIN CALCULATION
     $(document).on('keyup change', '.calculationfield', function () {
+
         const row = $(this).closest('.order-row-card');
-        const bags   = parseFloat(row.find('.bags').val())  || 0;
-        const kg     = parseFloat(row.find('.kg').val())    || 0;
-        const rate   = parseFloat(row.find('.rate').val())  || 0;
-        const netKg  = bags * kg;
+
+        let bags  = parseFloat(row.find('.bags').val()) || 0;
+        let kg    = parseFloat(row.find('.kg').val()) || 0;
+        let netKg = parseFloat(row.find('.net-kg').val()) || 0;
+        let rate  = parseFloat(row.find('.rate').val()) || 0;
+
+        const isBagsChanged  = $(this).hasClass('bags');
+        const isKgChanged    = $(this).hasClass('kg') && !$(this).hasClass('net-kg');
+        const isNetKgChanged = $(this).hasClass('net-kg');
+
+        // 🔥 LOGIC
+        if (isNetKgChanged) {
+            if (kg > 0) {
+                // keep kg fixed → update bags
+                bags = netKg / kg;
+            } else if (bags > 0) {
+                // keep bags fixed → update kg
+                kg = netKg / bags;
+            }
+        } 
+        else if (isBagsChanged) {
+            if (kg > 0) {
+                netKg = bags * kg;
+            } else if (netKg > 0 && bags > 0) {
+                kg = netKg / bags;
+            }
+        } 
+        else if (isKgChanged) {
+            if (bags > 0) {
+                netKg = bags * kg;
+            } else if (netKg > 0 && kg > 0) {
+                bags = netKg / kg;
+            }
+        }
+
+        // ✅ Update fields
+        row.find('.bags').val(bags > 0 ? bags.toFixed(0) : '');
+        row.find('.kg').val(kg > 0 ? kg.toFixed(2) : '');
+        row.find('.net-kg').val(netKg > 0 ? netKg.toFixed(2) : '');
+
+        // 💰 Amount
         const amount = netKg * rate;
-        row.find('.net-kg').val(netKg.toFixed(2));
         row.find('.amount').val(amount.toFixed(2));
+
         calculateTotals();
     });
 
     /* ════════════════════════════════
        ADD / REMOVE ROW
     ════════════════════════════════ */
-    $('#addRowBtn').on('click', addNewRow);
+    $('#addRowBtn').on('click', function() {
+        // Check if first row has garden selected
+        const $firstRowGarden = $('.garden-select').first();
+        if ($firstRowGarden.length > 0 && !$firstRowGarden.val()) {
+            Toast.fire({ 
+                icon: 'warning', 
+                title: 'Please select a garden in the first row before adding new rows.' 
+            });
+            return;
+        }
+        
+        addNewRow();
+    });
 
     $(document).on('click', '.remove-row', function () {
         const card = $(this).closest('.order-row-card');
@@ -734,7 +809,12 @@ $(document).ready(function () {
     $('#modal_cancelBtn').on('click', () => { $('#gardenform')[0].reset(); $('#gardenModal').modal('hide'); });
 
     $(document).on('change', '.garden-select', function () {
-        if ($(this).val() === 'add_new') { $(this).val(''); $('#gardenModal').modal('show'); }
+        // Handle "Add New Garden" option
+        if ($(this).val() === 'add_new') { 
+            $(this).val(''); 
+            $('#gardenModal').modal('show'); 
+            return;
+        }
     });
 
     $('#gardenform').submit(function (e) {
@@ -979,6 +1059,11 @@ $(document).ready(function () {
         loadershow();
         try {
             await Promise.all([ fetchGardens(), fetchGrade(), buyer_party(), transport() ]);
+            $('#credit_days').select2({
+                placeholder: 'Select Credit Days',
+                allowClear: true,
+                width: '100%'
+            });
             addNewRow();
         } catch (e) { handleAjaxError(e); }
         finally { loaderhide(); }

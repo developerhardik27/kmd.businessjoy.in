@@ -33,13 +33,14 @@ class orderController extends commonController
         $this->orderModel = $this->getmodel('order');
         $this->order_detailModel = $this->getmodel('order_detail');
     }
-    public function index(Request $request)
+   public function index(Request $request)
     {
+        // Check user permissions
         if ($this->rp['teamodule']['order']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-
+        // Base query
         $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
@@ -49,6 +50,7 @@ class orderController extends commonController
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('orders.is_deleted', 0);
 
+        // Filters mapping
         $filters = [
             'filter_transport'         => 'orders.transport',
             'filter_buyer'             => 'orders.buyer_party',
@@ -62,12 +64,11 @@ class orderController extends commonController
             'filter_date_to'           => 'orders.created_at',
         ];
 
+        // Apply filters (except invoice status, which is handled later)
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;
 
             if ($value !== null && $value !== '') {
-
-
                 if (in_array($requestKey, [
                     'filter_credit_days_from',
                     'filter_credit_days_to',
@@ -77,15 +78,17 @@ class orderController extends commonController
                     $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->where($column, $operator, $value);
 
-                    // ── Date range ──────────────────────────────────────────────────────────
                 } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
                     $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
                     $order->whereDate($column, $operator, $value);
+
                 } else {
                     $order->whereIn($column, (array) $value);
                 }
             }
         }
+
+        // Company filter
         if (!empty($request->filter_company) && $request->filter_company !== '') {
             $companyIds = (array) $request->filter_company;
 
@@ -93,12 +96,13 @@ class orderController extends commonController
                 $query->select(DB::raw(1))
                     ->from('order_details as od_sub')
                     ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
-                    ->whereColumn('od_sub.order_id', 'orders.id')   // ties subquery to the outer order
+                    ->whereColumn('od_sub.order_id', 'orders.id')
                     ->whereIn('cg_sub.company_id', $companyIds)
                     ->limit(1);
             });
         }
 
+        // Fetch data
         $orderData = $order
             ->select(
                 'orders.id as order_id',
@@ -116,6 +120,17 @@ class orderController extends commonController
             ->groupBy('order_id')
             ->map(function ($details, $orderId) {
                 $first = $details->first();
+
+                // Determine invoice status
+                $invoiceIds = $details->pluck('invoice_id');
+                if ($invoiceIds->every(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Pending';
+                } elseif ($invoiceIds->contains(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Half Invoice';
+                } else {
+                    $invoiceStatus = 'Invoices Created';
+                }
+
                 return [
                     'id'             => $orderId,
                     'buyer_name'     => $first->buyer_name,
@@ -125,21 +140,19 @@ class orderController extends commonController
                     'credit_days'    => $first->credit_days,
                     'final_amount'   => $first->finalAmount,
                     'order_date'     => $first->order_date,
+                    'invoice_status' => $invoiceStatus, // Invoice status included
 
-                    // All unique company names across ALL detail rows of this order
                     'company_names' => $details
                         ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->values()
                         ->implode(', '),
 
-                    // All unique garden names across ALL detail rows of this order
                     'garden_names'   => $details
                         ->filter(fn($item) => !empty($item->garden_name))
                         ->pluck('garden_name', 'garden_id')
                         ->values()
                         ->implode(', '),
 
-                    // All unique invoice numbers
                     'invoice_nos'    => $details
                         ->filter(fn($item) => !empty($item->invoice_no))
                         ->pluck('invoice_no')
@@ -164,6 +177,13 @@ class orderController extends commonController
             })
             ->values();
 
+        // Apply invoice_status filter AFTER grouping
+        if (!empty($request->filter_invoice_status) && $request->filter_invoice_status !== '') {
+            $status = $request->filter_invoice_status;
+            $orderData = $orderData->filter(fn($order) => $order['invoice_status'] === $status)->values();
+        }
+
+        // Return via DataTables
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([

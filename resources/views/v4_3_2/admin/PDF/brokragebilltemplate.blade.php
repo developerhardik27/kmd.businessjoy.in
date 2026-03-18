@@ -541,12 +541,10 @@
                         $totalnetkg = 0;
                         $rowCount = count($usedInvoices);
                         foreach ($usedInvoices as $row) {
-                            $amount = $row->invoice_grand_total ?? 0;
-                            $commission = ($amount * ($row->brokerage ?? 0)) / 100;
-                            $totalnetkg += $row->net_kg ?? 0;
-                            $totalBags += $row->bags ?? 0;
-                            $totalAmount += $amount;
-                            $totalCommission += $commission;
+                            $totalnetkg      += $row['net_kg'] ?? 0;
+                            $totalBags       += $row['bags'] ?? 0;
+                            $totalAmount     += $row['invoice_grand_total'] ?? 0;
+                            $totalCommission += $row['brokerage_total'] ?? 0;
                         }
                         if ($companyStateId && $buyerStateId) {
                             if ($companyStateId == $buyerStateId) {
@@ -570,24 +568,23 @@
                         @forelse ($usedInvoices as $key => $row)
                             <tr>
                                 <td style="text-align:center;">{{ $key + 1 }}</td>
-                                <td style="text-align:center;">{{ $row->garden_name ?? '-' }}</td>
-                                <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
-                                <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
+                                <td style="text-align:center;">{{ $row['garden_names'] ?? '-' }}</td>
+                                <td style="text-align:center;">{{ $row['buyer_name'] ?? '-' }}</td>
+                                <td style="text-align:center;">{{ $row['inv_no'] ?? '-' }}</td>
                                 <td style="text-align:center;">
-                                    {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
+                                    {{ isset($row['inv_date']) ? \Carbon\Carbon::parse($row['inv_date'])->format('d-m-Y') : '-' }}
                                 </td>
-                                <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
-                                <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 3) }}</td>
-                                <td style="text-align:center;">{{ number_format($row->discount ?? 0, 2) }}</td>
+                                <td style="text-align:center;">{{ $row['bags'] ?? 0 }}</td>
+                                <td style="text-align:center;">{{ number_format($row['net_kg'] ?? 0, 3) }}</td>
+                                <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
+                                <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
                                 <td style="text-align:center;">
-                                    {{ number_format($row->invoice_grand_total, 2) }}</td>
-                                <td style="text-align:center;">
-                                    {{ number_format((($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100, 2) }}
+                                    {{ number_format((($row['invoice_grand_total'] ?? 0) * ($row['brokerage'] ?? 0)) / 100, 2) }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" style="text-align:center;">No records found</td>
+                                <td colspan="10" style="text-align:center;">No records found</td>
                             </tr>
                         @endforelse
                         @for ($i = $rowCount; $i < $maxRows; $i++)

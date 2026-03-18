@@ -10,1421 +10,824 @@
 @endsection
 
 @section('style')
-    <style>
-        .ui-widget-header {
-            background: #1518b117 !important;
-            border: 1px solid #e1ded9 !important;
+<style>
+    .ui-widget-header { background: #1518b117 !important; border: 1px solid #e1ded9 !important; }
+    .btn-info { background-color: #253566 !important; border-color: #253566 !important; color: white; }
+    .btn-info:hover { background-color: #39519b !important; color: rgb(255,255,255); }
+    .btn-success { background-color: #67d5a5d9 !important; border-color: var(--iq-success) !important; color: black !important; }
+    .btn-success:hover { background-color: #16d07ffa !important; border-color: var(--iq-success) !important; color: rgb(250,250,250) !important; }
+    .select2-results__options { max-height: 150px !important; overflow-y: auto !important; }
+
+    th, td { white-space: nowrap; }
+    .w-id      { width: 4%  !important; }
+    .w-date    { width: 8%  !important; }
+    .w-company { width: 30% !important; }
+    .w-garden  { width: 30% !important; }
+    .w-invoice { width: 10% !important; }
+    .w-kg      { width: 8%  !important; }
+    .w-broker  { width: 6%  !important; }
+    .w-amount  { width: 10% !important; }
+    .w-status  { width: 6%  !important; }
+    .w-invoice-file { width: 6% !important; }
+    .w-action  { width: 6%  !important; }
+    .w-payment { width: 6%  !important; }
+    table.dataTable thead>tr>th.dt-orderable-asc,
+    table.dataTable thead>tr>th.dt-orderable-desc { padding-right: 0px !important; }
+
+    /* ───────── FILTER BAR ───────── */
+    .filter-bar {
+        background: #fff; border: 1px solid #dde3ef;
+        border-radius: 10px; padding: 14px 18px; margin-bottom: 14px;
+    }
+    .filter-bar-header {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 11px; font-weight: 600; color: #6b7280;
+        text-transform: uppercase; letter-spacing: .05em;
+        margin-bottom: 12px; padding-bottom: 10px;
+        border-bottom: 1px solid #eaecf2;
+    }
+    .filter-bar-inner { display: flex; align-items: flex-end; gap: 10px; }
+
+    /* ───────── SCROLL AREA ───────── */
+    .filter-scroll-area {
+        display: flex; align-items: flex-start; gap: 0;
+        overflow-x: auto; flex: 1; padding-bottom: 4px;
+        scrollbar-width: thin; scrollbar-color: #d1d5db transparent;
+    }
+    .filter-scroll-area::-webkit-scrollbar { height: 4px; }
+    .filter-scroll-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+    /* ───────── FILTER FIELD ───────── */
+    .filter-field {
+        flex: 0 0 170px; min-width: 170px;
+        padding: 10px 12px; box-sizing: border-box;
+        border-right: 1px solid #eaecf2;
+    }
+    .filter-field:first-child { border-radius: 8px 0 0 8px; }
+    .filter-field:last-child  { border-radius: 0 8px 8px 0; border-right: none; }
+
+    /* Range fields wider */
+    .filter-field.range-field { flex: 0 0 260px; min-width: 260px; }
+
+    /* Alternating: odd = white, even = grey */
+    .filter-scroll-area .filter-field:nth-child(odd)  { background-color: #ffffff; }
+    .filter-scroll-area .filter-field:nth-child(even) { background-color: rgba(0,0,0,.04); }
+
+    /* Labels */
+    .filter-field label {
+        display: block; font-size: 10.5px; font-weight: 600;
+        color: #6b7280; text-transform: uppercase;
+        letter-spacing: .05em; margin-bottom: 6px; white-space: nowrap;
+    }
+
+    /* Inputs */
+    .filter-field .form-control {
+        height: 34px; font-size: 13px; border-radius: 6px;
+        border: 1px solid #d1d5db; width: 100%;
+        box-sizing: border-box; background: transparent !important;
+    }
+    .filter-field .form-control:focus {
+        border-color: #3b5bdb;
+        box-shadow: 0 0 0 2px rgba(59,91,219,.1); outline: none;
+    }
+
+    /* Select2 */
+    .filter-field .select2-container { width: 100% !important; }
+    .filter-field .select2-container--default .select2-selection--single {
+        height: 34px !important; border-radius: 6px !important;
+        border: 1px solid #d1d5db !important; background: transparent !important;
+        display: flex !important; align-items: center;
+    }
+    .filter-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important; font-size: 13px !important; padding-left: 10px !important;
+    }
+    .filter-field .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px !important; }
+    .filter-field .select2-container--default .select2-selection--multiple {
+        min-height: 34px !important; height: auto !important;
+        border-radius: 6px !important; border: 1px solid #d1d5db !important;
+        background: transparent !important; padding: 2px 4px !important;
+    }
+    .filter-field .select2-container--default.select2-container--focus .select2-selection--single,
+    .filter-field .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #3b5bdb !important; box-shadow: 0 0 0 2px rgba(59,91,219,.1) !important;
+    }
+    .filter-field .select2-selection__choice {
+        background: #3b5bdb !important; border: none !important; color: #fff !important;
+        border-radius: 5px !important; font-size: 12px !important;
+        padding: 2px 8px !important; margin: 2px !important;
+    }
+    .filter-field .select2-selection__choice__remove { color: #fff !important; margin-right: 4px !important; }
+
+    /* ───────── RANGE GROUP ───────── */
+    .range-group { display: flex; gap: 6px; align-items: center; }
+    .range-item { flex: 1; min-width: 0; }
+    .range-item input.form-control {
+        width: 100% !important; height: 34px; font-size: 12px;
+        padding: 4px 6px; box-sizing: border-box; min-width: 0; background: transparent !important;
+    }
+    .range-sep { font-size: 12px; color: #9ca3af; flex-shrink: 0; }
+
+    /* ───────── ACTION BUTTONS ───────── */
+    .filter-actions-fixed {
+        flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px;
+        padding-left: 12px; border-left: 1px solid #eaecf2;
+    }
+    .filter-actions-fixed .btn {
+        height: 34px; font-size: 12.5px; font-weight: 600; border-radius: 7px;
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 5px; white-space: nowrap; width: 90px; margin: 0;
+    }
+
+    /* ───────── ACTION BAR ───────── */
+    .action-bar {
+        display: flex; align-items: center;
+        gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .action-bar .btn {
+        height: 32px; font-size: 12.5px; font-weight: 600; border-radius: 7px;
+        display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+
+    /* ───────── MOBILE ───────── */
+    @media (max-width: 576px) {
+        .filter-bar-inner { flex-direction: column; align-items: stretch; }
+        .filter-scroll-area { flex-direction: column; overflow-x: visible; gap: 6px; }
+        .filter-field{
+            flex: 1 1 100%; min-width: 100%;
+            border-right: none; border-radius: 8px !important;
+            border-bottom: 1px solid #eaecf2;
+        }
+        .filter-field{
+            flex: 1 1 100%; min-width: 100%;
+            border-right: none; border-radius: 8px !important;
+            border-bottom: 1px solid #eaecf2;
+        }
+        .filter-field .select2-container { width: 100% !important; }
+          .range-group {
+            gap: 6px;
         }
 
-        .btn-info {
-            background-color: #253566 !important;
-            border-color: #253566 !important;
-            color: white;
+        .range-sep {
+            display: none; /* hide the dash on mobile */
         }
 
-        .btn-info:hover {
-            background-color: #39519b !important;
-            color: rgb(255, 255, 255);
+        .range-item input.form-control {
+            width: 100%; /* full width */
         }
 
-        .btn-success {
-            background-color: #67d5a5d9 !important;
-            border-color: var(--iq-success) !important;
-            color: black !important;
+        /* Adjust filter-field for mobile */
+        .filter-field.range-field {
+            flex: 1 1 100%;
+            min-width: 100%;
+            max-width: 100%;
+            border-radius: 8px !important;
+            border-bottom: 1px solid #eaecf2;
         }
-
-        .btn-success:hover {
-            background-color: #16d07ffa !important;
-            border-color: var(--iq-success) !important;
-            color: rgb(250, 250, 250) !important;
+        .filter-field .select2-container { width: 100% !important; }
+        .filter-actions-fixed {
+            flex-direction: row; border-left: none;
+            border-top: 1px solid #eaecf2; padding-left: 0; padding-top: 10px;
         }
-
-        .select2-results__options {
-            max-height: 150px !important;
-            overflow-y: auto !important;
-        }
-
-        th,
-        td {
-            white-space: nowrap;
-        }
-
-        /* Column widths */
-
-        .w-id {
-            width: 4% !important;
-        }
-
-        .w-date {
-            width: 8% !important;
-        }
-
-        .w-company {
-            width: 30% !important;
-        }
-
-        table.dataTable thead>tr>th.dt-orderable-asc,
-        table.dataTable thead>tr>th.dt-orderable-desc {
-            padding-right: 0px !important;
-        }
-
-        .w-garden {
-            width: 30% !important;
-        }
-
-        .w-invoice {
-            width: 10% !important;
-        }
-
-        .w-kg {
-            width: 8% !important;
-        }
-
-        .w-broker {
-            width: 6% !important;
-        }
-
-        .w-amount {
-            width: 10% !important;
-        }
-
-        .w-status {
-            width: 6% !important;
-        }
-
-        .w-invoice-file {
-            width: 6% !important;
-        }
-
-        .w-action {
-            width: 6% !important;
-        }
-
-        .w-payment {
-            width: 6% !important;
-        }
-    </style>
+        .filter-actions-fixed .btn { flex: 1; width: auto; }
+        .action-bar { flex-direction: column; align-items: stretch; }
+        .action-bar .btn { justify-content: center; font-size: 12px; }
+    }
+</style>
 @endsection
-@section('advancefilter')
-    <div class="col-sm-12 text-right px-4">
-        <button class="btn btn-sm btn-primary m-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Filters"
-            onclick="showOffCannvas()">
-            <i class="ri-filter-line"></i>
-        </button>
-    </div>
-@endsection
-@section('sidebar-filters')
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6>Garden</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_garden" class="form-label mt-1">Garden</label>
-                        <select name="filter_garden" class="filter form-control w-100 select2" id="filter_garden" multiple>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6>Company</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_company" class="form-label mt-1">Company</label>
-                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company">
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6>Buyer</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_buyer" class="form-label mt-1">Buyer</label>
-                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer">
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            <h6>Date</h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-6 mb-1">
-                    <label for="filter_date_from">From</label>
-                    <input type="date" class="form-control filter" name="filter_date_from" id="filter_date_from"
-                        placeholder="From Date">
-                </div>
-                <div class="col-6 mb-1">
-                    <label for="filter_date_to">To</label>
-                    <input type="date" class="form-control filter" name="filter_date_to" id="filter_date_to"
-                        placeholder="To Date">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6>Payment</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_payment_status" class="form-label mt-1">Payment Status</label>
-                        <select name="filter_payment_status" class="filter form-control w-100 select2"
-                            id="filter_payment_status" multiple>
-                            <option value="pending">Pending </option>
-                            <option value="paid">Paid</option>
-                            <option value="part_payment">Part Payment</option>
-                            <option value="cancel">Cancel </option>
-                            <option value="due"> Over Due</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+
 @section('table-content')
-    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report" class="btn btn-sm btn-primary"
-        id="pdfBtn">
-        <span id="pdf-data">Generate Report</span>
-    </button>
-    <table id="data" class="table display table-bordered table-striped w-100">
-        <thead>
-            <tr>
-                <th class="w-id">Id</th>
-                <th class="w-date">Invoice <br> Date</th>
-                <th class="w-company">Company Name</th>
-                <th class="w-garden">Garden Name</th>
-                <th class="w-garden">Buyer <br>Name</th>
-                <th class="w-invoice">Invoice No</th>
-                <th class="w-kg">Total <br> Net Kg</th>
-                <th class="w-broker">Brokr <br>age (%)</th>
-                <th class="w-amount">Total <br> Amount</th>
-                <th class="w-status">Status</th>
-                <th class="w-invoice-file">Inv</th>
-                <th class="w-action">Action</th>
-                <th class="w-payment">Payment</th>
-            </tr>
-        </thead>
-        <tbody id="tabledata">
 
-        </tbody>
-    </table>
-    <div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewpaymentmodalTitle"><b>Payment</b></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="paymentform">
-                    <div class="modal-body">
-                        @csrf
-                        <div class="payment_details">
-                            <input type="hidden" name="user_id" class="form-control" value="{{ session('user_id') }}"
-                                required />
-                            <input type="hidden" name="company_id" class="form-control"
-                                value="{{ session('company_id') }}" required />
-                            <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
-                                placeholder="token" required />
-                            <input type="hidden" name="inv_id" id="inv_id">
-                            <label for="transid">Transaction ID</label>
-                            <input type="text" name="transid" class="form-control" id="transid"
-                                placeholder="Transaction id" />
-                            <p class="modal_error-msg mb-1" id="error-transid" style="color: red"></p>
-                            <label for="payment_date">Payment Date</label>
-                            <input type="date" name="payment_date" class="form-control" id="payment_date" required />
-                            <p class="modal_error-msg mb-1" id="error-payment_date" style="color: red"></p>
-                            Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
-                            &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info"
-                                id="info-total_received_amount">0</span><br>
-                            <label for="paidamount">New Amount</label>
-                            <input type="number" name="paidamount" class="form-control" id="paidamount"
-                                placeholder="New Amount" required />
-                            <p class="modal_error-msg mb-1" id="error-paidamount" style="color: red"></p>
-                            Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
-                            <label for="paid_by">Paid By</label>
-                            <input type="text" name="paid_by" class="form-control" id="paid_by"
-                                placeholder="Who Paid Amount" />
-                            <p class="modal_error-msg mb-1" id="error-paid_by" style="color: red"></p>
-                            <label for="payment_type">How They Paid</label>
-                            <select class="form-control" name="payment_type" id="payment_type">
-                                <option selected="" disabled="">Select Payment Type</option>
-                                <option value="Online Payment">Online Payment</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Check">Check</option>
-                            </select>
-                            <p class="modal_error-msg mb-1" id="error-payment_type" style="color: red"></p>
-                        </div>
-                        <div class="tds_details">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="tds_applicable"
-                                    id="tds_applicable">
-                                <label class="form-check-label" for="tds_applicable">
-                                    TDS Applicable
-                                </label>
-                                <p class="modal_error-msg mb-1" id="error-tds_applicable" style="color: red"></p>
-                            </div>
-                            <div class="tds_inputs" style="display: none">
-                                <hr>
-                                <label for="tds_amount">TDS Amount</label>
-                                <input type="number" name="tds_amount" class="form-control" id="tds_amount"
-                                    placeholder="TDS Amount" />
-                                <p class="modal_error-msg mb-1" id="error-tds_amount" style="color: red"></p>
-                                Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
-                                <label for="challan_no">Challan No</label>
-                                <input type="text" name="challan_no" class="form-control" id="challan_no"
-                                    placeholder="Challan No" />
-                                <p class="modal_error-msg mb-1" id="error-challan_no" style="color: red"></p>
-                                <label for="status">Status</label>
-                                <select class="form-control" name="status" id="status">
-                                    <option selected="" disabled="">Select Status</option>
-                                    <option value="Recorded">Recorded</option>
-                                    <option value="Mapped to Challan">Mapped to Challan</option>
-                                    <option value="Filed in Return">Filed in Return</option>
-                                    <option value="Reconciled (matches 26AS)"> Reconciled (matches 26AS)</option>
-                                </select>
-                                <p class="modal_error-msg mb-1" id="error-status" style="color: red"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="" class="btn btn-primary">Submit</button>
-                        <button type="reset" class="btn iq-bg-danger">Reset</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </form>
+{{-- ── Filter Bar ── --}}
+<div class="filter-bar">
+    <div class="filter-bar-header">
+        <i class="ri-filter-3-line"></i> Filters
+    </div>
+    <div class="filter-bar-inner">
+
+        <div class="filter-scroll-area">
+
+            <div class="filter-field">
+                <label>Garden</label>
+                <select name="filter_garden" class="filter form-control select2" id="filter_garden" multiple></select>
             </div>
+
+            <div class="filter-field">
+                <label>Company</label>
+                <select name="filter_company" class="filter form-control select2" id="filter_company">
+                    <option value=""></option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Buyer</label>
+                <select name="filter_buyer" class="filter form-control select2" id="filter_buyer">
+                    <option value=""></option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Payment Status</label>
+                <select name="filter_payment_status" class="filter form-control select2" id="filter_payment_status" multiple>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="part_payment">Part Payment</option>
+                    <option value="cancel">Cancel</option>
+                    <option value="due">Over Due</option>
+                </select>
+            </div>
+
+            <div class="filter-field range-field">
+                <label>Created Date From <span class="m-1"></span> Created Date To</label>
+
+                <div class="range-group">
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" name="filter_date_from" id="filter_date_from">
+                    </div>
+                    <span class="range-sep">—</span>
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" name="filter_date_to" id="filter_date_to">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="filter-actions-fixed">
+            <button class="btn btn-primary applyfilters">
+                <i class="ri-filter-line"></i> Apply
+            </button>
+            <button class="btn btn-outline-secondary removefilters">
+                <i class="ri-close-line"></i> Clear
+            </button>
+        </div>
+
+    </div>
+</div>
+
+{{-- ── Action Bar ── --}}
+<div class="action-bar">
+    <button class="btn btn-primary" id="pdfBtn">
+        <i class="ri-file-chart-line"></i> Generate Report
+    </button>
+</div>
+
+<table id="data" class="table display table-bordered table-striped w-100">
+    <thead>
+        <tr>
+            <th class="w-id">Id</th>
+            <th class="w-date">Invoice <br> Date</th>
+            <th class="w-company">Company Name</th>
+            <th class="w-garden">Garden Name</th>
+            <th class="w-garden">Buyer <br>Name</th>
+            <th class="w-invoice">Invoice No</th>
+            <th class="w-kg">Total <br> Net Kg</th>
+            <th class="w-broker">Brokr <br>age (%)</th>
+            <th class="w-amount">Total <br> Amount</th>
+            <th class="w-status">Status</th>
+            <th class="w-invoice-file">Inv</th>
+            <th class="w-action">Action</th>
+            <th class="w-payment">Payment</th>
+        </tr>
+    </thead>
+    <tbody id="tabledata"></tbody>
+</table>
+
+{{-- ── Payment Modal ── --}}
+<div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewpaymentmodalTitle"><b>Payment</b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="paymentform">
+                <div class="modal-body">
+                    @csrf
+                    <div class="payment_details">
+                        <input type="hidden" name="user_id"    class="form-control" value="{{ session('user_id') }}"    required />
+                        <input type="hidden" name="company_id" class="form-control" value="{{ session('company_id') }}" required />
+                        <input type="hidden" name="token"      class="form-control" value="{{ session('api_token') }}"  required />
+                        <input type="hidden" name="inv_id" id="inv_id">
+                        <label for="transid">Transaction ID</label>
+                        <input type="text" name="transid" class="form-control" id="transid" placeholder="Transaction id" />
+                        <p class="modal_error-msg mb-1" id="error-transid" style="color:red;"></p>
+                        <label for="payment_date">Payment Date</label>
+                        <input type="date" name="payment_date" class="form-control" id="payment_date" required />
+                        <p class="modal_error-msg mb-1" id="error-payment_date" style="color:red;"></p>
+                        Total Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_amount">0</span>,
+                        &nbsp;Received Amount :-&nbsp;<span class="mb-1 text-info" id="info-total_received_amount">0</span><br>
+                        <label for="paidamount">New Amount</label>
+                        <input type="number" name="paidamount" class="form-control" id="paidamount" placeholder="New Amount" required />
+                        <p class="modal_error-msg mb-1" id="error-paidamount" style="color:red;"></p>
+                        Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
+                        <label for="paid_by">Paid By</label>
+                        <input type="text" name="paid_by" class="form-control" id="paid_by" placeholder="Who Paid Amount" />
+                        <p class="modal_error-msg mb-1" id="error-paid_by" style="color:red;"></p>
+                        <label for="payment_type">How They Paid</label>
+                        <select class="form-control" name="payment_type" id="payment_type">
+                            <option selected disabled>Select Payment Type</option>
+                            <option value="Online Payment">Online Payment</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Check">Check</option>
+                        </select>
+                        <p class="modal_error-msg mb-1" id="error-payment_type" style="color:red;"></p>
+                    </div>
+                    <div class="tds_details">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" name="tds_applicable" id="tds_applicable">
+                            <label class="form-check-label" for="tds_applicable">TDS Applicable</label>
+                            <p class="modal_error-msg mb-1" id="error-tds_applicable" style="color:red;"></p>
+                        </div>
+                        <div class="tds_inputs" style="display:none;">
+                            <hr>
+                            <label for="tds_amount">TDS Amount</label>
+                            <input type="number" name="tds_amount" class="form-control" id="tds_amount" placeholder="TDS Amount" />
+                            <p class="modal_error-msg mb-1" id="error-tds_amount" style="color:red;"></p>
+                            Pending Amount :-&nbsp;<span class="mb-1 text-info info-pending_amount">0</span><br>
+                            <label for="challan_no">Challan No</label>
+                            <input type="text" name="challan_no" class="form-control" id="challan_no" placeholder="Challan No" />
+                            <p class="modal_error-msg mb-1" id="error-challan_no" style="color:red;"></p>
+                            <label for="status">Status</label>
+                            <select class="form-control" name="status" id="status">
+                                <option selected disabled>Select Status</option>
+                                <option value="Recorded">Recorded</option>
+                                <option value="Mapped to Challan">Mapped to Challan</option>
+                                <option value="Filed in Return">Filed in Return</option>
+                                <option value="Reconciled (matches 26AS)">Reconciled (matches 26AS)</option>
+                            </select>
+                            <p class="modal_error-msg mb-1" id="error-status" style="color:red;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="reset"  class="btn iq-bg-danger">Reset</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
 @endsection
 
 @push('ajax')
-    <script>
-        $('document').ready(function() {
+<script>
+$('document').ready(function () {
 
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
-            let getgardenname = [];
-            let getcompanyname = [];
-            let getbuyername = [];
-            var global_response = '';
-            $('#filter_payment_status').select2({
-                placeholder: "Select Payment Status",
-                allowClear: true,
-                width: '100%' // ensures it uses full width
+    const API_TOKEN  = "{{ session()->get('api_token') }}";
+    const COMPANY_ID = "{{ session()->get('company_id') }}";
+    const USER_ID    = "{{ session()->get('user_id') }}";
+
+    let getgardenname = [], getcompanyname = [], getbuyername = [];
+    var global_response = '';
+
+    /* ── Shared fetch helper ── */
+    function fetchData(url) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET', url,
+                data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
+                success: r => { loaderhide(); resolve(r); },
+                error: xhr => { loaderhide(); handleAjaxError(xhr); reject(xhr); }
             });
+        });
+    }
 
-            function getCompanyData() {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('companymaster.index') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            handleAjaxError(xhr);
-                            reject(xhr);
-                        }
-                    });
-                });
-            }
-             function getBuyerData() {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('buyer.index') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            handleAjaxError(xhr);
-                            reject(xhr);
-                        }
-                    });
-                });
-            }
-            function getGardenData() {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ route('garden.index') }}",
-                        data: {
-                            user_id: "{{ session()->get('user_id') }}",
-                            company_id: "{{ session()->get('company_id') }}",
-                            token: "{{ session()->get('api_token') }}"
-                        },
-                        success: function(response) {
-                            loaderhide();
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) { // if calling api request error 
-                            loaderhide();
-                            console.log(xhr
-                                .responseText); // Log the full error response for debugging
-                            handleAjaxError(xhr);
-                            reject(xhr);
-                        }
-                    });
-                });
-            }
+    /* ── Init Select2 helpers ── */
+    function initSingleSelect2(selector, placeholder) {
+        $(selector).select2({ placeholder, allowClear: true, width: '100%' });
+    }
+    function initMultiSelect2(selector, placeholder) {
+        $(selector).select2({ placeholder, allowClear: true, width: '100%' });
+    }
 
-            function loadFilters() {
-                return new Promise((resolve, reject) => {
-                    var filterData = JSON.parse(sessionStorage.getItem('filterData'));
-                    if (filterData) {
-                        $.each(filterData, function(key, value) {
-                            if (value != ' ') {
-                                $('#' + key).val(value); // Removed `, true`
+    /* ── Payment Status pre-init ── */
+    initMultiSelect2('#filter_payment_status', 'Select Payment Status');
+
+    /* ── Load saved filters ── */
+    function loadFilters() {
+        return new Promise(resolve => {
+            var fd = JSON.parse(sessionStorage.getItem('filterData'));
+            if (fd) {
+                $.each(fd, function (k, v) { if (v != ' ') $('#' + k).val(v); });
+                $('#filter_company, #filter_buyer, #filter_garden').trigger('change');
+                loaddata();
+                sessionStorage.removeItem('filterData');
+                loaderhide();
+            } else {
+                loaddata();
+            }
+            resolve();
+        });
+    }
+
+    /* ── Initialize all filters ── */
+    async function initialize() {
+        try {
+            const [gardenRes, companyRes, buyerRes] = await Promise.all([
+                fetchData("{{ route('garden.index') }}"),
+                fetchData("{{ route('companymaster.index') }}"),
+                fetchData("{{ route('buyer.index') }}")
+            ]);
+
+            // Garden
+            if (gardenRes.status == 200 && gardenRes.data.length) {
+                gardenRes.data.forEach(v => {
+                    getgardenname.push(v.garden_name);
+                    $('#filter_garden').append(`<option value="${v.id}">${v.garden_name} - ${v.company_name}</option>`);
+                });
+            }
+            initMultiSelect2('#filter_garden', 'Select Garden');
+
+            // Company
+            if (companyRes.status == 200 && companyRes.data.length) {
+                companyRes.data.forEach(v => {
+                    getcompanyname.push(v.company_name);
+                    $('#filter_company').append(`<option value="${v.id}">${v.company_name}</option>`);
+                });
+            }
+            initSingleSelect2('#filter_company', 'Select Company');
+
+            // Buyer
+            if (buyerRes.status == 200 && buyerRes.data.length) {
+                buyerRes.data.forEach(v => {
+                    getbuyername.push(v.name);
+                    $('#filter_buyer').append(`<option value="${v.id}">${v.name}</option>`);
+                });
+            }
+            initSingleSelect2('#filter_buyer', 'Select Buyer');
+
+            loaderhide();
+            await loadFilters();
+
+        } catch (e) {
+            console.error(e);
+            Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
+            loaderhide();
+        }
+    }
+
+    initialize();
+
+    /* ── DataTable ── */
+    let table = '';
+
+    function loaddata() {
+        loadershow();
+        table = $('#data').DataTable({
+            language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
+            destroy: true, responsive: true, processing: true, serverSide: true,
+            ajax: {
+                type: 'GET', url: "{{ route('brokeragebill.brokeragebillpdflist') }}",
+                data: function (d) {
+                    d.user_id               = USER_ID;
+                    d.company_id            = COMPANY_ID;
+                    d.token                 = API_TOKEN;
+                    d.filter_payment_status = $('#filter_payment_status').val();
+                    d.filter_garden         = $('#filter_garden').val();
+                    d.filter_company        = $('#filter_company').val();
+                    d.filter_buyer          = $('#filter_buyer').val();
+                    d.filter_date_from      = $('#filter_date_from').val();
+                    d.filter_date_to        = $('#filter_date_to').val();
+                },
+                dataSrc: function (json) {
+                    $('#pdfBtn').removeClass('d-none');
+                    if (json.message) { Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' }); $('#pdfBtn').addClass('d-none'); }
+                    global_response = json;
+                    return json.data;
+                },
+                complete: () => loaderhide(),
+                error: xhr => { global_response = ''; console.log(xhr.responseText); Toast.fire({ icon: 'error', title: 'Error loading data' }); }
+            },
+            order: [[0, 'desc']],
+            columns: [
+                { data: 'id',           name: 'id',           orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'invoice_date', name: 'invoice_date', orderable: true,  searchable: true,  defaultContent: '-' },
+                {
+                    data: 'company_name', name: 'company_name', orderable: true, searchable: true, defaultContent: '-',
+                    render: d => { if (!d) return '-'; let s = d.length > 50 ? d.substring(0,50)+'...' : d; return `<span data-toggle="tooltip" data-original-title="${d}">${s}</span>`; }
+                },
+                {
+                    data: 'garden_names', name: 'garden_names', orderable: true, searchable: true, defaultContent: '-',
+                    render: d => { if (!d) return '-'; let s = d.length > 50 ? d.substring(0,50)+'...' : d; return `<span data-toggle="tooltip" data-original-title="${d}">${s}</span>`; }
+                },
+                {
+                    data: 'buyer_names', name: 'buyer_names', orderable: true, searchable: true, defaultContent: '-',
+                    render: d => { if (!d) return '-'; let s = d.length > 50 ? d.substring(0,50)+'...' : d; return `<span data-toggle="tooltip" data-original-title="${d}">${s}</span>`; }
+                },
+                { data: 'invoice_no',  name: 'invoice_no',  orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'net_kg',      name: 'net_kg',      orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'brokerage',   name: 'brokerage',   orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'grand_total', name: 'grand_total', orderable: true,  searchable: true,  defaultContent: '-' },
+                {
+                    data: 'status', name: 'status', orderable: true, searchable: true, defaultContent: '-',
+                    render: function (data, type, row) {
+                        let actions = '-';
+                        @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
+                            let options = '';
+                            if (row.part_payment == 1 && row.pending_amount != 0) {
+                                options = `<option value='part_payment' ${row.status=="part_payment"?'selected':''}>Part Payment</option>
+                                    <option value='paid' ${row.status=="paid"?'selected':''} disabled>Paid</option>
+                                    <option value='pending' ${row.status=="pending"?'selected':''} disabled>Pending</option>`;
                             }
-                        });
-
-                        // Trigger change event to ensure multiselect UI updates
-                        $('#filter_company,#filter_buyer, #filter_garden')
-                            .trigger('change');
-
-                        loaddata();
-
-
-                        sessionStorage.removeItem('filterData');
-                        loaderhide();
-                        resolve(); // Resolve the promise here after all actions
-                    } else {
-                        // If no filter data, resolve immediately
-                        resolve();
-                        loaddata();
+                            if (row.pending_amount == 0) {
+                                options = `<option value='part_payment' ${row.status=="part_payment"?'selected':''} disabled>Part Payment</option>
+                                    <option value='paid' ${row.status=="paid"?'selected':''}>Paid</option>
+                                    <option value='pending' ${row.status=="pending"?'selected':''} disabled>Pending</option>`;
+                            }
+                            if (row.part_payment != 1 && row.part_payment != 0) {
+                                options = `<option value='part_payment' ${row.status=="part_payment"?'selected':''} disabled>Part Payment</option>
+                                    <option value='paid' ${row.status=="paid"?'selected':''} disabled>Paid</option>
+                                    <option value='pending' ${row.status=="pending"?'selected':''}>Pending</option>`;
+                            }
+                            actions = `<select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" required>
+                                ${options}
+                                <option value='cancel' ${row.status=="cancel"?'selected':''}>Cancel</option>
+                                <option value='due' ${row.status=="due"?'selected':''}>Over Due</option>
+                            </select>`;
+                        @endif
+                        return actions;
                     }
-                });
-            }
-            async function initialize() {
-                try {
-                    // Perform AJAX calls concurrently
-                    const [
-                        getGardenDataresponse, getCompanyDataresponse,getBuyerDataresponse
-                    ] = await Promise.all([
-                        getGardenData(),
-                        getCompanyData(),
-                        getBuyerData(),
-                    ]);
-                      if (getBuyerDataresponse.status == 200 && getBuyerDataresponse.data != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(getBuyerDataresponse.data, function(key, value) {
-                            var buyerId = value.id;
-                            var optionValue = value.name;
-                            getbuyername.push(optionValue);
-                            $('#filter_buyer').append(
-                                `<option value="${buyerId}">${optionValue}</option>`
-                            );
-                        });
-                        $('#filter_buyer').val('');
-                        $('#filter_buyer').select2({
-                            search: true,
-                            placeholder: 'Select Buyer',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    } else if (getBuyerDataresponse.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: getBuyerDataresponse.message
-                        });
-                    } else {
-                        $('#filter_buyer').val('');
-                        $('#filter_buyer').select2({
-                            search: true,
-                            placeholder: 'No buyer found',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
+                },
+                {
+                    data: 'id', name: 'id', orderable: false, searchable: false,
+                    render: (data) => {
+                        let btns = '';
+                        @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
+                            let url = "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}".replace('__gardenId__', data);
+                            btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
+                                <a href="${url}" target="_blank">
+                                    <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0"><i class="ri-download-line"></i></button>
+                                </a></span>`;
+                        @endif
+                        return btns;
                     }
-                    // this getGardenData response
-                    if (getGardenDataresponse.status == 200 && getGardenDataresponse.data != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(getGardenDataresponse.data, function(key, value) {
-                            var garderId = value.id;
-                            var optionValue = value.garden_name + ' - ' + value.company_name;
-                            getgardenname.push(optionValue);
-                            $('#filter_garden').append(
-                                `<option value="${garderId}">${optionValue}</option>`
-                            );
-                        });
-                        $('#filter_garden').val('');
-                        $('#filter_garden').select2({
-                            search: true,
-                            placeholder: 'Select Garden',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    } else if (getGardenDataresponse.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: getGardenDataresponse.message
-                        });
-                    } else {
-                        $('#filter_garden').val('');
-                        $('#filter_garden').select2({
-                            search: true,
-                            placeholder: 'No garden found',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
+                },
+                {
+                    data: 'id', name: 'id', orderable: false, searchable: false,
+                    render: (data, type, row) => `<span>
+                        <button type="button" data-id="${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice"
+                            class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                            <i class="ri-delete-bin-fill"></i></button></span>`
+                },
+                {
+                    data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
+                    render: function (data, type, row) {
+                        let receiptAllUrl = "{{ route('invoice.brokerBillgeneraterecieptall', '__invoiceId__') }}".replace('__invoiceId__', row.id);
+                        let actions = '';
+                        if (row.status != 'paid') {
+                            actions += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
+                                <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id="${row.id}"
+                                    class="btn btn-sm btn-primary m-0 paymentformmodal"><i class="ri-paypal-fill"></i></button></span>`;
+                        }
+                        if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
+                            actions += `<span><a href="${receiptAllUrl}" target="_blank">
+                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"
+                                    class="reciept-btn btn btn-primary btn-rounded btn-sm m-0"><i class="ri-download-line"></i></button></a></span>`;
+                        }
+                        if (row.part_payment == 1) {
+                            actions += `<span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept">
+                                <button data-id="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable"
+                                    class="btn btn-sm btn-info my-0 viewpayment"><i class="ri-eye-fill"></i></button></span>`;
+                        }
+                        if (row.part_payment == 0 && row.status == 'paid') {
+                            actions += `<span><a href="${receiptAllUrl}" target="_blank">
+                                <button class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip"
+                                    data-placement="bottom" data-original-title="Download Single Receipt"><i class="ri-download-line"></i></button></a></span>
+                                <span data-toggle="tooltip" data-placement="right" data-original-title="Delete Payment Entry">
+                                <button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn">
+                                    <i class="ri-delete-bin-line"></i></button></span>`;
+                        }
+                        return actions;
                     }
-                    // this getBuyerData response
-                    if (getCompanyDataresponse.status == 200 && getCompanyDataresponse.data != '') {
-                        // You can update your HTML with the data here if needed     
-                        $.each(getCompanyDataresponse.data, function(key, value) {
-                            var companyId = value.id;
-                            var optionValue = value.company_name;
-                            getcompanyname.push(optionValue);
-                            $('#filter_company').append(
-                                `<option value="${companyId}">${optionValue}</option>`
-                            );
-                        });
-                        $('#filter_company').val('');
-                        $('#filter_company').select2({
-                            search: true,
-                            placeholder: 'Select Company',
-                            allowClear: true
-                        });
-                    } else if (getCompanyDataresponse.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    } else {
-                        $('#filter_company').val('');
-                        $('#filter_company').select2({
-                            search: true,
-                            placeholder: 'No company found',
-                            allowClear: true // Optional: adds "clear" (x) button
-                        });
-                    }
-                    loaderhide();
-                    await loadFilters();
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: "error",
-                        title: "An error occurred while initializing"
-                    });
-                    loaderhide();
                 }
-            }
-
-            initialize();
-            // function for  get brokerpurchases data and set it into datatable
-            function loaddata() {
-                table = $('#data').DataTable({
-                    language: {
-                        lengthMenu: '_MENU_ &nbsp;Entries per page'
-                    },
-                    destroy: true, // allows re-initialization
-                    responsive: true,
-                    processing: true,
-                    serverSide: true,
-                    ajax: {
-                        type: "GET",
-                        url: "{{ route('brokeragebill.brokeragebillpdflist') }}",
-                        data: function(d) {
-                            d.user_id = "{{ session()->get('user_id') }}";
-                            d.company_id = "{{ session()->get('company_id') }}";
-                            d.token = "{{ session()->get('api_token') }}";
-                            d.filter_payment_status = $('#filter_payment_status').val();
-                            d.filter_garden = $('#filter_garden').val();
-                            d.filter_company = $('#filter_company').val();
-                            d.filter_buyer = $('#filter_buyer').val();
-                            d.filter_date_from = $('#filter_date_from').val();
-                            d.filter_date_to = $('#filter_date_to').val();
-                        },
-                        dataSrc: function(json) {
-                            $("#pdfBtn").removeClass('d-none');
-                            if (json.message) {
-                                Toast.fire({
-                                    icon: "error",
-                                    title: json.message || 'Something went wrong!'
-                                })
-                                $("#pdfBtn").addClass('d-none');
-                            }
-
-                            global_response = json;
-
-                            return json.data;
-                        },
-                        complete: function() {
-                            loaderhide();
-                        },
-                        error: function(xhr) {
-                            global_response = '';
-                            console.log(xhr.responseText);
-                            Toast.fire({
-                                icon: "error",
-                                title: "Error loading data"
-                            });
-                        }
-                    },
-                    order: [
-                        [0, 'desc']
-                    ],
-                    columns: [{
-                            data: 'id',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'id'
-                        },
-                        {
-                            data: 'invoice_date',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'invoice_date'
-                        },
-                        {
-                            data: 'company_name',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'company_name',
-                            render: function(data, type, row) {
-                                if (!data) return '-';
-
-                                let maxLength = 50; // 15 characters
-                                let shortText = data.length > maxLength ? data.substring(0,
-                                    maxLength) + '...' : data;
-
-                                return '<span data-toggle="tooltip" data-original-title="' + data +
-                                    '">' + shortText + '</span>';
-                            }
-                        },
-                        {
-                            data: 'garden_names',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'garden_names',
-                            render: function(data, type, row) {
-                                if (!data) return '-';
-
-                                let maxLength = 50; // 15 characters
-                                let shortText = data.length > maxLength ? data.substring(0,
-                                    maxLength) + '...' : data;
-
-                                return '<span data-toggle="tooltip" data-original-title="' + data +
-                                    '">' + shortText + '</span>';
-                            }
-                        },
-                        {
-                            data: 'buyer_names',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'buyer_names',
-                            render: function(data, type, row) {
-                                if (!data) return '-';
-
-                                let maxLength = 50; // 15 characters
-                                let shortText = data.length > maxLength ? data.substring(0,
-                                    maxLength) + '...' : data;
-
-                                return '<span data-toggle="tooltip" data-original-title="' + data +
-                                    '">' + shortText + '</span>';
-                            }
-                        },
-                        {
-                            data: 'invoice_no',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'invoice_no'
-                        },
-                        {
-                            data: 'net_kg',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'net_kg'
-                        },
-                        {
-                            data: 'brokerage',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'brokerage'
-                        },
-
-                        {
-                            data: 'grand_total',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            name: 'grand_total'
-                        },
-                        {
-                            data: 'status',
-                            name: 'status',
-                            orderable: true,
-                            searchable: true,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                actions = '-';
-                                @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
-                                    options = '';
-                                    if (row.part_payment == 1 && row.pending_amount != 0) {
-                                        options = ` 
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''}>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled>Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
-                                        `;
-                                    }
-                                    if (row.pending_amount == 0) {
-                                        options = `
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''}> Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''} disabled>Pending</option>
-                                        `;
-                                    }
-
-                                    if (row.part_payment != 1 && row.part_payment != 0) {
-                                        options = `
-                                            <option value='part_payment' ${row.status == "part_payment" ? 'selected' : ''} disabled>Part Payment</option>
-                                            <option value='paid' ${row.status == "paid" ? 'selected' : ''} disabled> Paid</option>
-                                            <option value='pending' ${row.status == "pending" ? 'selected' : ''}>Pending</option>
-                                        `;
-                                    }
-                                    actions = `  
-                                        <select data-status='${row.id}' data-original-value="${row.status}" class="status" id="status_${row.id}" name="" required >
-                                            ${options}
-                                            <option value='cancel' ${row.status == "cancel" ? 'selected' : ''}>Cancel</option>
-                                            <option value='due' ${row.status == "due" ? 'selected' : ''}>Over Due</option>
-                                        </select>
-                                    `;
-                                @endif
-
-                                return actions;
-
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            render: function(data, type, row) {
-                                let actionBtns = ''
-                                @if (session('user_permissions.teamodule.brokeragebill.view') == '1')
-                                    let generatePdfUrl =
-                                        "{{ route('brokragbill.generatebrokragebillpdf', '__gardenId__') }}"
-                                        .replace('__gardenId__', data);
-                                    actionBtns += `                                             
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Pdf">
-                                            <a href=${generatePdfUrl} target='_blank' id='pdf'>
-                                                <button type="button" class="download-btn btn btn-info btn-rounded btn-sm my-0" ><i class="ri-download-line"></i></button>
-                                            </a>
-                                        </span>
-                                    `;
-                                @endif
-
-                                return actionBtns;
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            render: function(data, type, row) {
-                                let actionBtns = ''
-                                actionBtns += `
-                                         <span>
-                                            <button type="button" data-id='${row.id}' data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                <i class="ri-delete-bin-fill"></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                return actionBtns;
-                            }
-                        },
-                        {
-                            data: 'id',
-                            name: 'id',
-                            orderable: false,
-                            searchable: false,
-                            defaultContent: '-',
-                            render: function(data, type, row) {
-                                let generateInvoiceReceiptAllUrl =
-                                    "{{ route('invoice.brokerBillgeneraterecieptall', '__invoiceId__') }}"
-                                    .replace('__invoiceId__', row.id);
-                                actions = '';
-                                if (row.status != 'paid') {
-                                    actions += `                                             
-                                        <span data-toggle="tooltip" data-placement="bottom" data-original-title="Pay">
-                                            <button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id='${row.id}' class='btn btn-sm btn-primary m-0 paymentformmodal'>
-                                                <i class='ri-paypal-fill'></i>
-                                            </button>
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 1 && row.status == 'paid' && row
-                                    .pending_amount == 0) {
-                                    actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl} target='_blank'>
-                                                <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Combined Receipt"  class="reciept-btn btn btn-primary btn-rounded btn-sm m-0" >
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 1) {
-                                    actions += `                                             
-                                        <span data-toggle="tooltip" data-placement="right" data-original-title="View All Reciept"> 
-                                            <button  data-id='${row.id}' data-toggle='modal' data-target='#exampleModalScrollable' class='btn btn-sm btn-info my-0 viewpayment' >
-                                                <i class='ri-eye-fill'></i> 
-                                            </button> 
-                                        </span>
-                                    `;
-                                }
-                                if (row.part_payment == 0 && row.status == 'paid') {
-                                    actions += `                                             
-                                        <span> 
-                                            <a href=${generateInvoiceReceiptAllUrl}  target='_blank' >
-                                                <button  class="btn-info reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt">
-                                                    <i class="ri-download-line"></i>
-                                                </button>
-                                            </a>
-                                        </span>
-                                        <span data-toggle="tooltip" data-placement="right" data-original-title="Delete Payment Entry">
-                                            <button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </span>    
-                                    `;
-                                }
-                                return actions;
-                            }
-                        },
-                    ],
-
-                    pagingType: "full_numbers",
-                    drawCallback: function(settings) {
-                        $('[data-toggle="tooltip"]').tooltip({
-                            boundary: 'window',
-                            offset: '0, 10' // Push tooltip slightly away from the button
-                        });
-
-                        // 👇 Jump to Page input injection
-                        if ($('#jumpToPageWrapper').length === 0) {
-                            let jumpHtml = `
-                                    <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap: 5px;">
-                                        <label for="jumpToPage" class="mb-0">Jump to page:</label>
-                                        <input type="number" id="jumpToPage" min="1" class="dt-input" style="width: 80px;" />
-                                        <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
-                                    </div>
-                                `;
-                            $(".dt-paging").after(jumpHtml);
-                        }
-
-
-                        $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn',
-                            function() {
-                                let table = $('#data').DataTable();
-                                // Check if table is initialized
-                                if ($.fn.DataTable.isDataTable('#data')) {
-                                    let page = parseInt($('#jumpToPage').val());
-                                    let totalPages = table.page.info().pages;
-
-                                    if (!isNaN(page) && page > 0 && page <= totalPages) {
-                                        table.page(page - 1).draw('page');
-                                    } else {
-                                        Toast.fire({
-                                            icon: "error",
-                                            title: `Please enter a page number between 1 and ${totalPages}`
-                                        });
-                                    }
-                                } else {
-
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: `DataTable not yet initialized.`
-                                    });
-                                }
-                            }
-                        );
+            ],
+            pagingType: 'full_numbers',
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip({ boundary: 'window', offset: '0, 10' });
+                if ($('#jumpToPageWrapper').length === 0) {
+                    $(".dt-paging").after(`
+                        <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap:5px;">
+                            <label for="jumpToPage" class="mb-0">Jump to page:</label>
+                            <input type="number" id="jumpToPage" min="1" class="dt-input" style="width:80px;" />
+                            <button id="jumpToPageBtn" class="btn btn-sm btn-primary">Go</button>
+                        </div>`);
+                }
+                $(document).off('click', '#jumpToPageBtn').on('click', '#jumpToPageBtn', function () {
+                    if ($.fn.DataTable.isDataTable('#data')) {
+                        let t = $('#data').DataTable(), page = parseInt($('#jumpToPage').val()), total = t.page.info().pages;
+                        if (!isNaN(page) && page > 0 && page <= total) { t.page(page - 1).draw('page'); }
+                        else { Toast.fire({ icon: 'error', title: `Enter a page between 1 and ${total}` }); }
                     }
                 });
-
             }
+        });
+    }
 
-            $("#paymentmodal").on("shown.bs.modal", function() {
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-                $('#payment_date').val(today);
-            });
-            let params;
-            $('#pdfBtn').on('click', function() {
-                params = table.ajax.params();
-                params.filter_payment_status = $('#filter_payment_status').val();
-                params.filter_garden = $('#filter_garden').val();
-                params.filter_company = $('#filter_company').val();
-                params.filter_buyer = $('#filter_buyer').val();
-                params.filter_date_from = $('#filter_date_from').val();
-                params.filter_date_to = $('#filter_date_to').val();
-                let queryString = $.param(params);
+    /* ── Payment modal default date ── */
+    $('#paymentmodal').on('shown.bs.modal', function () {
+        $('#payment_date').val(new Date().toISOString().split('T')[0]);
+    });
 
+    /* ── Generate Report ── */
+    let params;
+    $('#pdfBtn').on('click', function () {
+        params = table.ajax.params();
+        params.filter_payment_status = $('#filter_payment_status').val();
+        params.filter_garden         = $('#filter_garden').val();
+        params.filter_company        = $('#filter_company').val();
+        params.filter_buyer          = $('#filter_buyer').val();
+        params.filter_date_from      = $('#filter_date_from').val();
+        params.filter_date_to        = $('#filter_date_to').val();
+        let url = "{{ route('brokragbill.outstanding') }}" + '?' + $.param(params);
+        loadershow();
+        $.ajax({
+            type: 'GET', url: "{{ route('brokragbill.outstanding') }}", data: params,
+            success: () => { window.open(url, '_blank'); loaderhide(); },
+            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    });
 
-                let url = "{{ route('brokragbill.outstanding') }}" + "?" + queryString;
-
-                // Open PDF in new tab
-
+    /* ── Delete Payment Record ── */
+    $(document).on('click', '.pay-del-btn', function () {
+        let deleteid = $(this).data('id'), invId = $(this).data('inv-id');
+        let url = "{{ route('broker_paymentdetails.deletepayment', '__deleteId__') }}".replace('__deleteId__', deleteid);
+        showConfirmationDialog('Are you sure?', 'to delete this payment record?', 'Yes, delete', 'No, cancel', 'question',
+            () => {
                 loadershow();
-
                 $.ajax({
-                    type: 'GET',
-                    url: "{{ route('brokragbill.outstanding') }}",
-                    data: params,
-                    success: function(response) {
-                        window.open(url, '_blank');
+                    type: 'PUT', url, data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                    success: r => {
+                        Toast.fire({ icon: r.status==200?'success':'error', title: r.message || (r.status==200?'Successfully deleted':'Something went wrong!') });
+                        if (r.status == 200) { viewpayment(invId); table.draw(); }
                         loaderhide();
                     },
-                    error: function(xhr) {
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    }
+                    error: xhr => { loaderhide(); handleAjaxError(xhr); }
                 });
-            });
+            }
+        );
+    });
 
-            $(document).on("click", ".pay-del-btn", function() {
-                var deleteid = $(this).data('id');
-                var invId = $(this).data('inv-id');
-                let invPaymentDltUrl = "{{ route('broker_paymentdetails.deletepayment', '__deleteId__') }}"
-                    .replace(
-                        '__deleteId__', deleteid);
-                var row = this;
-                showConfirmationDialog(
-                    'Are you sure?', // Title
-                    'to delete this payment record ?', // Text
-                    'Yes, delete', // Confirm button text
-                    'No, cancel', // Cancel button text
-                    'question', // Icon type (question icon)
-                    () => {
-                        // Success callback
-                        loadershow();
-                        $.ajax({
-                            type: 'PUT',
-                            url: invPaymentDltUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                            },
-                            success: function(response) {
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message ||
-                                            "succesfully deleted"
-                                    });
-                                    viewpayment(invId);
-                                    table.draw();
-                                } else {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message ||
-                                            "something went wrong!"
-                                    });
-                                }
-                                loaderhide();
-                            },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                handleAjaxError(xhr);
-                            }
-                        });
-                    }
-                );
-            });
+    /* ── Status Change ── */
+    function statuschange(id, value) {
+        loadershow();
+        let url = "{{ route('broker_paymentdetail_.status', '__id__') }}".replace('__id__', id);
+        $.ajax({
+            type: 'PUT', url,
+            data: { status: value, token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+            success: r => {
+                Toast.fire({ icon: r.status==200?'success':'error', title: r.message || (r.status==200?'Updated':'Status not updated.') });
+                if (r.status == 200) loaddata();
+                loaderhide();
+            },
+            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
 
-            function statuschange(id, value) {
+    $(document).on('change', '.status', function () {
+        let el = $(this), old = el.data('original-value'), sid = el.data('status'), val = el.val();
+        showConfirmationDialog('Are you sure?', 'to change this record status?', 'Yes, change it', 'No, cancel', 'question',
+            () => { loadershow(); el.data('original-value', val); statuschange(sid, val); loaderhide(); },
+            () => { $('#status_' + sid).val(old); }
+        );
+    });
+
+    /* ── View Payment ── */
+    $(document).on('click', '.viewpayment', function () { loadershow(); viewpayment($(this).data('id')); });
+
+    function viewpayment(invoiceId) {
+        $('#details').html('');
+        let url = "{{ route('broker_paymentdetails.search', '__invoiceId__') }}".replace('__invoiceId__', invoiceId);
+        $.ajax({
+            type: 'GET', url, data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+            success: function (r) {
+                if (r.status == 200) {
+                    r.paymentdetail.forEach(v => {
+                        let receiptUrl = "{{ route('invoice.brokerBillgeneratereciept', '__invoiceId__') }}".replace('__invoiceId__', v.id);
+                        let tds = (v.tds_amount && v.tds_amount > 0)
+                            ? `<div><b>TDS Amount:</b> ${v.tds_amount}</div><div><b>Challan No:</b> ${v.challan_no}</div><div><b>TDS Status:</b> ${v.tds_status}</div>` : '';
+                        $('#details').append(`<tr><td>
+                            <div class="col-md-10 float-left">
+                                <div><b>Payment date:</b> ${v.datetime}</div><div><b>Total Amount:</b> ${v.amount}</div>
+                                <div><b>Paid Amount:</b> ${v.paid_amount}</div>${tds}
+                                <div><b>Pending Amount:</b> ${v.pending_amount}</div><div><b>Paid By:</b> ${v.paid_by ?? '-'}</div>
+                            </div>
+                            <div class="col-md-2 float-right p-0">
+                                <a href="${receiptUrl}" target="_blank">
+                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"
+                                        class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0"><i class="ri-download-cloud-fill"></i></button></a>
+                                <button data-id="${v.id}" data-inv-id="${invoiceId}" class="btn btn-sm btn-danger pay-del-btn float-right">
+                                    <i class="ri-delete-bin-line"></i></button>
+                            </div></td></tr>`);
+                    });
+                } else {
+                    $('#details').html('<tr><td>No data Found</td></tr>');
+                    Toast.fire({ icon: 'error', title: r.message });
+                }
+                loaderhide();
+            },
+            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    /* ── View Details (modal) ── */
+    $(document).on('click', '.view-btn', function () {
+        let garden_id = $(this).data('view');
+        $("#exampleModalScrollable .modal-dialog").addClass('modal-lg');
+        $('#details').html(''); loadershow();
+        $.ajax({
+            type: 'GET', url: "{{ route('brokeragebill.getOtherData') }}",
+            data: { garden_id, company_id: COMPANY_ID, user_id: USER_ID, token: API_TOKEN },
+            success: function (r) {
+                if (!r.data.length) { $('#details').html('<tr><td colspan="8">No data found</td></tr>'); loaderhide(); return; }
+                $('#details').append(`<tr><th>Id</th><th>Invoice No</th><th>Brokerage</th><th>Grade</th><th>Bags</th><th>Total Kg</th><th>Rate Per kg</th><th>Total Broker</th></tr>`);
+                let id = 1;
+                r.data.forEach(item => {
+                    $('#viewmodaltitle').text(item.garden_name + '- Details').addClass('font-weight-bold');
+                    $('#details').append(`<tr>
+                        <td>${id??'-'}</td><td>${item.invoice_no??'-'}</td><td>${item.brokerage??'0'}(%)</td>
+                        <td>${item.grade??'-'}</td><td>${item.bags??'-'}</td><td>${item.net_kg??'-'}</td>
+                        <td>${item.rate??'-'}</td><td>${((item.net_kg??0)*(item.rate??0)*(item.brokerage??1))/100}</td>
+                    </tr>`);
+                    id++;
+                });
+                loaderhide();
+            },
+            error: xhr => { console.log(xhr.responseText); loaderhide(); }
+        });
+    });
+
+    $('#exampleModalScrollable').on('hidden.bs.modal', function () { $('#details').html(''); $('#addfooterbutton').html(''); });
+
+    /* ── Payment form calculations ── */
+    $('#paidamount, #tds_amount').on('change keyup', function () {
+        let paid = parseFloat($('#paidamount').val()) || 0, tds = parseFloat($('#tds_amount').val()) || 0;
+        let total = parseInt($('#info-total_amount').text()) || 0, recv = parseInt($('#info-total_received_amount').text()) || 0;
+        $('.info-pending_amount').text(total - recv - paid - tds);
+    });
+    $('#tds_applicable').on('change', function () { $('.tds_inputs').toggle($(this).is(':checked')); });
+
+    /* ── Payment form submit ── */
+    $('#paymentform').submit(function (e) {
+        e.preventDefault(); loadershow();
+        $.ajax({
+            type: 'POST', url: "{{ route('broker_paymentdetails.store') }}", data: $(this).serialize(),
+            success: r => { Toast.fire({ icon: r.status==200?'success':'error', title: r.message }); if (r.status == 200) { loaddata(); $('#paymentform')[0].reset(); $('#paymentmodal').modal('hide'); } loaderhide(); },
+            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    });
+
+    /* ── Payment modal open ── */
+    $(document).on('click', '.paymentformmodal', function () {
+        $('#paymentform')[0].reset(); $('.tds_inputs').hide();
+        let invoiceid = $(this).data('id'), amount = $(this).data('amount');
+        $('#inv_id').val(invoiceid); loadershow();
+        let url = "{{ route('broker_paymentdetails.pendingpayment', '__invoiceId__') }}".replace('__invoiceId__', invoiceid);
+        $.ajax({
+            type: 'GET', url, data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+            success: r => {
+                if (r.status == 200) {
+                    let recv = amount - r.payment[0].pending_amount;
+                    $('#paidamount').val(r.payment[0].pending_amount).attr('max', r.payment[0].pending_amount);
+                    $('#info-total_received_amount').text(recv);
+                } else { $('#paidamount').val(amount).attr('max', amount); $('#info-total_received_amount').text(0); }
+                $('#info-total_amount').text(amount); $('.info-pending_amount').text(0); loaderhide();
+            },
+            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    });
+
+    /* ── Delete ── */
+    $(document).on('click', '.del-btn', function () {
+        let deleteid = $(this).data('id');
+        showConfirmationDialog('Are you sure?', 'to delete this record?', 'Yes, delete', 'No, cancel', 'question',
+            () => {
                 loadershow();
-                let invoiceStatusUrl = "{{ route('broker_paymentdetail_.status', '__id__') }}".replace('__id__',
-                    id);
                 $.ajax({
                     type: 'PUT',
-                    url: invoiceStatusUrl,
-                    data: {
-                        status: value,
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200) {
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            loaddata();
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: "Status not updated."
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        var errorMessage = "";
-                        handleAjaxError(xhr);
-                    }
+                    url: "{{ route('brokeragebill.brokeragebillpdfdelete', '__deleteId__') }}".replace('__deleteId__', deleteid),
+                    data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+                    success: r => { loaderhide(); Toast.fire({ icon: r.status==200?'success':'error', title: r.message }); if (r.status == 200) loaddata(); },
+                    error: xhr => { loaderhide(); handleAjaxError(xhr); }
                 });
             }
+        );
+    });
 
-            //call status change function
-            $(document).on("change", ".status", function() {
-                var element = $(this);
-                var oldstatus = element.data('original-value'); //get original invoice status value
-                var statusid = element.data('status'); // get invoice id
-                var status = element.val(); //get current value
-                showConfirmationDialog(
-                    'Are you sure?',
-                    'to change this record status ?',
-                    'Yes, change it',
-                    'No, cancel',
-                    'question',
-                    () => {
-                        loadershow();
-                        element.data('original-value', status); // set current value to original value
-                        statuschange(statusid, status);
-                        loaderhide(); // Success callback
-                    },
-                    () => {
-                        $('#status_' + statusid).val(oldstatus);
-                    }
-                );
-            });
-            $(document).on('click', '.viewpayment', function() {
-                loadershow();
-                var invoiceId = $(this).data('id');
-                viewpayment(invoiceId);
-            })
+    /* ── Apply / Clear ── */
+    $('.applyfilters').on('click',  function () { table.draw(); });
+    $('.removefilters').on('click', function () {
+        $('#filter_payment_status').val(null).trigger('change');
+        $('#filter_company').val(null).trigger('change');
+        $('#filter_buyer').val(null).trigger('change');
+        $('#filter_garden').val(null).trigger('change');
+        $('#filter_date_to, #filter_date_from').val('');
+        table.draw();
+    });
 
-            function viewpayment(invoiceId) {
-                $('#details').html('');
-                let paymentDetailsSearchUrl = "{{ route('broker_paymentdetails.search', '__invoiceId__') }}"
-                    .replace('__invoiceId__', invoiceId);
-                $.ajax({
-                    type: 'GET',
-                    url: paymentDetailsSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            $.each(response.paymentdetail, function(key, value) {
-                                let generateInvoiceReceiptUrl =
-                                    "{{ route('invoice.brokerBillgeneratereciept', '__invoiceId__') }}"
-                                    .replace('__invoiceId__', value.id);
-
-                                let TDSDetails = '';
-                                if (value.tds_amount && value.tds_amount > 0) {
-                                    TDSDetails = ` 
-                                        <div><b>TDS Amount : </b> ${value.tds_amount}</div>
-                                        <div><b>Challan No : </b> ${value.challan_no}</div>
-                                        <div><b>TDS Status : </b> ${value.tds_status}</div>
-                                    `;
-                                }
-                                $('#details').append(`
-                                    <tr>
-                                        <td>
-                                            <div class="col-md-10 float-left">
-                                                <div><b>Payment date : </b> ${value.datetime}</div>
-                                                <div><b>Total Amount : </b> ${value.amount}</div>
-                                                <div><b>Paid Amount : </b> ${value.paid_amount}</div>
-                                                ${TDSDetails}
-                                                <div><b>Pending Amount: </b> ${value.pending_amount}</div>
-                                                <div><b>Paid By: </b>  ${value.paid_by != null ? value.paid_by : '-'}</div>
-                                            </div>    
-                                            <div class="col-md-2 float-right p-0">
-                                                <a href=${generateInvoiceReceiptUrl} target='_blank'>
-                                                    <button data-toggle="tooltip" data-placement="bottom" data-original-title="Download Single Receipt"  class="reciept-btn btn btn-outline-dark btn-rounded btn-sm my-0" >
-                                                        <i class='ri-download-cloud-fill'></i>
-                                                    </button>
-                                                </a>
-                                                <button data-id="${value.id}" data-inv-id="${invoiceId}" class="btn btn-sm btn-danger pay-del-btn float-right">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </div>    
-                                            
-                                        </td>
-                                    </tr>
-                                `)
-
-                            });
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            $('#details').html(`
-                                <tr>
-                                    <td>
-                                        No data Found
-                                    </td>
-                                </tr>
-                            `);
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-            }
-            $("#exampleModalScrollable").on("hidden.bs.modal", function() {
-                $('#details').html('');
-                $('#addfooterbutton').html('');
-            });
-
-            $('#paidamount, #tds_amount').on('change keyup', function() {
-                var paidamount = $('#paidamount').val() || 0;
-                var tdsamount = $('#tds_amount').val() || 0;
-                var totalamount = parseInt($('#info-total_amount').text()) || 0;
-                var totalreceived = parseInt($('#info-total_received_amount').text()) || 0;
-                var pendingamount = totalamount - totalreceived - paidamount - tdsamount;
-                $('.info-pending_amount').text(pendingamount);
-            });
-
-            $('#tds_applicable').on('change', function() {
-                let val = $(this).is(':checked');
-                $('.tds_inputs').hide();
-                if (val) {
-                    $('.tds_inputs').show();
-                }
-            });
-            $('#paymentform').submit(function(event) {
-                $('#modal_error-msg').text('');
-                event.preventDefault();
-                loadershow();
-                const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('broker_paymentdetails.store') }}",
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });
-                            loaddata();
-                            $('#paymentform')[0].reset();
-                            $('#paymentmodal').modal('hide');
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        handleAjaxError(xhr);
-                    }
-                });
-            });
-            $(document).on("click", ".generate-pdf", function() {
-                let garden_id = $(this).data('id');
-                loadershow();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('brokeragebill.brokeragebillpdf') }}",
-                    data: {
-                        garden_id: garden_id,
-                        company_id: "{{ session('company_id') }}",
-                        user_id: "{{ session('user_id') }}",
-                        token: "{{ session('api_token') }}"
-                    },
-                    success: function(response) {
-                        console.log(response);
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                        loaderhide();
-                    }
-                })
-            });
-            $(document).on('click', '.paymentformmodal', function() {
-                $('#paymentform')[0].reset();
-                $('.tds_inputs').hide();
-                var invoiceid = $(this).data('id');
-                var amount = $(this).data('amount');
-                var totalreceivedamount = 0;
-                var pendingamount = 0;
-                $('#inv_id').val(invoiceid);
-                loadershow();
-                let pendingPaymentDetailsUrl =
-                    "{{ route('broker_paymentdetails.pendingpayment', '__invoiceId__') }}".replace(
-                        '__invoiceId__',
-                        invoiceid);
-                $.ajax({
-                    type: 'GET',
-                    url: pendingPaymentDetailsUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}",
-                        company_id: " {{ session()->get('company_id') }}",
-                        user_id: " {{ session()->get('user_id') }}"
-                    },
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            totalreceivedamount = amount - response.payment[0].pending_amount;
-                            $('#paidamount').val(response.payment[0].pending_amount);
-                            $('#paidamount').attr('max', response.payment[0].pending_amount);
-                            $('#info-total_amount').text(amount);
-                            $('#info-total_received_amount').text(totalreceivedamount);
-                            $('.info-pending_amount').text(pendingamount);
-                        } else {
-                            $('#paidamount').val(amount);
-                            $('#paidamount').attr('max', amount);
-                            $('#info-total_amount').text(amount);
-                            $('#info-total_received_amount').text(totalreceivedamount);
-                            $('.info-pending_amount').text(pendingamount);
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-
-            })
-
-
-            $(document).on("click", ".view-btn", function() {
-                let garden_id = $(this).data('view');
-
-                $("#exampleModalScrollable .modal-dialog").addClass('modal-lg');
-                $('#details').html('');
-                loadershow();
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('brokeragebill.getOtherData') }}",
-                    data: {
-                        garden_id: garden_id,
-                        company_id: "{{ session('company_id') }}",
-                        user_id: "{{ session('user_id') }}",
-                        token: "{{ session('api_token') }}"
-                    },
-                    success: function(response) {
-                        let totalRows = response.data.length;
-
-                        if (totalRows === 0) {
-                            $('#details').html('<tr><td colspan="6">No data found</td></tr>');
-                            loaderhide();
-                            return;
-                        }
-                        $('#details').append(`
-                            <tr>
-                                <th>Id</th>
-                                <th>Invoice No</th>
-                                <th>Brokerage</th>
-                                <th>Grade</th>
-                                <th>Bags</th>
-                                <th>Total Kg</th>
-                                <th>Rate Per kg </th>
-                                <th>Total Broker</th>
-                            </tr>
-                        `);
-                        let id = 1;
-                        response.data.forEach(function(item, index) {
-                            // Only show garden name for first row\
-                            $('#viewmodaltitle').text(item.garden_name + `- Details`);
-                            $('#viewmodaltitle').addClass('font-weight-bold');
-                            $('#details').append(`
-                            <tr>
-                                <td>${id ?? '-'}</td>
-                                <td>${item.invoice_no ?? '-'}</td>
-                                <td>${item.brokerage ?? '0'}(%)</td>
-                                <td>${item.grade ?? '-'}</td>
-                                <td>${item.bags ?? '-'}</td>
-                                <td>${item.net_kg ?? '-'}</td>
-                                <td>${item.rate ?? '-'}</td>
-                                <td>${((item.net_kg ?? 0) * (item.rate ?? 0) * (item.brokerage ?? 1))/100}
-                            </tr>
-                            
-                        `);
-                            id++;
-                        });
-
-                        loaderhide();
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                        loaderhide();
-                    }
-                });
-            });
-
-            loaddata();
-
-            // record delete 
-            $(document).on("click", ".del-btn", function() {
-                var deleteid = $(this).data('id');
-                var row = this;
-                showConfirmationDialog(
-                    'Are you sure?', // Title
-                    'to delete this record?', // Text
-                    'Yes, delete', // Confirm button text
-                    'No, cancel', // Cancel button text
-                    'question', // Icon type (question icon)
-                    () => {
-                        // Success callback
-                        loadershow();
-                        let brokerpurchaseDeleteUrl =
-                            "{{ route('brokeragebill.brokeragebillpdfdelete', '__deleteId__') }}"
-                            .replace(
-                                '__deleteId__', deleteid);
-                        $.ajax({
-                            type: 'PUT',
-                            url: brokerpurchaseDeleteUrl,
-                            data: {
-                                token: "{{ session()->get('api_token') }}",
-                                company_id: "{{ session()->get('company_id') }}",
-                                user_id: "{{ session()->get('user_id') }}",
-                            },
-                            success: function(response) {
-                                loaderhide();
-                                if (response.status == 200) {
-                                    Toast.fire({
-                                        icon: "success",
-                                        title: response.message
-                                    });
-                                    loaddata();
-                                    table.drow();
-                                } else if (response.status == 500) {
-                                    Toast.fire({
-                                        icon: "error",
-                                        title: response.message
-                                    });
-                                }
-                            },
-                            error: function(xhr, status,
-                                error) { // if calling api request error 
-                                loaderhide();
-                                console.log(xhr
-                                    .responseText
-                                ); // Log the full error response for debugging
-                                var errorMessage = "";
-                                try {
-                                    var responseJSON = JSON.parse(xhr.responseText);
-                                    errorMessage = responseJSON.message ||
-                                        "An error occurred";
-                                } catch (e) {
-                                    errorMessage = "An error occurred";
-                                }
-                                Toast.fire({
-                                    icon: "error",
-                                    title: errorMessage
-                                });
-                            }
-                        });
-                    }
-                );
-            });
-            $('.applyfilters').on('click', function() {
-                table.draw();
-                hideOffCanvass(); // close OffCanvass
-            });
-
-            //remove filtres
-            $('.removefilters').on('click', function() {
-                $('#filter_payment_status').val(null).trigger('change');
-                $('#filter_company').val(null).trigger('change');
-                $('#filter_buyer').val(null).trigger('change');
-                $('#filter_garden').val(null).trigger('change');
-                $('#filter_date_to').val('');
-                $('#filter_date_from').val('');
-                table.draw();
-                hideOffCanvass(); // close OffCanvass
-            });
-
-
-        });
-    </script>
+});
+</script>
 @endpush

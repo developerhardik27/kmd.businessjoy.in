@@ -12,107 +12,238 @@
 
 @section('style')
     <style>
-        .ui-widget-header {
-            background: #1518b117 !important;
-            border: 1px solid #e1ded9 !important;
+        .ui-widget-header { background: #1518b117 !important; border: 1px solid #e1ded9 !important; }
+.btn-info { background-color: #253566 !important; border-color: #253566 !important; color: white; }
+.btn-info:hover { background-color: #39519b !important; color: rgb(255,255,255); }
+.btn-success { background-color: #67d5a5d9 !important; border-color: var(--iq-success) !important; color: black !important; }
+.btn-success:hover { background-color: #16d07ffa !important; border-color: var(--iq-success) !important; color: rgb(250,250,250) !important; }
+.select2-results__options { max-height: 150px !important; overflow-y: auto !important; }
+
+/* ───────── FILTER BAR ───────── */
+.filter-bar {
+    background: #fff; border: 1px solid #dde3ef;
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 14px;
+}
+.filter-bar-header {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 600; color: #6b7280;
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid #eaecf2;
+}
+.filter-bar-inner { display: flex; align-items: flex-end; gap: 10px; }
+
+/* ───────── SCROLL AREA ───────── */
+.filter-scroll-area {
+    display: flex; align-items: flex-start; gap: 0;
+    overflow-x: auto; flex: 1; padding-bottom: 4px;
+    scrollbar-width: thin; scrollbar-color: #d1d5db transparent;
+}
+.filter-scroll-area::-webkit-scrollbar { height: 4px; }
+.filter-scroll-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+/* ───────── FILTER FIELD ───────── */
+.filter-field {
+    flex: 0 0 180px; min-width: 180px;
+    padding: 10px 12px; box-sizing: border-box;
+    border-right: 1px solid #eaecf2;
+}
+.filter-field:first-child { border-radius: 8px 0 0 8px; }
+.filter-field:last-child  { border-radius: 0 8px 8px 0; border-right: none; }
+
+/* Alternating: odd = white, even = grey */
+.filter-scroll-area .filter-field:nth-child(odd)  { background-color: #ffffff; }
+.filter-scroll-area .filter-field:nth-child(even) { background-color: rgba(0,0,0,.04); }
+
+/* Labels */
+.filter-field label {
+    display: block; font-size: 10.5px; font-weight: 600;
+    color: #6b7280; text-transform: uppercase;
+    letter-spacing: .05em; margin-bottom: 6px; white-space: nowrap;
+}
+
+/* Inputs */
+.filter-field .form-control {
+    height: 34px; font-size: 13px; border-radius: 6px;
+    border: 1px solid #d1d5db; width: 100%;
+    box-sizing: border-box; background: transparent !important;
+}
+.filter-field .form-control:focus {
+    border-color: #3b5bdb;
+    box-shadow: 0 0 0 2px rgba(59,91,219,.1); outline: none;
+}
+
+/* Select2 */
+.filter-field .select2-container { width: 100% !important; }
+.filter-field .select2-container--default .select2-selection--single {
+    height: 34px !important; border-radius: 6px !important;
+    border: 1px solid #d1d5db !important; background: transparent !important;
+    display: flex !important; align-items: center;
+}
+.filter-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 32px !important; font-size: 13px !important; padding-left: 10px !important;
+}
+.filter-field .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px !important; }
+.filter-field .select2-container--default .select2-selection--multiple {
+    min-height: 34px !important; height: auto !important;
+    border-radius: 6px !important; border: 1px solid #d1d5db !important;
+    background: transparent !important; padding: 2px 4px !important;
+}
+.filter-field .select2-container--default.select2-container--focus .select2-selection--single,
+.filter-field .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #3b5bdb !important; box-shadow: 0 0 0 2px rgba(59,91,219,.1) !important;
+}
+.filter-field .select2-selection__choice {
+    background: #3b5bdb !important; border: none !important; color: #fff !important;
+    border-radius: 5px !important; font-size: 12px !important;
+    padding: 2px 8px !important; margin: 2px !important;
+}
+.filter-field .select2-selection__choice__remove { color: #fff !important; margin-right: 4px !important; }
+
+/* ───────── ACTION BUTTONS ───────── */
+.filter-actions-fixed {
+    flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px;
+    padding-left: 12px; border-left: 1px solid #eaecf2;
+}
+.filter-actions-fixed .btn {
+    height: 34px; font-size: 12.5px; font-weight: 600; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 5px; white-space: nowrap; width: 90px; margin: 0;
+}
+
+/* ───────── ACTION BAR ───────── */
+.action-bar > div { flex: 1; }
+.action-bar > div:nth-child(2) { text-align: center; }
+.action-bar > div:nth-child(3) { text-align: right; }
+
+/* ───────── MOBILE ───────── */
+@media (max-width: 576px) {
+    .filter-bar-inner { flex-direction: column; align-items: stretch; }
+    .filter-scroll-area { flex-direction: column; overflow-x: visible; gap: 6px; }
+    .filter-field {
+        flex: 1 1 100%; min-width: 100%;
+        border-right: none; border-radius: 8px !important;
+        border-bottom: 1px solid #eaecf2;
+    }
+    .filter-field{
+            flex: 1 1 100%; min-width: 100%;
+            border-right: none; border-radius: 8px !important;
+            border-bottom: 1px solid #eaecf2;
         }
-        .btn-info {
-            background-color: #253566 !important;
-            border-color: #253566 !important;
-            color: white;
+        .filter-field .select2-container { width: 100% !important; }
+          .range-group {
+            gap: 6px;
         }
-        .btn-info:hover {
-            background-color: #39519b !important;
-            color: rgb(255, 255, 255);
+
+        .range-sep {
+            display: none; /* hide the dash on mobile */
         }
-        .btn-success {
-            background-color: #67d5a5d9 !important;
-            border-color: var(--iq-success) !important;
-            color: black !important;
+
+        .range-item input.form-control {
+            width: 100%; /* full width */
         }
-        .btn-success:hover {
-            background-color: #16d07ffa !important;
-            border-color: var(--iq-success) !important;
-            color: rgb(250, 250, 250) !important;
+
+        /* Adjust filter-field for mobile */
+        .filter-field.range-field {
+            flex: 1 1 100%;
+            min-width: 100%;
+            max-width: 100%;
+            border-radius: 8px !important;
+            border-bottom: 1px solid #eaecf2;
         }
-        .select2-results__options {
-            max-height: 150px !important;
-            overflow-y: auto !important;
+        .filter-field .select2-container { width: 100% !important; }
+        .filter-actions-fixed {
+            flex-direction: row; border-left: none;
+            border-top: 1px solid #eaecf2; padding-left: 0; padding-top: 10px;
         }
+        .filter-actions-fixed .btn { flex: 1; width: auto; }
+        .action-bar { flex-direction: column; }
+        .action-bar > div { text-align: left !important; }
+    }
     </style>
 @endsection
 
-@section('advancefilter')
-    <div class="col-sm-12 text-right px-4">
+
+@section('table-content')
+ <div class="filter-bar">
+    <div class="filter-bar-header">
+        <i class="ri-filter-3-line"></i> Filters
+    </div>
+    <div class="filter-bar-inner">
+
+        <div class="filter-scroll-area">
+
+            <div class="filter-field">
+                <label>Buyer</label>
+                <select name="filter_buyer" class="filter form-control select2" id="filter_buyer">
+                    <option value=""></option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Company</label>
+                <select name="filter_company" class="filter form-control select2" id="filter_company">
+                    <option value=""></option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Payment Status</label>
+                <select name="filter_payment_status" class="filter form-control select2" id="filter_payment_status">
+                    <option value=""></option>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="part_payment">Part Payment</option>
+                    <option value="cancel">Cancel</option>
+                    <option value="due">Over Due</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="filter-actions-fixed">
+            <button class="btn btn-primary applyfilters">
+                <i class="ri-filter-line"></i> Apply
+            </button>
+            <button class="btn btn-outline-secondary removefilters">
+                <i class="ri-close-line"></i> Clear
+            </button>
+        </div>
+
+    </div>
+</div>
+{{-- ── Action Bar ── --}}
+<div class="action-bar d-flex justify-content-between align-items-center w-100 mb-3">
+
+    <div>
+        <button class="btn btn-primary" id="pdfBtn">
+            <i class="ri-file-chart-line"></i> Generate Report
+        </button>
+    </div>
+
+    <div>
+        <button id="bulkGeneratePdfBtn"
+            class="btn btn-warning d-none"
+            data-toggle="tooltip" data-placement="bottom"
+            data-original-title="Generate Commission Bill for selected invoices">
+            <i class="ri-file-add-line"></i> Commission Bill
+            <span id="bulkSelectionCount" class="badge badge-light ml-1">0</span>
+        </button>
+    </div>
+
+    <div>
         @if (session('user_permissions.invoicemodule.invoice.add') == '1')
-            <button class="btn btn-primary btn-sm generate-invoice">
-                <span data-toggle="tooltip" data-placement="bottom" data-original-title="Create New Invoice">
-                    + Create New
-                </span>
+            <button class="btn btn-success generate-invoice"
+                data-toggle="tooltip" data-placement="bottom"
+                data-original-title="Create New Invoice">
+                <i class="ri-add-line"></i> New Invoice
             </button>
         @endif
     </div>
-    <div class="col-sm-12 text-right px-4">
-        <button class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="bottom"
-            data-original-title="Filters" onclick="showOffCannvas()">
-            <i class="ri-filter-line"></i>
-        </button>
-    </div>
-@endsection
 
-@section('sidebar-filters')
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header"><h6>Buyer</h6></div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_buyer" class="form-label mt-1">Buyer</label>
-                        <select name="filter_buyer" class="filter form-control w-100 select2" id="filter_buyer"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header"><h6>Company</h6></div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_company" class="form-label mt-1">Company</label>
-                        <select name="filter_company" class="filter form-control w-100 select2" id="filter_company"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header"><h6>Payment</h6></div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-1">
-                        <label for="filter_payment_status" class="form-label mt-1">Payment Status</label>
-                        <select name="filter_payment_status" class="filter form-control w-100 select2" id="filter_payment_status">
-                            <option value="">Select Payment Type</option>
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="part_payment">Part Payment</option>
-                            <option value="cancel">Cancel</option>
-                            <option value="due">Over Due</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-@section('table-content')
-
+</div>
     {{-- ── Top bar: Generate Report + Bulk Commission Bill button ─────────────── --}}
-    <div class="d-flex align-items-center mb-2" style="gap:8px;">
+    <!-- <div class="d-flex align-items-center mb-2" style="gap:8px;">
         <button data-toggle="tooltip" data-placement="bottom" data-original-title="Create Report"
             class="btn btn-sm btn-primary" id="pdfBtn">
             <span id="pdf-data">Generate Report</span>
@@ -126,7 +257,7 @@
             <i class="ri-file-add-line"></i> Generate Commission Bill
             <span id="bulkSelectionCount" class="badge badge-light ml-1">0</span>
         </button>
-    </div>
+    </div> -->
 
     {{-- ── Generate Invoice Modal ──────────────────────────────────────────────── --}}
     <div class="modal fade" id="generateinvoiceModal" tabindex="-1" role="dialog">

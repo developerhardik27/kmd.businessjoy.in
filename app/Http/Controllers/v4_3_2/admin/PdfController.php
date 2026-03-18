@@ -132,44 +132,67 @@ class PdfController extends commonController
       // dd($gardenCompanyData);
       $bank_details  = $this->bank_detailsModel::first();
       // dd($invoice->id);
-      $usedInvoices = $this->brokerpurchaseModel
-         ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
-         ->join('order_details', function ($join) {
-            $join
-               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
-         })
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->join('orders', 'orders.id', '=', 'order_details.order_id')
-         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
-         ->leftJoin('invoices', function ($join) {
-            $join
-               ->on('invoices.id', '=', 'broker_purchases.invoice_id')
-               ->whereRaw(
-                  'FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\', \'\'))'
-               )
+    $usedInvoices = $this->brokerpurchaseModel
+      ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+      ->join('order_details', function ($join) {
+         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+      })
+      ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+      ->join('orders', 'orders.id', '=', 'order_details.order_id')
+      ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+      ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+      ->leftJoin('invoices', function ($join) {
+         $join->on('invoices.id', '=', 'broker_purchases.invoice_id')
+               ->whereRaw('FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\' , \'\'))')
                ->where('invoices.is_deleted', 0);
-         })
-         ->select(
-            'broker_purchases.*',
-            'gardens.garden_name as garden_name',
-            'grades.grade as grade',
-            'orders.buyer_party',
-            'orders.discount',
-            'buyer.name as buyer_name',
-            'invoices.inv_no',
-            'invoices.inv_date',
-            DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
-            'invoices.sample_ids',
-            'invoices.consignment_number',
-            'invoices.consignment_date',
-            'companymasters.company_name',
-         )
-         ->where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.brokerbill_no', $invoice->id)
-         ->get();
+      })
+      ->where('broker_purchases.is_deleted', 0)
+      ->where('broker_purchases.brokerbill_no', $invoice->id)
+      ->select(
+         'broker_purchases.*',
+         'gardens.garden_name as garden_name',
+         'grades.grade as grade',
+         'orders.buyer_party',
+         'orders.discount',
+         'buyer.name as buyer_name',          // ← add this!
+         'invoices.inv_no',
+         'invoices.inv_date',
+         DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
+         'invoices.sample_ids',
+         'invoices.consignment_number',
+         'invoices.consignment_date',
+         'companymasters.company_name'
+      )
+      ->get()
+      ->groupBy('invoice_id')
+      ->map(function ($rows, $invoiceId) {
+         $gardenNames = $rows->pluck('garden_name')->unique()->implode(', ');
+
+         $totalBags = $rows->sum('bags');
+         $totalNetKg = $rows->sum('net_kg');
+         // $totalDiscount = $rows->sum('discount');
+         $totalInvoice = $rows->sum('invoice_grand_total');
+         $totalBrokerage = $rows->sum(fn($row) => (($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100);
+
+         $first = $rows->first();
+
+         return [
+               'invoice_id' => $invoiceId,
+               'inv_no' => $first->inv_no,
+               'inv_date' => $first->inv_date,
+               'garden_names' => $gardenNames,
+               'bags' => $totalBags,
+               'net_kg' => $totalNetKg,
+               'discount' => $first->discount,
+               'invoice_grand_total' => $totalInvoice,
+               'brokerage_total' => $totalBrokerage,
+               'buyer_name' => $first->buyer_name,  // ← now this will work
+               'company_name' => $first->company_name,
+               'brokerage'=>$first->brokerage,
+         ];
+      });
       // dd($usedInvoices);
       $data = [
          "mainCompanyData" => $mainCompanyData,
@@ -235,41 +258,67 @@ class PdfController extends commonController
          ->first();
       $bank_details  = $this->bank_detailsModel::first();
       $paymentdetail = $this->broker_payment_detailsModel::where('inv_id', $id)->where('is_deleted', 0)->get();
-      $usedInvoices = $this->brokerpurchaseModel
-         ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
-         ->join('order_details', function ($join) {
-            $join
-               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
-         })
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->join('orders', 'orders.id', '=', 'order_details.order_id')
-         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
-         ->leftJoin('invoices', function ($join) {
-            $join
-               ->on('invoices.id', '=', 'broker_purchases.invoice_id')
-               ->whereRaw(
-                  'FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\', \'\'))'
-               )
+       $usedInvoices = $this->brokerpurchaseModel
+      ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+      ->join('order_details', function ($join) {
+         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+      })
+      ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+      ->join('orders', 'orders.id', '=', 'order_details.order_id')
+      ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+      ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+      ->leftJoin('invoices', function ($join) {
+         $join->on('invoices.id', '=', 'broker_purchases.invoice_id')
+               ->whereRaw('FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\' , \'\'))')
                ->where('invoices.is_deleted', 0);
-         })
-         ->select(
-            'broker_purchases.*',
-            'gardens.garden_name as garden_name',
-            'grades.grade as grade',
-            'orders.buyer_party',
-            'orders.discount',
-            'buyer.name as buyer_name',
-            'invoices.inv_no',
-            'invoices.inv_date',
-            'invoices.consignment_number',
-            'invoices.consignment_date',
-         )
-         ->where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.brokerbill_no', $invoice->id)
-         ->get();
+      })
+      ->where('broker_purchases.is_deleted', 0)
+      ->where('broker_purchases.brokerbill_no', $invoice->id)
+      ->select(
+         'broker_purchases.*',
+         'gardens.garden_name as garden_name',
+         'grades.grade as grade',
+         'orders.buyer_party',
+         'orders.discount',
+         'buyer.name as buyer_name',          // ← add this!
+         'invoices.inv_no',
+         'invoices.inv_date',
+         DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
+         'invoices.sample_ids',
+         'invoices.consignment_number',
+         'invoices.consignment_date',
+         'companymasters.company_name'
+      )
+      ->get()
+      ->groupBy('invoice_id')
+      ->map(function ($rows, $invoiceId) {
+         $gardenNames = $rows->pluck('garden_name')->unique()->implode(', ');
+
+         $totalBags = $rows->sum('bags');
+         $totalNetKg = $rows->sum('net_kg');
+         // $totalDiscount = $rows->sum('discount');
+         $totalInvoice = $rows->sum('invoice_grand_total');
+         $totalBrokerage = $rows->sum(fn($row) => (($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100);
+
+         $first = $rows->first();
+
+         return [
+               'invoice_id' => $invoiceId,
+               'inv_no' => $first->inv_no,
+               'inv_date' => $first->inv_date,
+               'garden_names' => $gardenNames,
+               'bags' => $totalBags,
+               'net_kg' => $totalNetKg,
+               'discount' => $first->discount,
+               'invoice_grand_total' => $totalInvoice,
+               'brokerage_total' => $totalBrokerage,
+               'buyer_name' => $first->buyer_name,  // ← now this will work
+               'company_name' => $first->company_name,
+               'brokerage'=>$first->brokerage,
+         ];
+      });
       $data = [
          "mainCompanyData" => $mainCompanyData,
          "gardenCompanyData" => $gardenCompanyData,
@@ -338,42 +387,67 @@ class PdfController extends commonController
       $bank_details  = $this->bank_detailsModel::first();
       $paymentdetail = $this->broker_payment_detailsModel::where('id', $id)->where('is_deleted', 0)->get();
       // dd($invoice->from_date, $invoice->to_date);
-      $usedInvoices = $this->brokerpurchaseModel
-         ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
-         ->join('order_details', function ($join) {
-            $join
-               ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
-         })
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->join('orders', 'orders.id', '=', 'order_details.order_id')
-         ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
-         ->leftjoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
-         ->leftJoin('invoices', function ($join) {
-            $join
-               ->on('invoices.id', '=', 'broker_purchases.invoice_id')
-               ->whereRaw(
-                  'FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\', \'\'))'
-               )
+       $usedInvoices = $this->brokerpurchaseModel
+      ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+      ->join('order_details', function ($join) {
+         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+      })
+      ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+      ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+      ->join('orders', 'orders.id', '=', 'order_details.order_id')
+      ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+      ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+      ->leftJoin('invoices', function ($join) {
+         $join->on('invoices.id', '=', 'broker_purchases.invoice_id')
+               ->whereRaw('FIND_IN_SET(broker_purchases.id, REPLACE(invoices.sample_ids, \'"\' , \'\'))')
                ->where('invoices.is_deleted', 0);
-         })
-         ->select(
-            'broker_purchases.*',
-            'gardens.garden_name as garden_name',
-            'grades.grade as grade',
-            'orders.buyer_party',
-            'orders.discount',
-            'buyer.name as buyer_name',
-            'invoices.inv_no',
-            'invoices.inv_date',
-            'invoices.consignment_number',
-            'invoices.consignment_date',
-         )
-         ->where('broker_purchases.is_deleted', 0)
-         ->where('broker_purchases.brokerbill_no', $invoice->id)
-         ->get();
+      })
+      ->where('broker_purchases.is_deleted', 0)
+      ->where('broker_purchases.brokerbill_no', $invoice->id)
+      ->select(
+         'broker_purchases.*',
+         'gardens.garden_name as garden_name',
+         'grades.grade as grade',
+         'orders.buyer_party',
+         'orders.discount',
+         'buyer.name as buyer_name',          // ← add this!
+         'invoices.inv_no',
+         'invoices.inv_date',
+         DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date"),
+         'invoices.sample_ids',
+         'invoices.consignment_number',
+         'invoices.consignment_date',
+         'companymasters.company_name'
+      )
+      ->get()
+      ->groupBy('invoice_id')
+      ->map(function ($rows, $invoiceId) {
+         $gardenNames = $rows->pluck('garden_name')->unique()->implode(', ');
 
+         $totalBags = $rows->sum('bags');
+         $totalNetKg = $rows->sum('net_kg');
+         // $totalDiscount = $rows->sum('discount');
+         $totalInvoice = $rows->sum('invoice_grand_total');
+         $totalBrokerage = $rows->sum(fn($row) => (($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100);
+
+         $first = $rows->first();
+
+         return [
+               'invoice_id' => $invoiceId,
+               'inv_no' => $first->inv_no,
+               'inv_date' => $first->inv_date,
+               'garden_names' => $gardenNames,
+               'bags' => $totalBags,
+               'net_kg' => $totalNetKg,
+               'discount' => $first->discount,
+               'invoice_grand_total' => $totalInvoice,
+               'brokerage_total' => $totalBrokerage,
+               'buyer_name' => $first->buyer_name,  // ← now this will work
+               'company_name' => $first->company_name,
+               'brokerage'=>$first->brokerage,
+         ];
+      });
       $data = [
          "mainCompanyData" => $mainCompanyData,
          "gardenCompanyData" => $gardenCompanyData,
@@ -915,131 +989,148 @@ class PdfController extends commonController
    {
 
 
-      $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
-         ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
-         ->join('order_details', 'order_details.order_id', 'orders.id')
-         ->join('gardens', 'gardens.id', 'order_details.garden_id')
-         ->leftJoin('grades', 'grades.id', 'order_details.grade')
-         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
-         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
-         ->where('orders.is_deleted', 0);
+    $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
+            ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('grades', 'grades.id', 'order_details.grade')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
 
-      $filters = [
-         'filter_transport'         => 'orders.transport',
-         'filter_buyer'             => 'orders.buyer_party',
-         'filter_garden'            => 'order_details.garden_id',
-         'filter_grade'             => 'order_details.grade',
-         'filter_credit_days_from'  => 'orders.credit_days',
-         'filter_credit_days_to'    => 'orders.credit_days',
-         'filter_final_amount_from' => 'orders.finalAmount',
-         'filter_final_amount_to'   => 'orders.finalAmount',
-         'filter_date_from'         => 'orders.created_at',
-         'filter_date_to'           => 'orders.created_at',
-      ];
+        // Filters mapping
+        $filters = [
+            'filter_transport'         => 'orders.transport',
+            'filter_buyer'             => 'orders.buyer_party',
+            'filter_garden'            => 'order_details.garden_id',
+            'filter_grade'             => 'order_details.grade',
+            'filter_credit_days_from'  => 'orders.credit_days',
+            'filter_credit_days_to'    => 'orders.credit_days',
+            'filter_final_amount_from' => 'orders.finalAmount',
+            'filter_final_amount_to'   => 'orders.finalAmount',
+            'filter_date_from'         => 'orders.created_at',
+            'filter_date_to'           => 'orders.created_at',
+        ];
 
-      foreach ($filters as $requestKey => $column) {
-         $value = $request->$requestKey ?? null;
+        // Apply filters (except invoice status, which is handled later)
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey ?? null;
 
-         if ($value !== null && $value !== '') {
+            if ($value !== null && $value !== '') {
+                if (in_array($requestKey, [
+                    'filter_credit_days_from',
+                    'filter_credit_days_to',
+                    'filter_final_amount_from',
+                    'filter_final_amount_to',
+                ])) {
+                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
+                    $order->where($column, $operator, $value);
 
+                } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
+                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
+                    $order->whereDate($column, $operator, $value);
 
-            if (in_array($requestKey, [
-               'filter_credit_days_from',
-               'filter_credit_days_to',
-               'filter_final_amount_from',
-               'filter_final_amount_to',
-            ])) {
-               $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
-               $order->where($column, $operator, $value);
-
-               // ── Date range ──────────────────────────────────────────────────────────
-            } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
-               $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
-               $order->whereDate($column, $operator, $value);
-            } else {
-               $order->whereIn($column, (array) $value);
+                } else {
+                    $order->whereIn($column, (array) $value);
+                }
             }
-         }
-      }
-      if (!empty($request->filter_company) && $request->filter_company !== '') {
-         $companyIds = (array) $request->filter_company;
+        }
 
-         $order->whereExists(function ($query) use ($companyIds) {
-            $query->select(DB::raw(1))
-               ->from('order_details as od_sub')
-               ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
-               ->whereColumn('od_sub.order_id', 'orders.id')   // ties subquery to the outer order
-               ->whereIn('cg_sub.company_id', $companyIds)
-               ->limit(1);
-         });
-      }
+        // Company filter
+        if (!empty($request->filter_company) && $request->filter_company !== '') {
+            $companyIds = (array) $request->filter_company;
 
-      $orderData = $order
-         ->select(
-            'orders.id as order_id',
-            'buyer.name as buyer_name',
-            'transport.name as transport_name',
-            'orders.*',
-            DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
-            'order_details.*',
-            'gardens.garden_name as garden_name',
-            'grades.grade as grade_name',
-            'companymasters.id as company_id',
-            'companymasters.company_name as company_name'
-         )
-         ->get()
-         ->groupBy('order_id')
-         ->map(function ($details, $orderId) {
-            $first = $details->first();
-            return [
-               'id'             => $orderId,
-               'buyer_name'     => $first->buyer_name,
-               'transport_name' => $first->transport_name,
-               'discount'       => $first->discount,
-               'totalNetKg'     => $first->totalNetKg,
-               'credit_days'    => $first->credit_days,
-               'final_amount'   => $first->finalAmount,
-               'order_date'     => $first->order_date,
+            $order->whereExists(function ($query) use ($companyIds) {
+                $query->select(DB::raw(1))
+                    ->from('order_details as od_sub')
+                    ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+                    ->whereColumn('od_sub.order_id', 'orders.id')
+                    ->whereIn('cg_sub.company_id', $companyIds)
+                    ->limit(1);
+            });
+        }
 
-               // All unique company names across ALL detail rows of this order
-               'company_names' => $details
-                  ->map(fn($item) => $item->company_name ?? '  -  ')
-                  ->values()
-                  ->implode(', '),
+        // Fetch data
+        $orderData = $order
+            ->select(
+                'orders.id as order_id',
+                'buyer.name as buyer_name',
+                'transport.name as transport_name',
+                'orders.*',
+                DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
+                'order_details.*',
+                'gardens.garden_name as garden_name',
+                'grades.grade as grade_name',
+                'companymasters.id as company_id',
+                'companymasters.company_name as company_name'
+            )
+            ->get()
+            ->groupBy('order_id')
+            ->map(function ($details, $orderId) {
+                $first = $details->first();
 
-               // All unique garden names across ALL detail rows of this order
-               'garden_names'   => $details
-                  ->filter(fn($item) => !empty($item->garden_name))
-                  ->pluck('garden_name', 'garden_id')
-                  ->values()
-                  ->implode(', '),
+                // Determine invoice status
+                $invoiceIds = $details->pluck('invoice_id');
+                if ($invoiceIds->every(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Pending';
+                } elseif ($invoiceIds->contains(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Half Invoice';
+                } else {
+                    $invoiceStatus = 'Invoices Created';
+                }
 
-               // All unique invoice numbers
-               'invoice_nos'    => $details
-                  ->filter(fn($item) => !empty($item->invoice_no))
-                  ->pluck('invoice_no')
-                  ->unique()
-                  ->values()
-                  ->implode(', '),
+                return [
+                    'id'             => $orderId,
+                    'buyer_name'     => $first->buyer_name,
+                    'transport_name' => $first->transport_name,
+                    'discount'       => $first->discount,
+                    'totalNetKg'     => $first->totalNetKg,
+                    'credit_days'    => $first->credit_days,
+                    'final_amount'   => $first->finalAmount,
+                    'order_date'     => $first->order_date,
+                    'invoice_status' => $invoiceStatus, // Invoice status included
 
-               'details' => $details->map(function ($item) use ($first) { // ← fix: use ($first)
+                    'company_names' => $details
+                        ->map(fn($item) => $item->company_name ?? '  -  ')
+                        ->values()
+                        ->implode(', '),
 
-                  return [
-                     'garden_name'  => $item->garden_name,
-                     'grade_name'   => $item->grade_name,
-                     'invoice_no'   => $item->invoice_no,
-                     'order_discount' => $first->discount,  // ← now accessible
-                     'bags'         => $item->bags,
-                     'kg'           => $item->kg,
-                     'net_kg'       => $item->net_kg,
-                     'rate'         => $item->rate,
-                     'amount'       => $item->amount,
-                     'company_name' => $item->company_name ?? null,
-                  ];
-               })->toArray(),
-            ];
-         })
-         ->values();
+                    'garden_names'   => $details
+                        ->filter(fn($item) => !empty($item->garden_name))
+                        ->pluck('garden_name', 'garden_id')
+                        ->values()
+                        ->implode(', '),
+
+                    'invoice_nos'    => $details
+                        ->filter(fn($item) => !empty($item->invoice_no))
+                        ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+
+                    'details' => $details->map(function ($item) {
+                        return [
+                            'garden_name'  => $item->garden_name,
+                            'grade_name'   => $item->grade_name,
+                            'invoice_no'   => $item->invoice_no,
+                            'bags'         => $item->bags,
+                            'kg'           => $item->kg,
+                            'net_kg'       => $item->net_kg,
+                            'rate'         => $item->rate,
+                            'amount'       => $item->amount,
+                            'company_name' => $item->company_name ?? null,
+                        ];
+                    })->toArray(),
+                ];
+            })
+            ->values();
+
+        // Apply invoice_status filter AFTER grouping
+        if (!empty($request->filter_invoice_status) && $request->filter_invoice_status !== '') {
+            $status = $request->filter_invoice_status;
+            $orderData = $orderData->filter(fn($order) => $order['invoice_status'] === $status)->values();
+        }
+
       if ($orderData->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }

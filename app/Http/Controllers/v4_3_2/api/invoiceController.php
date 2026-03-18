@@ -647,6 +647,7 @@ class invoiceController extends commonController
                     }
                 }
                 $ids = $data['sampleIds'];
+                
                 $company_details = company::find($this->companyId);
 
                 if ($company_details) {
@@ -717,10 +718,13 @@ class invoiceController extends commonController
                         $brokerPurchases = $this->brokerpurchaseModel
                             ::whereIn('id', $ids)
                             ->get();
-
+                        
                         foreach ($brokerPurchases as $purchase) {
 
-
+                            $updateinvoiceid = $this->order_detailModel::where('invoice_no', $purchase->invoice_no)
+                            ->update([
+                                "invoice_id" => $invoice,
+                            ]);
                             $company_id = $this->companygardenModel
                                 ::where('garden_id', $purchase->garden_id)
                                 ->value('company_id');
@@ -734,12 +738,11 @@ class invoiceController extends commonController
                             $purchase->update([
                                 'invoice_id' => $invoice,
                                 'brokerage'  => $brokerage ?? 0,
-                            ]);
+                            ]);                            
                         }
                     }
                     $invoice_lot_no = $data['invoice_data'];
                     $id = [];
-                    // dd($invoice_lot_no);
                     if (!empty($invoice_lot_no)) {
                         $invoice_lot_no = explode(',', $invoice_lot_no);
 

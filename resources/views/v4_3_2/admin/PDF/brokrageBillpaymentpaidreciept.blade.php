@@ -408,73 +408,65 @@
                         <th style="width:10%;text-align:center;">Comm</th>
                     </tr>
                 </thead>
-                @php
-                    $usedInvoices = $data['usedInvoices'] ?? [];
-                    $maxRows = 10;
-                    $companyStateId = $companydetails['state_id'] ?? null;
-                    $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
-                    //  $companyStateId = 20;
-                    // $buyerStateId = 21;
-                    $cgst_per = 9;
-                    $sgst_per = 9;
-                    $igst_per = 18;
-                    $cgst = 0;
-                    $sgst = 0;
-                    $igst = 0;
-                    $totalBags = 0;
-                    $totalAmount = 0;
-                    $totalCommission = 0;
-                    $rowCount = count($usedInvoices);
-                    foreach ($usedInvoices as $row) {
-                        $amount = $row->invoice_grand_total ?? 0;
-                        $commission = ($amount * ($row->brokerage ?? 0)) / 100;
-
-                        $totalBags += $row->bags ?? 0;
-                        $totalAmount += $amount;
-                        $totalCommission += $commission;
-                    }
-                    if ($companyStateId && $buyerStateId) {
-                        if ($companyStateId == $buyerStateId) {
-                            $cgst = ($totalCommission * $cgst_per) / 100;
-                            $sgst = ($totalCommission * $sgst_per) / 100;
-                            $igst_per = 0;
-                        } else {
-                            $cgst_per = 0;
-                            $sgst_per = 0;
-                            $igst = ($totalCommission * 18) / 100;
+                 @php
+                        // dd($data['usedInvoices']);
+                        $usedInvoices = $data['usedInvoices'] ?? [];
+                        $maxRows = 10;
+                        $companyStateId = $data['mainCompanyData']['state_id'] ?? null;
+                        $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
+                        //  $companyStateId = 20;
+                        // $buyerStateId = 21;
+                        $cgst_per = 9;
+                        $sgst_per = 9;
+                        $igst_per = 18;
+                        $cgst = 0;
+                        $sgst = 0;
+                        $igst = 0;
+                        $totalBags = 0;
+                        $totalAmount = 0;
+                        $totalCommission = 0;
+                        $totalnetkg = 0;
+                        $rowCount = count($usedInvoices);
+                        foreach ($usedInvoices as $row) {
+                            $totalnetkg      += $row['net_kg'] ?? 0;
+                            $totalBags       += $row['bags'] ?? 0;
+                            $totalAmount     += $row['invoice_grand_total'] ?? 0;
+                            $totalCommission += $row['brokerage_total'] ?? 0;
                         }
-                    }
+                        if ($companyStateId && $buyerStateId) {
+                            if ($companyStateId == $buyerStateId) {
+                                $cgst = ($totalCommission * $cgst_per) / 100;
+                                $sgst = ($totalCommission * $sgst_per) / 100;
+                                $igst_per = 0;
+                            } else {
+                                $cgst_per = 0;
+                                $sgst_per = 0;
+                                $igst = ($totalCommission * 18) / 100;
+                            }
+                        }
 
-                    $grandTotal = $totalCommission + $cgst + $sgst + $igst;
-
-                    $paid_amount = $payment[0]['paid_amount'];
-                    $tds_amount = $payment[0]['tds_amount'];
-                    $paid_amounts = $payment[0]['amount'] - $payment[0]['pending_amount'];
-                    $pending_amount = $payment[0]['pending_amount'];
-                    $totalamount = $invdata['totalamount'];
-
-                    $roundedTotal = round($grandTotal);
-                    $roundOff = $roundedTotal - $grandTotal;
-                @endphp
+                        $grandTotal = $totalCommission + $cgst + $sgst + $igst;
+                        $roundedTotal = round($grandTotal);
+                        $roundOff = $roundedTotal - $grandTotal;
+                    @endphp
 
                 <tbody>
 
-                    @forelse ($usedInvoices as $key => $row)
+                     @forelse ($usedInvoices as $key => $row)
                         <tr>
                             <td style="text-align:center;">{{ $key + 1 }}</td>
-                            <td style="text-align:center;">{{ $row->garden_name ?? '-' }}</td>
-                            <td style="text-align:center;">{{ $row->buyer_name ?? '-' }}</td>
-                            <td style="text-align:center;">{{ $row->inv_no ?? '-' }}</td>
+                            <td style="text-align:center;">{{ $row['garden_names'] ?? '-' }}</td>
+                            <td style="text-align:center;">{{ $row['buyer_name'] ?? '-' }}</td>
+                            <td style="text-align:center;">{{ $row['inv_no'] ?? '-' }}</td>
                             <td style="text-align:center;">
-                                {{ $row->inv_date ? \Carbon\Carbon::parse($row->inv_date)->format('d-m-Y') : '-' }}
+                                {{ isset($row['inv_date']) ? \Carbon\Carbon::parse($row['inv_date'])->format('d-m-Y') : '-' }}
                             </td>
-                            <td style="text-align:center;">{{ $row->bags ?? 0 }}</td>
-                            <td style="text-align:center;">{{ number_format($row->net_kg ?? 0, 2) }}</td>
-                            <td style="text-align:center;">{{ number_format($row->discount ?? 0, 0) }}</td>
+                            <td style="text-align:center;">{{ $row['bags'] ?? 0 }}</td>
+                            <td style="text-align:center;">{{ number_format($row['net_kg'] ?? 0, 3) }}</td>
+                            <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
+                            <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">
-                                {{ number_format($row->invoice_grand_total, 2) }}</td>
-                            <td style="text-align:center;">
-                                {{ number_format((($row->invoice_grand_total ?? 0) * ($row->brokerage ?? 0)) / 100, 2) }}
+                                {{ number_format((($row['invoice_grand_total'] ?? 0) * ($row['brokerage'] ?? 0)) / 100, 2) }}
                             </td>
                         </tr>
                     @empty

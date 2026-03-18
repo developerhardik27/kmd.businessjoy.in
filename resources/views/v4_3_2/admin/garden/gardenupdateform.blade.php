@@ -114,272 +114,197 @@
         </div>
     </form>
 @endsection
-
 @push('ajax')
-    <script>
-        $('document').ready(function() {
-            // companyId and userId both are required in every ajax request for all action *************
-            // response status == 200 that means response succesfully recieved
-            // response status == 500 that means database not found
-            // response status == 422 that means api has not got valid or required data
-            // get selected garden data and show it into fields
+<script>
+$('document').ready(function () {
 
-
-            // show country data in dropdown
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('country.index') }}",
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                },
-                success: function(response) {
-                    if (response.status == 200 && response.country != '') {
-                        // You can update your HTML with the data here if needed
-                        $.each(response.country, function(key, value) {
-                            $('#country').append(
-                                `<option value='${value.id}'> ${value.country_name}</option>`
-                            )
-                        });
-                    } else {
-                        $('#country').append(`<option disabled> No Data Found</option>`);
-                    }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-
-            // get & set garden old data in the form input
-            var edit_id = @json($edit_id);
-            let gardenSearchUrl = "{{ route('garden.edit', '__editId__') }}".replace('__editId__',
-                edit_id);
-            $.ajax({
-                type: 'GET',
-                url: gardenSearchUrl,
-                data: {
-                    token: "{{ session()->get('api_token') }}",
-                    company_id: "{{ session()->get('company_id') }}",
-                    user_id: " {{ session()->get('user_id') }} "
-                },
-                success: function(response) {
-                    if (response.status == 200) {
-                        data = response.garden;
-
-                        // You can update your HTML with the data here if needed
-                        $('#garden_name').val(data.garden_name);
-                        $('#email').val(data.email);
-                        $('#contact_person_name').val(data.contact_person_name);
-                        $('#mobile_1').val(data.mobile_1);
-                        $('#mobile_2').val(data.mobile_2);
-                        $('#pincode').val(data.pincode);
-                        $('#address').val(data.address);
-                        $('#gst_no').val(data.gst_no);
-                        $('#pan').val(data.pan);
-                        country = data.country_id;
-                        state = data.state_id;
-                        city = data.city_id;
-                        if (country != null) {
-                            $('#country').val(country);
-                        }
-                        loadstate(country, state);
-                        loadcity(state, city);
-
-                    } else if (response.status == 500) {
-                        Toast.fire({
-                            icon: "error",
-                            title: response.message
-                        });
-                    }
-                    loaderhide();
-                },
-                error: function(error) {
-                    loaderhide();
-                    console.error('Error:', error);
-                }
-            });
-
-
-            //show state data in dropdown
-            function loadstate(country, state) {
-                let stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
-                    country);
-                $.ajax({
-                    type: 'GET',
-                    url: stateSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#state').append(
-                                    `<option  value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            });
-                            if (state == null) {
-                                $('#state').val('');
-                            } else {
-                                $('#state').val(state);
-                            }
-                        } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-
-            // show city data in dropdown
-            function loadcity(state, city) {
-                let citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
-                $.ajax({
-                    type: 'GET',
-                    url: citySearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            $.each(response.city, function(key, value) {
-                                // You can update your HTML with the data here if needed
-                                $('#city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                            if (city == null) {
-                                $('#city').val('');
-                            } else {
-                                $('#city').val(city);
-                            }
-
-                        } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-
-
-            // load state data of selected country when country change
-            $('#country').on('change', function() {
-                loadershow();
-                var country = $(this).val();
-                $('#state').html(`<option selected="" disabled="">Select your State</option>`);
-                stateSearchUrl = "{{ route('state.search', '__countryId__') }}".replace('__countryId__',
-                    country);
-                $.ajax({
-                    type: 'GET',
-                    url: stateSearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.state != '') {
-                            // You can update your HTML with the data here if needed
-                            $.each(response.state, function(key, value) {
-                                $('#state').append(
-                                    `<option value='${value.id}'> ${value.state_name}</option>`
-                                )
-                            })
-                        } else {
-                            $('#state').append(`<option disabled> No Data Found</option>`);
-                        }
-                        loaderhide();
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            // load city data of selected state when state change
-            $('#state').on('change', function() {
-                loadershow();
-                $('#city').html(`<option selected="" disabled="">Select your City</option>`);
-                var state = $(this).val();
-                citySearchUrl = "{{ route('city.search', '__stateId__') }}".replace('__stateId__', state);
-                $.ajax({
-                    type: 'GET',
-                    url: citySearchUrl,
-                    data: {
-                        token: "{{ session()->get('api_token') }}"
-                    },
-                    success: function(response) {
-                        if (response.status == 200 && response.city != '') {
-                            $.each(response.city, function(key, value) {
-                                $('#city').append(
-                                    `<option value='${value.id}'> ${value.city_name}</option>`
-                                )
-                            });
-                        } else {
-                            $('#city').append(`<option disabled> No Data Found</option>`);
-                        }
-                        loaderhide();
-                        // You can update your HTML with the data here if needed
-                    },
-                    error: function(error) {
-                        loaderhide();
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            // redirect on garden list page on click cancel btn
-            $('#cancelbtn').on('click', function() {
-                loadershow();
-                window.location.href = "{{ route('admin.garden') }}";
-            });
-
-            // subimt form
-            $('#gardenupdateform').submit(function(event) {
-                event.preventDefault();
-
-                loadershow();
-                $('.error-msg').text('');
-                const formdata = $(this).serialize();
-                $.ajax({
-                    type: 'PUT',
-                    url: "{{ route('garden.update', $edit_id) }}",
-                    data: formdata,
-                    success: function(response) {
-                        // Handle the response from the server
-                        if (response.status == 200) {
-                            // You can perform additional actions, such as showing a success message or redirecting the user
-                            Toast.fire({
-                                icon: "success",
-                                title: response.message
-                            });;
-                            window.location.href =
-                                "{{ route('admin.garden') }}";
-
-                        } else if (response.status == 500) {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: response.message
-                            });
-                        }
-                        loaderhide();
-                    },
-                    error: function(xhr, status, error) { // if calling api request error 
-                        loaderhide();
-                        console.log(xhr
-                            .responseText); // Log the full error response for debugging
-                        handleAjaxError(xhr);
-                    }
-                });
-            })
+    // ── Initialize Select2 ──────────────────────────────────────────
+    function initSelect2(selector, placeholder) {
+        $(selector).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
         });
-    </script>
+    }
+    initSelect2('#country', 'Select your Country');
+    initSelect2('#state',   'Select your State');
+    initSelect2('#city',    'Select your City');
+
+    // ── Load Countries ──────────────────────────────────────────────
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('country.index') }}",
+        data: { token: "{{ session()->get('api_token') }}" },
+        success: function (response) {
+            if (response.status == 200 && response.country != '') {
+                $.each(response.country, function (key, value) {
+                    var option = new Option(value.country_name, value.id, false, false);
+                    $('#country').append(option);
+                });
+                $('#country').trigger('change'); // refresh Select2
+            } else {
+                $('#country').append('<option disabled>No Data Found</option>');
+            }
+            loadGardenData(); // load edit data AFTER countries are ready
+        },
+        error: function (xhr) { handleAjaxError(xhr); }
+    });
+
+    // ── Load edit data and pre-fill form ────────────────────────────
+    function loadGardenData() {
+        var edit_id = @json($edit_id);
+        var url = "{{ route('garden.edit', '__id__') }}".replace('__id__', edit_id);
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: {
+                token: "{{ session()->get('api_token') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                user_id: "{{ session()->get('user_id') }}"
+            },
+            success: function (response) {
+                if (response.status == 200) {
+                    var data = response.garden;
+
+                    // Fill plain inputs
+                    $('#garden_name').val(data.garden_name);
+                    $('#email').val(data.email);
+                    $('#contact_person_name').val(data.contact_person_name);
+                    $('#mobile_1').val(data.mobile_1);
+                    $('#mobile_2').val(data.mobile_2);
+                    $('#pincode').val(data.pincode);
+                    $('#address').val(data.address);
+                    $('#gst_no').val(data.gst_no);
+                    $('#pan').val(data.pan);
+
+                    // Set country and trigger Select2
+                    if (data.country_id) {
+                        $('#country').val(data.country_id).trigger('change');
+                    }
+
+                    // Load states, then pre-select state; inside that load cities and pre-select city
+                    loadstate(data.country_id, data.state_id, data.city_id);
+
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message });
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Load States (with optional pre-select for state & city) ─────
+    function loadstate(countryId, selectedStateId = null, selectedCityId = null) {
+        $('#state').html('<option selected disabled value="">Select your State</option>').trigger('change');
+        $('#city').html('<option selected disabled value="">Select your City</option>').trigger('change');
+
+        if (!countryId) return;
+
+        var url = "{{ route('state.search', '__id__') }}".replace('__id__', countryId);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: { token: "{{ session()->get('api_token') }}" },
+            success: function (response) {
+                if (response.status == 200 && response.state != '') {
+                    $.each(response.state, function (key, value) {
+                        var option = new Option(value.state_name, value.id, false, false);
+                        $('#state').append(option);
+                    });
+
+                    if (selectedStateId) {
+                        $('#state').val(selectedStateId).trigger('change'); // pre-select + refresh Select2
+                        loadcity(selectedStateId, selectedCityId);          // load cities for this state
+                    } else {
+                        $('#state').trigger('change');
+                    }
+                } else {
+                    $('#state').append('<option disabled>No Data Found</option>').trigger('change');
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Load Cities (with optional pre-select) ──────────────────────
+    function loadcity(stateId, selectedCityId = null) {
+        $('#city').html('<option selected disabled value="">Select your City</option>').trigger('change');
+
+        if (!stateId) return;
+
+        var url = "{{ route('city.search', '__id__') }}".replace('__id__', stateId);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: { token: "{{ session()->get('api_token') }}" },
+            success: function (response) {
+                if (response.status == 200 && response.city != '') {
+                    $.each(response.city, function (key, value) {
+                        var option = new Option(value.city_name, value.id, false, false);
+                        $('#city').append(option);
+                    });
+
+                    if (selectedCityId) {
+                        $('#city').val(selectedCityId).trigger('change'); // pre-select + refresh Select2
+                    } else {
+                        $('#city').trigger('change');
+                    }
+                } else {
+                    $('#city').append('<option disabled>No Data Found</option>').trigger('change');
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+
+    // ── Country change (manual) ─────────────────────────────────────
+    $('#country').on('change', function () {
+        var countryId = $(this).val();
+        if (!countryId) return;
+        loadershow();
+        loadstate(countryId);
+    });
+
+    // ── State change (manual) ───────────────────────────────────────
+    $('#state').on('change', function () {
+        var stateId = $(this).val();
+        if (!stateId) return;
+        loadershow();
+        loadcity(stateId);
+    });
+
+    // ── Cancel ──────────────────────────────────────────────────────
+    $('#cancelbtn').on('click', function () {
+        loadershow();
+        window.location.href = "{{ route('admin.garden') }}";
+    });
+
+    // ── Form Submit ─────────────────────────────────────────────────
+    $('#gardenupdateform').submit(function (event) {
+        event.preventDefault();
+        loadershow();
+        $('.error-msg').text('');
+        $.ajax({
+            type: 'PUT',
+            url: "{{ route('garden.update', $edit_id) }}",
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.status == 200) {
+                    Toast.fire({ icon: 'success', title: response.message });
+                    window.location.href = "{{ route('admin.garden') }}";
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message });
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    });
+
+});
+</script>
 @endpush
