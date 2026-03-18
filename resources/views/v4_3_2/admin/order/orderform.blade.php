@@ -37,7 +37,6 @@
 *, *::before, *::after { box-sizing: border-box; }
 body { font-family: var(--font) !important; background: var(--c-bg) !important; }
 
-/* ── Section Cards ── */
 .inv-section {
     background: var(--c-white); border: 1px solid var(--c-border);
     border-radius: var(--radius); box-shadow: var(--shadow-sm);
@@ -56,7 +55,6 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 .inv-section-head h6 { margin: 0; font-size: 13px; font-weight: 700; color: var(--c-text); }
 .inv-section-body { padding: 20px; }
 
-/* ── Form controls ── */
 .f-label {
     display: block; font-size: 11.5px; font-weight: 600;
     color: var(--c-muted); text-transform: uppercase;
@@ -74,8 +72,8 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 .f-ctrl[disabled],.f-ctrl:disabled { background: #f4f5f8 !important; cursor: default; color: var(--c-text); opacity: .85; }
 textarea.f-ctrl { resize: vertical; min-height: 70px; }
 .f-err { font-size: 11px; color: var(--c-danger); margin-top: 3px; display: block; }
+.f-ctrl.field-error { border-color: var(--c-danger) !important; background: var(--c-danger-s) !important; }
 
-/* Select2 */
 .select2-container { width: 100% !important; }
 .select2-container--default .select2-selection--single {
     height: 37px !important; border: 1.5px solid var(--c-border) !important;
@@ -91,7 +89,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 }
 .select2-results__option[aria-disabled="true"] { color: var(--c-danger) !important; }
 
-/* ── Line Items Wrapper ── */
 .li-wrap {
     background: var(--c-white); border: 1px solid var(--c-border);
     border-radius: var(--radius); box-shadow: var(--shadow-sm);
@@ -129,7 +126,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 }
 .btn-add-row:hover { background: var(--c-primary-h); transform: translateY(-1px); }
 
-/* ── Order row cards ── */
 .li-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
 .li-empty { text-align: center; padding: 48px 20px; color: var(--c-muted); }
 .li-empty-icon {
@@ -148,6 +144,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 }
 @keyframes cardIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
 .order-row-card:hover { border-color: #b8c4f5; box-shadow: 0 2px 10px rgba(59,91,219,.09); }
+.order-row-card.card-error { border-color: var(--c-danger) !important; }
 
 .order-card-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -172,24 +169,18 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 .btn-card-del:hover { background: #ffd5d5; transform: scale(1.1); }
 
 .order-card-body { padding: 14px; }
-/* 6-col grid matching invoice */
 .order-field-grid {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 10px 14px; align-items: end;
 }
-/* Amount cell highlight */
 .order-field-grid .amount-cell .f-ctrl {
     font-weight: 700 !important; color: var(--c-primary) !important;
     background: #eef1fd !important; border-color: #c5cff5 !important;
 }
-.order-field-grid .amount-cell .f-ctrl:focus {
-    border-color: var(--c-primary) !important; background: #fff !important;
-}
 .order-card-body .f-label { font-size: 10.5px; margin-bottom: 4px; }
 .order-card-body .f-ctrl  { font-size: 12.5px; padding: 7px 10px; }
 
-/* ── Totals ── */
 .li-totals { border-top: 2px solid var(--c-border); background: #f8f9fd; padding: 20px; }
 .totals-inner { max-width: 380px; margin-left: auto; }
 .t-row {
@@ -205,7 +196,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 .t-row.discount .t-val { color: var(--c-danger); }
 .t-badge { font-size: 10px; font-weight: 700; background: var(--c-warn-s); color: var(--c-warn); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
 
-/* ── Footer Buttons ── */
 .inv-footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .btn-f {
     display: inline-flex; align-items: center; gap: 6px;
@@ -221,32 +211,17 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 .btn-f-cancel { background: #edf0f7; color: var(--c-muted); }
 .btn-f-cancel:hover { background: #e2e6ef; }
 
-/* ── Modal ── */
 .modal-content { border-radius: var(--radius) !important; border: none !important; box-shadow: 0 20px 60px rgba(0,0,0,.15) !important; font-family: var(--font); }
 .modal-header  { background: linear-gradient(90deg,#f0f3ff,#fff); border-bottom: 1px solid var(--c-border) !important; border-radius: var(--radius) var(--radius) 0 0 !important; padding: 16px 22px !important; }
 .modal-title   { font-weight: 700 !important; font-size: 14px !important; color: var(--c-text) !important; }
 
-/* ── Responsive ── */
-@media (max-width: 1200px) { .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
-@media (max-width:  800px) { .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-@media (max-width:  600px) {
-    .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
-    .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-/* ── Order row card body ── */
-.order-card-body .f-label { font-size: 10.5px; margin-bottom: 4px; }
-.order-card-body .f-ctrl  { font-size: 12.5px; padding: 7px 10px; }
-
-/* ── Responsive ── */
 @media (max-width: 1200px) {
     .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .order-field-grid .amount-cell { grid-column: unset; grid-row: unset; }
 }
-@media (max-width: 800px) {
-    .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
-}
-@media (max-width: 600px) {
-    .li-topbar   { flex-direction: column; align-items: flex-start; }
-    .li-quickbar { flex-direction: column; align-items: flex-start; }
+@media (max-width: 800px)  { .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 600px)  {
+    .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
     .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .order-card-body  { padding: 10px; }
     .li-list          { padding: 10px; gap: 8px; }
@@ -257,41 +232,14 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     .btn-add-row      { width: 100%; justify-content: center; }
     .inv-footer       { justify-content: stretch; }
     .btn-f            { flex: 1; justify-content: center; }
+    .totals-inner     { max-width: 100%; }
+    .t-label          { font-size: 11.5px; }
 }
 @media (max-width: 400px) {
     .order-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
     .order-card-head  { padding: 7px 10px; }
 }
-@media (max-width: 600px) {
-    .totals-inner { max-width: 100%; }
-    .t-label      { font-size: 11.5px; }
-}
-/* Desktop: pin Amount to column 6, row 1 */
-.order-field-grid .amount-cell {
-    grid-column: 6;
-    grid-row: 1;
-}
-
-/* Tablet: 4-col grid — let it flow normally */
-@media (max-width: 1200px) {
-    .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .order-field-grid .amount-cell { grid-column: unset; grid-row: unset; }
-}
-
-/* Small tablet: 3-col */
-@media (max-width: 800px) {
-    .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
-}
-
-/* Mobile: 2-col */
-@media (max-width: 600px) {
-    .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-
-/* Small mobile: 1-col */
-@media (max-width: 400px) {
-    .order-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
-}
+.order-field-grid .amount-cell { grid-column: 6; grid-row: 1; }
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -383,7 +331,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="partyModalLabel"><i class="ri-user-add-line mr-2"></i> Add New Party</h5>
-               <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
                 <form id="partyform">
@@ -420,7 +368,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                             <span class="f-err" id="error-country"></span>
                         </div>
                         <div class="col-sm-6 mb-3">
-                            <label class="f-label">State  <span class="req">*</span></label>
+                            <label class="f-label">State <span class="req">*</span></label>
                             <select class="f-ctrl" name="state" id="p_state"><option selected disabled>Select State</option></select>
                             <span class="f-err" id="error-state"></span>
                         </div>
@@ -463,7 +411,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
-    {{-- Party Details --}}
     <div class="inv-section">
         <div class="inv-section-head">
             <div class="ico"><i class="ri-user-3-line"></i></div>
@@ -489,7 +436,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
         </div>
     </div>
 
-    {{-- Order Information --}}
     <div class="inv-section">
         <div class="inv-section-head">
             <div class="ico"><i class="ri-file-list-3-line"></i></div>
@@ -499,7 +445,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
             <div class="row">
                 <div class="col-sm-6 mb-3">
                     <label class="f-label">Credit Days <span class="req">*</span></label>
-                   <select class="f-ctrl credit_days" name="credit_days" id="credit_days">
+                    <select class="f-ctrl" name="credit_days" id="credit_days">
                         <option value="" disabled selected>Select Day</option>
                         <option value="CD">CD</option>
                         <option value="15">15</option>
@@ -512,14 +458,13 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 <div class="col-sm-6 mb-3">
                     <label class="f-label">Discount (%)</label>
-                    <input type="number" step="0.01" class="f-ctrl calculationfield" name="discount" id="discount" placeholder="0.00" value="0" min="0">
+                    <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount" placeholder="0.00" value="0" min="0">
                     <span class="f-err" id="error-discount"></span>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Order Line Items --}}
     <div class="li-wrap">
         <div class="li-topbar">
             <div class="li-topbar-left">
@@ -528,21 +473,17 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 <span class="li-count-badge" id="li-count">0</span>
             </div>
         </div>
-
         <div class="li-quickbar">
             <button type="button" id="addRowBtn" class="btn-add-row">
                 <i class="ri-add-circle-line"></i> Add New Row
             </button>
         </div>
-
         <div class="li-list" id="purchaseBody">
             <div id="li-empty" class="li-empty">
                 <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
                 <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
             </div>
         </div>
-
-        {{-- Totals --}}
         <div class="li-totals">
             <div class="totals-inner">
                 <div class="t-row">
@@ -565,7 +506,6 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
         </div>
     </div>
 
-    {{-- Footer --}}
     <div class="inv-section">
         <div class="inv-section-body">
             <div class="inv-footer">
@@ -582,40 +522,263 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 <script src="{{ asset('admin/js/select2.min.js') }}"></script>
 <script>
 $(document).ready(function () {
+
     let message = "{{ session('message') }}";
     if (message) Toast.fire({ icon: 'error', title: message });
 
-    let gardens = '', grades = '', partyType;
+    let gardens = '', grades = '';
     let rowCount = 0;
 
-    /* ── focus/blur for number fields ── */
-    $(document).on('focus', '.calculationfield', function () { if ($(this).val() == '0') $(this).val(''); });
-    $(document).on('blur',  '.calculationfield', function () { if ($(this).val() === '') $(this).val('0'); });
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
+       CALCULATION ENGINE
+       lastTyped stored per-row as jQuery data on the card
+    ════════════════════════════════════════════════════════ */
+
+    /**
+     * Safe parse — returns null for empty/non-numeric, number otherwise
+     * TC-16: non-numeric returns null → treated as empty
+     */
+    function safeFloat(val) {
+        if (val === '' || val === null || val === undefined) return null;
+        const n = parseFloat(val);
+        return isNaN(n) ? null : n;
+    }
+
+    /**
+     * Validate a single number field
+     * TC-11: negatives → error
+     * TC-16: non-numeric → error
+     */
+    function validateField($el) {
+        const raw = $el.val().trim();
+        if (raw === '' || raw === '0') { $el.removeClass('field-error'); return true; }
+        const n = parseFloat(raw);
+        if (isNaN(n)) {
+            $el.addClass('field-error');
+            Toast.fire({ icon: 'warning', title: `${$el.closest('div').find('.f-label').text().trim()} must be a number` });
+            $el.val('0');
+            return false;
+        }
+        if (n < 0) {
+            $el.addClass('field-error');
+            Toast.fire({ icon: 'warning', title: `${$el.closest('div').find('.f-label').text().trim()} cannot be negative` });
+            $el.val('0');
+            return false;
+        }
+        $el.removeClass('field-error');
+        return true;
+    }
+
+    /**
+     * Core calculation — all TC rules
+     */
+    function recalcRow(row, changedField) {
+        const $bags = row.find('.bags');
+        const $kg   = row.find('.kg');
+        const $net  = row.find('.net-kg');
+        const $rate = row.find('.rate');
+        const $amt  = row.find('.amount');
+
+        // TC-16 validation on changed field
+        if (!validateField(row.find('.' + changedField))) return;
+
+        let bags = safeFloat($bags.val());
+        let kg   = safeFloat($kg.val());
+        let net  = safeFloat($net.val());
+        const rate = safeFloat($rate.val()) || 0;
+
+        // TC-13: all empty → nothing to calculate
+        if (bags === null && kg === null && net === null) {
+            $amt.val('0.00');
+            calculateTotals();
+            return;
+        }
+
+        // TC-12: only one field filled → no calculation yet
+        const filledCount = [bags, kg, net].filter(v => v !== null && v > 0).length;
+        if (filledCount < 2 && changedField !== 'rate') {
+            // Still update amount if we have net + rate
+            if (net !== null && net > 0 && rate > 0) {
+                $amt.val((net * rate).toFixed(2));
+            }
+            calculateTotals();
+            return;
+        }
+
+        // Normalise nulls to 0 for math
+        bags = bags || 0;
+        kg   = kg   || 0;
+        net  = net  || 0;
+
+        /* ── TC-11: negative → reset ── */
+        if (bags < 0 || kg < 0 || net < 0) {
+            $bags.val('0'); $kg.val('0'); $net.val('0'); $amt.val('0.00');
+            calculateTotals();
+            return;
+        }
+
+        /* ── LOGIC ── */
+        if (changedField === 'bags') {
+            // TC-01: Bags + Kg → Net   (bags=10, kg=50 → net=500)
+            // TC-04: Change Bags       (bags→12, kg=50 → net=600)
+            // TC-08: Bags=0, Kg=50 → Net=0
+            // TC-09: Bags=2.5, Kg=40 → Net=100
+            // TC-10: Large values
+            if (kg > 0) {
+                net = bags * kg;
+            }
+            // TC-02 partial: Bags + Net → Kg
+            else if (net > 0 && bags > 0) {
+                kg = net / bags;
+            }
+        }
+
+        else if (changedField === 'kg') {
+            // TC-01 variant: Bags + Kg → Net
+            // TC-05: Change Kg (bags=10, kg→60 → net=600)
+            if (bags > 0) {
+                net = bags * kg;
+            }
+            // TC-03 partial: Kg + Net → Bags
+            else if (net > 0 && kg > 0) {
+                bags = net / kg;
+            }
+
+            // TC-17: Kg cleared → clear Net too
+            if (kg === 0 && bags === 0) {
+                net = 0;
+            }
+        }
+
+        else if (changedField === 'net-kg') {
+            // TC-17: Net cleared
+            if (net === 0) {
+                $amt.val('0.00');
+                calculateTotals();
+                return;
+            }
+
+            // lastTyped set on INPUT of bags/kg tells us what user manually typed
+            const lastTyped = row.data('lastTyped') || '';
+            if (lastTyped === 'bags' && bags > 0 && kg > 0) {
+                // TC-02: User typed Bags → derive Kg
+                // TC-06: Both filled, lastTyped=bags → Kg = net/bags
+                kg = net / bags;
+            }
+            else if (lastTyped === 'kg' && kg > 0) {
+                // TC-03: User typed Kg → derive Bags
+                bags = net / kg;
+            }
+            else {
+                // Fallback when no lastTyped (fresh row)
+                if (bags > 0 && kg === 0)      kg   = net / bags;
+                else if (kg > 0 && bags === 0) bags = net / kg;
+                else if (bags > 0 && kg > 0)   kg   = net / bags; // bags anchor
+            }
+        }
+
+        else if (changedField === 'rate') {
+            // Rate change → just recalc amount, no bags/kg/net change
+        }
+
+        /* ── TC-11 / safety: no negative, NaN, Infinity ── */
+        if (!isFinite(bags) || isNaN(bags) || bags < 0) bags = 0;
+        if (!isFinite(kg)   || isNaN(kg)   || kg   < 0) kg   = 0;
+        if (!isFinite(net)  || isNaN(net)  || net  < 0) net  = 0;
+
+        /* ── TC-18: precision — use up to 4 decimal places ── */
+        const fmtNum = n => n > 0 ? parseFloat(n.toFixed(4)) : '';
+
+        // Update only non-active fields (TC-14: don't rewrite what user is typing)
+        if (changedField !== 'bags')   $bags.val(fmtNum(bags));
+        if (changedField !== 'kg')     $kg.val(fmtNum(kg));
+        if (changedField !== 'net-kg') $net.val(fmtNum(net));
+
+        /* ── Amount ── */
+        const amount = (net > 0 && rate > 0) ? net * rate : 0;
+        $amt.val(amount > 0 ? amount.toFixed(2) : '0.00');
+
+        calculateTotals();
+    }
+
+    /* ════════════════════════════════════════════════════════
+       TOTALS
+    ════════════════════════════════════════════════════════ */
+    function calculateTotals() {
+        let totalNetKg = 0, totalAmount = 0;
+        $('.net-kg').each(function () { totalNetKg += parseFloat($(this).val()) || 0; });
+        $('.amount').each(function () { totalAmount += parseFloat($(this).val()) || 0; });
+        const discountPct    = parseFloat($('#discount').val()) || 0;
+        const discountAmount = (totalAmount * discountPct) / 100;
+        const finalAmount    = totalAmount - discountAmount;
+        $('#totalNetKg').text(totalNetKg.toFixed(2));
+        $('#totalAmount').text(totalAmount.toFixed(2));
+        $('#discountAmount').text(discountAmount.toFixed(2));
+        $('#finalAmount').text(finalAmount.toFixed(2));
+        $('#discountBadge').text(discountPct + '%');
+    }
+
+    /* ════════════════════════════════════════════════════════
+       EVENT BINDING FOR CALCULATION FIELDS
+    ════════════════════════════════════════════════════════ */
+
+    // TC-14: on focus clear zero
+    $(document).on('focus', '.bags, .kg, .net-kg, .rate', function () {
+        if ($(this).val() == '0') $(this).val('');
+    });
+
+    // TC-15: blur → restore 0 if empty
+    $(document).on('blur', '.bags, .kg, .net-kg, .rate', function () {
+        const val = parseFloat($(this).val());
+        if (isNaN(val) || $(this).val().trim() === '') $(this).val('0');
+    });
+
+    // Track which of bags/kg the user MANUALLY typed — used by changedNet logic
+    // Set on INPUT (not focus) so auto-calculated values don't overwrite it
+    $(document).on('input', '.bags, .kg', function () {
+        const row = $(this).closest('.order-row-card');
+        if (!row.length) return;
+        if ($(this).hasClass('bags'))                         row.data('lastTyped', 'bags');
+        else if ($(this).hasClass('kg') && !$(this).hasClass('net-kg')) row.data('lastTyped', 'kg');
+    });
+
+    // TC-14 / TC-15: main input handler — debounced for TC-15 stability
+    let calcTimer = null;
+    $(document).on('input', '.bags, .kg, .net-kg, .rate', function () {
+        const row = $(this).closest('.order-row-card');
+        if (!row.length) return;
+
+        const changedField = ['bags','kg','net-kg'].find(c => $(this).hasClass(c)) || 'rate';
+
+        clearTimeout(calcTimer);
+        calcTimer = setTimeout(() => {
+            recalcRow(row, changedField);
+        }, 80);
+    });
+
+    // Discount change → recalc totals only
+    $('#discount').on('input', function () { calculateTotals(); });
+
+    /* ════════════════════════════════════════════════════════
        ROW COUNT BADGE
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     function updateRowCount() {
         const n = $('#purchaseBody .order-row-card').length;
         $('#li-count').text(n);
         n === 0 ? $('#li-empty').show() : $('#li-empty').hide();
     }
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        BUILD A ROW CARD
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     function addNewRow() {
         rowCount++;
-        
-        // Get the most recently selected garden for auto-population
         let lastSelectedGarden = null;
-        const $lastGardenSelect = $('.garden-select').filter(function() {
+        const $last = $('.garden-select').filter(function () {
             return $(this).val() && $(this).val() !== 'add_new';
         }).last();
-        
-        if ($lastGardenSelect.length > 0) {
-            lastSelectedGarden = $lastGardenSelect.val();
-        }
-        
+        if ($last.length) lastSelectedGarden = $last.val();
+
         const card = `
         <div class="order-row-card" id="row_${rowCount}">
             <div class="order-card-head">
@@ -645,24 +808,24 @@ $(document).ready(function () {
                     </div>
                     <div>
                         <label class="f-label">Bags</label>
-                        <input type="number" class="f-ctrl bags calculationfield" name="bags[]" placeholder="0" value="0" min="0">
+                        <input type="number" class="f-ctrl bags" name="bags[]" placeholder="0" value="0" min="0" step="0.01">
                         <span class="f-err row-f-err err-bags"></span>
                     </div>
                     <div>
                         <label class="f-label">Kg</label>
-                        <input type="number" step="0.01" class="f-ctrl kg calculationfield" name="kg[]" placeholder="0.00" value="0" min="0">
+                        <input type="number" step="0.01" class="f-ctrl kg" name="kg[]" placeholder="0.00" value="0" min="0">
                         <span class="f-err row-f-err err-kg"></span>
                     </div>
                     <div>
                         <label class="f-label">Net Kg</label>
-                        <input type="number" step="0.01" class="f-ctrl net-kg calculationfield" name="net_kg[]"  placeholder="0.00">
+                        <input type="number" step="0.001" class="f-ctrl net-kg" name="net_kg[]" placeholder="0.00" value="0" min="0">
                     </div>
                     <div>
                         <label class="f-label">Rate / Kg <span style="color:var(--c-danger)">*</span></label>
-                        <input type="number" step="0.01" class="f-ctrl rate calculationfield" name="rate[]" placeholder="0.00" value="0" min="0">
+                        <input type="number" step="0.01" class="f-ctrl rate" name="rate[]" placeholder="0.00" value="0" min="0">
                         <span class="f-err row-f-err err-rate"></span>
                     </div>
-                   <div class="amount-cell">
+                    <div class="amount-cell">
                         <label class="f-label">Amount</label>
                         <input type="number" class="f-ctrl amount" name="amt[]" disabled placeholder="0.00">
                         <span class="f-err row-f-err err-amount"></span>
@@ -674,123 +837,26 @@ $(document).ready(function () {
         $('#li-empty').before(card);
         updateRowCount();
         $('[data-toggle="tooltip"]').tooltip('dispose').tooltip();
-        
-        // Initialize Select2 for the new garden dropdown
-        $(`#row_${rowCount} .garden-select`).select2({
-            placeholder: 'Select Garden',
-            width: '100%',
-            allowClear: true,
-            search: true
-        });
-        
-        // Initialize Select2 for the new grade dropdown
-        $(`#row_${rowCount} .grade-select`).select2({
-            placeholder: 'Select Grade',
-            width: '100%',
-            allowClear: true,
-            search: true
-        });
-        
-        // Auto-select the last selected garden if it exists
+
+        $(`#row_${rowCount} .garden-select`).select2({ placeholder: 'Select Garden', width: '100%', allowClear: true });
+        $(`#row_${rowCount} .grade-select`).select2({ placeholder: 'Select Grade', width: '100%', allowClear: true });
+
         if (lastSelectedGarden) {
             $(`#row_${rowCount} .garden-select`).val(lastSelectedGarden).trigger('change');
         }
     }
 
-    /* ════════════════════════════════
-       TOTALS
-    ════════════════════════════════ */
-    function calculateTotals() {
-        let totalNetKg = 0, totalAmount = 0;
-
-        $('.net-kg').each(function () {
-            totalNetKg += parseFloat($(this).val()) || 0;
-        });
-
-        $('.amount').each(function () {
-            totalAmount += parseFloat($(this).val()) || 0;
-        });
-
-        const discountPct = parseFloat($('#discount').val()) || 0;
-        const discountAmount = (totalAmount * discountPct) / 100;
-        const finalAmount = totalAmount - discountAmount;
-
-        $('#totalNetKg').text(totalNetKg.toFixed(2));
-        $('#totalAmount').text(totalAmount.toFixed(2));
-        $('#discountAmount').text(discountAmount.toFixed(2));
-        $('#finalAmount').text(finalAmount.toFixed(2));
-        $('#discountBadge').text(discountPct + '%');
-    }
-
-
-    // MAIN CALCULATION
-    $(document).on('keyup change', '.calculationfield', function () {
-
-        const row = $(this).closest('.order-row-card');
-
-        let bags  = parseFloat(row.find('.bags').val()) || 0;
-        let kg    = parseFloat(row.find('.kg').val()) || 0;
-        let netKg = parseFloat(row.find('.net-kg').val()) || 0;
-        let rate  = parseFloat(row.find('.rate').val()) || 0;
-
-        const isBagsChanged  = $(this).hasClass('bags');
-        const isKgChanged    = $(this).hasClass('kg') && !$(this).hasClass('net-kg');
-        const isNetKgChanged = $(this).hasClass('net-kg');
-
-        // 🔥 LOGIC
-        if (isNetKgChanged) {
-            if (kg > 0) {
-                // keep kg fixed → update bags
-                bags = netKg / kg;
-            } else if (bags > 0) {
-                // keep bags fixed → update kg
-                kg = netKg / bags;
-            }
-        } 
-        else if (isBagsChanged) {
-            if (kg > 0) {
-                netKg = bags * kg;
-            } else if (netKg > 0 && bags > 0) {
-                kg = netKg / bags;
-            }
-        } 
-        else if (isKgChanged) {
-            if (bags > 0) {
-                netKg = bags * kg;
-            } else if (netKg > 0 && kg > 0) {
-                bags = netKg / kg;
-            }
-        }
-
-        // ✅ Update fields
-        row.find('.bags').val(bags > 0 ? bags.toFixed(0) : '');
-        row.find('.kg').val(kg > 0 ? kg.toFixed(2) : '');
-        row.find('.net-kg').val(netKg > 0 ? netKg.toFixed(2) : '');
-
-        // 💰 Amount
-        const amount = netKg * rate;
-        row.find('.amount').val(amount.toFixed(2));
-
-        calculateTotals();
-    });
-
-    /* ════════════════════════════════
-       ADD / REMOVE ROW
-    ════════════════════════════════ */
-    $('#addRowBtn').on('click', function() {
-        // Check if first row has garden selected
-        const $firstRowGarden = $('.garden-select').first();
-        if ($firstRowGarden.length > 0 && !$firstRowGarden.val()) {
-            Toast.fire({ 
-                icon: 'warning', 
-                title: 'Please select a garden in the first row before adding new rows.' 
-            });
+    /* ADD ROW */
+    $('#addRowBtn').on('click', function () {
+        const $firstGarden = $('.garden-select').first();
+        if ($firstGarden.length > 0 && !$firstGarden.val()) {
+            Toast.fire({ icon: 'warning', title: 'Please select a garden in the first row before adding new rows.' });
             return;
         }
-        
         addNewRow();
     });
 
+    /* REMOVE ROW */
     $(document).on('click', '.remove-row', function () {
         const card = $(this).closest('.order-row-card');
         Swal.fire({
@@ -802,19 +868,14 @@ $(document).ready(function () {
         });
     });
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        GARDEN MODAL
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     $('#gardenModal').on('shown.bs.modal', loadcountry);
     $('#modal_cancelBtn').on('click', () => { $('#gardenform')[0].reset(); $('#gardenModal').modal('hide'); });
 
     $(document).on('change', '.garden-select', function () {
-        // Handle "Add New Garden" option
-        if ($(this).val() === 'add_new') { 
-            $(this).val(''); 
-            $('#gardenModal').modal('show'); 
-            return;
-        }
+        if ($(this).val() === 'add_new') { $(this).val(''); $('#gardenModal').modal('show'); }
     });
 
     $('#gardenform').submit(function (e) {
@@ -832,55 +893,32 @@ $(document).ready(function () {
         });
     });
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        PARTY MODAL
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     $(document).on('change', '#buyer_party, #transport', function () {
         const opt = $(this).find(':selected');
-
         if (opt.val() === 'add_new') {
-            // Determine party type
-            let partyType = opt.data('type');
-
-            // Clear the dropdown that triggered this to reset
-            if (partyType === 'Buyer') {
-                $('#buyer_party').val('');
-            } else {
-                $('#transport').val('');
-            }
-
-            // Update modal title and hidden party_type input
-            $('#partyModalLabel').text(`Add New  Party - ${partyType}`);
-            $('#party_type').val(partyType);
-
-            // Load countries for modal (your existing function)
+            let pType = opt.data('type');
+            if (pType === 'Buyer') $('#buyer_party').val(''); else $('#transport').val('');
+            $('#partyModalLabel').text(`Add New Party - ${pType}`);
+            $('#party_type').val(pType);
             loadPartyCountry();
-
-            // Show the modal
             $('#partyModal').modal('show');
-
-            // Clear dropdown selection after modal opens
             $(this).val('');
-
-            // --- NEW: handle Transport special logic ---
-            if (partyType === 'Transport') {
-                // Remove red asterisk from State
+            if (pType === 'Transport') {
                 $('#p_state').prev('label').find('span.req').remove();
-
-                // Clear any previous error
                 $('#error-state').text('');
-
-                // Reset state & city dropdowns
                 $('#p_state, #p_city').val('').prop('selectedIndex', 0);
-            } else if (partyType === 'Buyer') {
-                // Add asterisk back for Buyer if missing
+            } else if (pType === 'Buyer') {
                 if ($('#p_state').prev('label').find('span.req').length === 0) {
                     $('#p_state').prev('label').append('<span class="req">*</span>');
                 }
             }
         }
     });
-    $('#modalcancelbtn').on('click', () => { $('#partyform')[0].reset(); $('#partyModal').modal('hide'); $('#error-state').text(''); $('#error-name').text(''); });
+
+    $('#modalcancelbtn').on('click', () => { $('#partyform')[0].reset(); $('#partyModal').modal('hide'); $('#error-state, #error-name').text(''); });
 
     $('#partyform').submit(function (e) {
         e.preventDefault(); loadershow(); $('.f-err').text('');
@@ -888,8 +926,6 @@ $(document).ready(function () {
             success: function (r) {
                 if (r.status == 200) {
                     Toast.fire({ icon: 'success', title: r.message });
-                    console.log('Party ID:', r.data['party_id']);
-                    console.log('Party Type:', r.data['party_type']);
                     if (r.data['party_type'] === 'Buyer') buyer_party(r.data['party_id']); else transport(r.data['party_id']);
                     $('#partyform')[0].reset(); $('#partyModal').modal('hide');
                 } else Toast.fire({ icon: 'error', title: r.message });
@@ -899,216 +935,118 @@ $(document).ready(function () {
         });
     });
 
-    /* ════════════════════════════════
-       LOCATION HELPERS — GARDEN
-    ════════════════════════════════ */
+    /* ════════════════════════════════════════════════════════
+       LOCATION — GARDEN MODAL
+    ════════════════════════════════════════════════════════ */
     function loadcountry() {
         $.ajax({ type: 'GET', url: "{{ route('country.index') }}", data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
-                if (r.status == 200 && r.country != '') {
+                if (r.status == 200 && r.country) {
                     $('#country').html('<option value="">Select Country</option>');
                     $.each(r.country, function (k, v) {
-                        let selected = v.id == 101 ? 'selected' : '';
-                        $('#country').append(`<option value="${v.id}" ${selected}>${v.country_name}</option>`);
+                        $('#country').append(`<option value="${v.id}" ${v.id==101?'selected':''}>${v.country_name}</option>`);
                     });
-                    if ($('#country').hasClass('select2-hidden-accessible')) {
-                        $('#country').select2('destroy');
-                    }
-                    $('#country').select2({
-                        placeholder: 'Select Country',
-                        allowClear: true,
-                        width: '100%',
-                        dropdownParent: $('#gardenModal')
-                    });
+                    if ($('#country').hasClass('select2-hidden-accessible')) $('#country').select2('destroy');
+                    $('#country').select2({ placeholder: 'Select Country', allowClear: true, width: '100%', dropdownParent: $('#gardenModal') });
                     loadstate();
                 }
                 loaderhide();
             }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
         });
     }
-
     $('#country').on('change', function () {
         loadershow();
-        $('#city').html('<option value="">Select City</option>');
         if ($('#city').hasClass('select2-hidden-accessible')) $('#city').select2('destroy');
+        $('#city').html('<option value="">Select City</option>');
         $('#city').select2({ placeholder: 'Select City', allowClear: true, width: '100%', dropdownParent: $('#gardenModal') });
         loadstate($(this).val());
     });
-
     function loadstate(id = 0) {
         $('#state').html('<option value="">Select State</option>');
-        const url = id == 0
-            ? "{{ route('state.search', session('user')['country_id']) }}"
-            : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
-                if (r.status == 200 && r.state != '') {
-                    $.each(r.state, function (k, v) {
-                        $('#state').append(`<option value="${v.id}">${v.state_name}</option>`);
-                });
+                if (r.status == 200 && r.state) $.each(r.state, (k,v) => $('#state').append(`<option value="${v.id}">${v.state_name}</option>`));
                 if (id == 0) loadcity();
-            }
-            if ($('#state').hasClass('select2-hidden-accessible')) {
-                $('#state').select2('destroy');
-            }
-            $('#state').select2({
-                placeholder: 'Select State',
-                allowClear: true,
-                width: '100%',
-                dropdownParent: $('#gardenModal')
-            });
-            loaderhide();
-        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+                if ($('#state').hasClass('select2-hidden-accessible')) $('#state').select2('destroy');
+                $('#state').select2({ placeholder: 'Select State', allowClear: true, width: '100%', dropdownParent: $('#gardenModal') });
+                loaderhide();
+            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+    $('#state').on('change', function () { loadershow(); loadcity($(this).val()); });
+    function loadcity(id = 0) {
+        $('#city').html('<option value="">Select City</option>');
+        const url = id == 0 ? "{{ route('city.search', session('user')['state_id']) }}" : "{{ route('city.search','__id__') }}".replace('__id__', id);
+        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
+            success: function (r) {
+                if (r.status == 200 && r.city) $.each(r.city, (k,v) => $('#city').append(`<option value="${v.id}">${v.city_name}</option>`));
+                if ($('#city').hasClass('select2-hidden-accessible')) $('#city').select2('destroy');
+                $('#city').select2({ placeholder: 'Select City', allowClear: true, width: '100%', dropdownParent: $('#gardenModal') });
+                loaderhide();
+            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+    $('#gardenModal').on('hidden.bs.modal', function () {
+        ['#country','#state','#city'].forEach(s => { if ($(s).hasClass('select2-hidden-accessible')) $(s).select2('destroy'); });
     });
-}
 
-$('#state').on('change', function () {
-    loadershow();
-    loadcity($(this).val());
-});
-
-function loadcity(id = 0) {
-    $('#city').html('<option value="">Select City</option>');
-    const url = id == 0
-        ? "{{ route('city.search', session('user')['state_id']) }}"
-        : "{{ route('city.search','__id__') }}".replace('__id__', id);
-    $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
-        success: function (r) {
-            if (r.status == 200 && r.city != '') {
-                $.each(r.city, function (k, v) {
-                    $('#city').append(`<option value="${v.id}">${v.city_name}</option>`);
-                });
-            }
-            if ($('#city').hasClass('select2-hidden-accessible')) {
-                $('#city').select2('destroy');
-            }
-            $('#city').select2({
-                placeholder: 'Select City',
-                allowClear: true,
-                width: '100%',
-                dropdownParent: $('#gardenModal')
-            });
-            loaderhide();
-        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-    });
-}
-
-// Destroy on modal close to prevent ghost dropdowns
-$('#gardenModal').on('hidden.bs.modal', function () {
-    ['#country', '#state', '#city'].forEach(sel => {
-        if ($(sel).hasClass('select2-hidden-accessible')) {
-            $(sel).select2('destroy');
-        }
-    });
-});
-    /* ════════════════════════════════
-       LOCATION HELPERS — PARTY
-   /* ── LOCATION HELPERS — PARTY ── */
+    /* ════════════════════════════════════════════════════════
+       LOCATION — PARTY MODAL
+    ════════════════════════════════════════════════════════ */
     function loadPartyCountry() {
         $.ajax({ type: 'GET', url: "{{ route('country.index') }}", data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
-                if (r.status == 200 && r.country != '') {
+                if (r.status == 200 && r.country) {
                     $('#p_country').html('<option value="">Select Country</option>');
-                    $.each(r.country, function (k, v) {
-                        let selected = v.id == 101 ? 'selected' : '';
-                        $('#p_country').append(`<option value="${v.id}" ${selected}>${v.country_name}</option>`);
-                    });
-                    // Destroy old instance before re-init
-                    if ($('#p_country').hasClass('select2-hidden-accessible')) {
-                        $('#p_country').select2('destroy');
-                    }
-                    $('#p_country').select2({
-                        placeholder: 'Select Country',
-                        allowClear: true,
-                        width: '100%',
-                        dropdownParent: $('#partyModal')
-                    });
+                    $.each(r.country, (k,v) => $('#p_country').append(`<option value="${v.id}" ${v.id==101?'selected':''}>${v.country_name}</option>`));
+                    if ($('#p_country').hasClass('select2-hidden-accessible')) $('#p_country').select2('destroy');
+                    $('#p_country').select2({ placeholder: 'Select Country', allowClear: true, width: '100%', dropdownParent: $('#partyModal') });
                     loadPartyState();
                 }
                 loaderhide();
             }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
         });
     }
-
-    $('#p_country').on('change', function () {
-        loadershow();
-        loadPartyState($(this).val());
-    });
-
+    $('#p_country').on('change', function () { loadershow(); loadPartyState($(this).val()); });
     function loadPartyState(id = 0) {
         $('#p_state').html('<option value="">Select State</option>');
-        const url = id == 0
-            ? "{{ route('state.search', session('user')['country_id']) }}"
-            : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
-                if (r.status == 200 && r.state != '') {
-                    $.each(r.state, function (k, v) {
-                        $('#p_state').append(`<option value="${v.id}">${v.state_name}</option>`);
-                    });
-            }
-            if ($('#p_state').hasClass('select2-hidden-accessible')) {
-                $('#p_state').select2('destroy');
-            }
-            $('#p_state').select2({
-                placeholder: 'Select State',
-                allowClear: true,
-                width: '100%',
-                dropdownParent: $('#partyModal')
-            });
-            loaderhide();
-        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+                if (r.status == 200 && r.state) $.each(r.state, (k,v) => $('#p_state').append(`<option value="${v.id}">${v.state_name}</option>`));
+                if ($('#p_state').hasClass('select2-hidden-accessible')) $('#p_state').select2('destroy');
+                $('#p_state').select2({ placeholder: 'Select State', allowClear: true, width: '100%', dropdownParent: $('#partyModal') });
+                loaderhide();
+            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+    $('#p_state').on('change', function () { loadershow(); loadPartyCity($(this).val()); });
+    function loadPartyCity(id = 0) {
+        $('#p_city').html('<option value="">Select City</option>');
+        const url = "{{ route('city.search','__id__') }}".replace('__id__', id);
+        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
+            success: function (r) {
+                if (r.status == 200 && r.city) $.each(r.city, (k,v) => $('#p_city').append(`<option value="${v.id}">${v.city_name}</option>`));
+                if ($('#p_city').hasClass('select2-hidden-accessible')) $('#p_city').select2('destroy');
+                $('#p_city').select2({ placeholder: 'Select City', allowClear: true, width: '100%', dropdownParent: $('#partyModal') });
+                loaderhide();
+            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+    $('#partyModal').on('hidden.bs.modal', function () {
+        ['#p_country','#p_state','#p_city'].forEach(s => { if ($(s).hasClass('select2-hidden-accessible')) $(s).select2('destroy'); });
     });
-}
 
-$('#p_state').on('change', function () {
-    loadershow();
-    loadPartyCity($(this).val());
-});
-
-function loadPartyCity(id = 0) {
-    $('#p_city').html('<option value="">Select City</option>');
-    const url = "{{ route('city.search','__id__') }}".replace('__id__', id);
-    $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
-        success: function (r) {
-            if (r.status == 200 && r.city != '') {
-                $.each(r.city, function (k, v) {
-                    $('#p_city').append(`<option value="${v.id}">${v.city_name}</option>`);
-                });
-            }
-            if ($('#p_city').hasClass('select2-hidden-accessible')) {
-                $('#p_city').select2('destroy');
-            }
-            $('#p_city').select2({
-                placeholder: 'Select City',
-                allowClear: true,
-                width: '100%',
-                dropdownParent: $('#partyModal')
-            });
-            loaderhide();
-        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-    });
-}
-
-// Destroy Select2 instances when modal closes to prevent ghost dropdowns
-$('#partyModal').on('hidden.bs.modal', function () {
-    ['#p_country', '#p_state', '#p_city'].forEach(sel => {
-        if ($(sel).hasClass('select2-hidden-accessible')) {
-            $(sel).select2('destroy');
-        }
-    });
-});
-
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        FETCH GARDENS
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     async function fetchGardens(selectId = null) {
         try {
             const r = await ajaxRequest('GET', "{{ route('garden.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
             gardens = '<option value="" selected disabled>Select Garden</option>';
-            if (r.data && r.data.length > 0) r.data.forEach(g => { gardens += `<option value="${g.id}">${g.garden_name}</option>`; });
+            if (r.data && r.data.length) r.data.forEach(g => { gardens += `<option value="${g.id}">${g.garden_name}</option>`; });
             gardens += `<option value="add_new">+ Add New Garden</option>`;
-
             if (selectId) {
                 $('.garden-select').each(function () {
                     let cur = $(this).val();
@@ -1117,49 +1055,35 @@ $('#partyModal').on('hidden.bs.modal', function () {
                 });
                 $('.garden-select').filter(function () { return !$(this).val(); }).last().val(selectId);
             }
-            
-            // Initialize Select2 for garden dropdowns with search
-            $('.garden-select').select2({
-                placeholder: 'Select Garden',
-                width: '100%',
-                allowClear: true,
-                search: true
-            });
+            $('.garden-select').select2({ placeholder: 'Select Garden', width: '100%', allowClear: true });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        FETCH GRADE
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     async function fetchGrade() {
         try {
             const r = await ajaxRequest('GET', "{{ route('grade.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
             grades = '<option value="" selected disabled>Select Grade</option>';
             if (r.data && r.data.length) r.data.forEach(g => { grades += `<option value="${g.id}">${g.grade}</option>`; });
-            
-            // Initialize Select2 for grade dropdowns with search
-            $('.grade-select').select2({
-                placeholder: 'Select Grade',
-                width: '100%',
-                allowClear: true,
-                search: true
-            });
+            $('.grade-select').select2({ placeholder: 'Select Grade', width: '100%', allowClear: true });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        FETCH BUYERS / TRANSPORT
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     async function buyer_party(party_id = null) {
         try {
             const r = await ajaxRequest('GET', "{{ route('buyer.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
             const $sel = $('#buyer_party');
             $sel.empty().append('<option value="" selected disabled>Select Buyer</option><option value="add_new" data-type="Buyer">+ Add New Buyer</option>');
-            if (r.data && r.data.length) r.data.forEach(p => { $sel.append(`<option value="${p.id}">${p.name}</option>`); });
+            if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
             if (party_id) $sel.val(party_id);
-            $sel.select2({ placeholder: 'Select Buyer', width: '100%', search: true });
+            $sel.select2({ placeholder: 'Select Buyer', width: '100%' });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
@@ -1169,56 +1093,48 @@ $('#partyModal').on('hidden.bs.modal', function () {
             const r = await ajaxRequest('GET', "{{ route('transport.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
             const $sel = $('#transport');
             $sel.empty().append('<option value="" selected disabled>Select Transport</option><option value="add_new" data-type="Transport">+ Add New Transport</option>');
-            if (r.data && r.data.length) r.data.forEach(p => { $sel.append(`<option value="${p.id}">${p.name}</option>`); });
+            if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
             if (party_id) $sel.val(party_id);
-            $sel.select2({ placeholder: 'Select Transport', width: '100%', search: true });
+            $sel.select2({ placeholder: 'Select Transport', width: '100%' });
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        INIT
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     async function initOrderForm() {
         loadershow();
         try {
             await Promise.all([ fetchGardens(), fetchGrade(), buyer_party(), transport() ]);
-            $('#credit_days').select2({
-                placeholder: 'Select Credit Days',
-                allowClear: true,
-                width: '100%'
-            });
+            $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
             addNewRow();
         } catch (e) { handleAjaxError(e); }
         finally { loaderhide(); }
     }
     initOrderForm();
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        CANCEL
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     $('#cancelbtn').on('click', () => { loadershow(); window.location.href = "{{ route('admin.order') }}"; });
 
-    /* ════════════════════════════════
+    /* ════════════════════════════════════════════════════════
        SUBMIT
-    ════════════════════════════════ */
+    ════════════════════════════════════════════════════════ */
     $('#orderform').submit(function (e) {
         e.preventDefault();
-
-        // Clear all previous row-level errors + card highlights
         $('.row-f-err').text('');
-        $('.order-row-card').css('border-color', '');
+        $('.order-row-card').removeClass('card-error').css('border-color', '');
 
-        const rows    = [];
-        const cardIds = []; // maps submission index → card DOM id
+        const rows = [], cardIds = [];
 
         $('#purchaseBody .order-row-card').each(function () {
-            const bags   = parseFloat($(this).find('input[name="bags[]"]').val()) || 0;
-            const kg     = parseFloat($(this).find('input[name="kg[]"]').val())   || 0;
-            const rate   = parseFloat($(this).find('input[name="rate[]"]').val()) || 0;
-            const net_kg = bags * kg;
-
-            cardIds.push($(this).attr('id')); // e.g. "row_3"
+            const bags   = parseFloat($(this).find('input[name="bags[]"]').val())   || 0;
+            const kg     = parseFloat($(this).find('input[name="kg[]"]').val())     || 0;
+            const net_kg = parseFloat($(this).find('input[name="net_kg[]"]').val()) || 0;
+            const rate   = parseFloat($(this).find('input[name="rate[]"]').val())   || 0;
+            cardIds.push($(this).attr('id'));
             rows.push({
                 garden_id:  $(this).find('select[name="garden_id[]"]').val(),
                 invoice_no: $(this).find('input[name="invoice_no[]"]').val(),
@@ -1227,10 +1143,7 @@ $('#partyModal').on('hidden.bs.modal', function () {
             });
         });
 
-        if (rows.length < 1) {
-            Toast.fire({ icon: 'error', title: 'Enter at least one record' });
-            return;
-        }
+        if (rows.length < 1) { Toast.fire({ icon: 'error', title: 'Enter at least one record' }); return; }
 
         const payload = {
             _token:         $('input[name="_token"]').val(),
@@ -1250,65 +1163,35 @@ $('#partyModal').on('hidden.bs.modal', function () {
 
         loadershow();
         $.ajax({
-            type: 'POST',
-            url:  "{{ route('order.store') }}",
-            data: payload,
+            type: 'POST', url: "{{ route('order.store') }}", data: payload,
             success: function (r) {
                 if (r.status == 200) {
                     Toast.fire({ icon: 'success', title: r.message });
                     window.location.href = "{{ route('admin.order') }}";
-                } else {
-                    Toast.fire({ icon: 'error', title: r.message });
-                    loaderhide();
-                }
+                } else { Toast.fire({ icon: 'error', title: r.message }); loaderhide(); }
             },
             error: function (xhr) {
                 loaderhide();
-
-                // Only do custom row-error mapping on 422
                 if (xhr.status !== 422) { handleAjaxError(xhr); return; }
-
                 let errors = {};
                 try { errors = xhr.responseJSON.errors || {}; } catch(e) {}
-
                 let firstErrorCard = null;
-
                 $.each(errors, function (key, messages) {
                     const msg = Array.isArray(messages) ? messages[0] : messages;
-
-                    // Row-level: e.g. "rows.1.invoice_no"
                     const rowMatch = key.match(/^rows\.(\d+)\.(\w+)$/);
                     if (rowMatch) {
-                        const idx    = parseInt(rowMatch[1]); // 0-based
-                        const field  = rowMatch[2];           // e.g. "invoice_no"
-                        const cardId = cardIds[idx];          // e.g. "row_3"
-
+                        const cardId = cardIds[parseInt(rowMatch[1])];
                         if (cardId) {
                             const $card = $('#' + cardId);
-
-                            // Show error message inside that specific card
-                            $card.find('.err-' + field).text(msg);
-
-                            // Red border on the card
-                            $card.css('border-color', 'var(--c-danger)');
-
-                            // Track first errored card for auto-scroll
+                            $card.find('.err-' + rowMatch[2]).text(msg);
+                            $card.addClass('card-error');
                             if (!firstErrorCard) firstErrorCard = $card;
                         }
-                        return; // continue $.each
+                    } else {
+                        $('#error-' + key).text(msg);
                     }
-
-                    // Top-level fields: buyer_party, credit_days, etc.
-                    $('#error-' + key).text(msg);
                 });
-
-                // Auto-scroll to first errored card
-                if (firstErrorCard) {
-                    $('html, body').animate({
-                        scrollTop: firstErrorCard.offset().top - 80
-                    }, 400);
-                }
-
+                if (firstErrorCard) $('html,body').animate({ scrollTop: firstErrorCard.offset().top - 80 }, 400);
                 Toast.fire({ icon: 'error', title: 'Please fix the errors highlighted below.' });
             }
         });
