@@ -383,7 +383,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="partyModalLabel"><i class="ri-user-add-line mr-2"></i> Add New Party</h5>
-                <button type="button" id="modalcancelbtn"class="close" data-dismiss="modal"><span>&times;</span></button>
+               <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
                 <form id="partyform">
@@ -888,7 +888,9 @@ $(document).ready(function () {
             success: function (r) {
                 if (r.status == 200) {
                     Toast.fire({ icon: 'success', title: r.message });
-                    if (partyType === 'Buyer') buyer_party(r.party_id); else transport(r.party_id);
+                    console.log('Party ID:', r.data['party_id']);
+                    console.log('Party Type:', r.data['party_type']);
+                    if (r.data['party_type'] === 'Buyer') buyer_party(r.data['party_id']); else transport(r.data['party_id']);
                     $('#partyform')[0].reset(); $('#partyModal').modal('hide');
                 } else Toast.fire({ icon: 'error', title: r.message });
                 loaderhide();
@@ -904,9 +906,19 @@ $(document).ready(function () {
         $.ajax({ type: 'GET', url: "{{ route('country.index') }}", data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
                 if (r.status == 200 && r.country != '') {
-                    $('#country').html('<option selected disabled>Select Country</option>');
+                    $('#country').html('<option value="">Select Country</option>');
                     $.each(r.country, function (k, v) {
-                        if (v.id == 101) $('#country').append(`<option value="${v.id}" selected>${v.country_name}</option>`);
+                        let selected = v.id == 101 ? 'selected' : '';
+                        $('#country').append(`<option value="${v.id}" ${selected}>${v.country_name}</option>`);
+                    });
+                    if ($('#country').hasClass('select2-hidden-accessible')) {
+                        $('#country').select2('destroy');
+                    }
+                    $('#country').select2({
+                        placeholder: 'Select Country',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $('#gardenModal')
                     });
                     loadstate();
                 }
@@ -914,66 +926,178 @@ $(document).ready(function () {
             }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
         });
     }
-    $('#country').on('change', function () { loadershow(); $('#city').html('<option selected disabled>Select City</option>'); loadstate($(this).val()); });
-    function loadstate(id = 0) {
-        $('#state').html('<option selected disabled>Select State</option>');
-        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
-        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
-            success: function (r) {
-                if (r.status == 200 && r.state != '') { $.each(r.state, function (k, v) { $('#state').append(`<option value="${v.id}">${v.state_name}</option>`); }); if (id == 0) loadcity(); }
-                loaderhide();
-            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-        });
-    }
-    $('#state').on('change', function () { loadershow(); loadcity($(this).val()); });
-    function loadcity(id = 0) {
-        $('#city').html('<option selected disabled>Select City</option>');
-        const url = id == 0 ? "{{ route('city.search', session('user')['state_id']) }}" : "{{ route('city.search','__id__') }}".replace('__id__', id);
-        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
-            success: function (r) {
-                if (r.status == 200 && r.city != '') $.each(r.city, function (k, v) { $('#city').append(`<option value="${v.id}">${v.city_name}</option>`); });
-                loaderhide();
-            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-        });
-    }
 
+    $('#country').on('change', function () {
+        loadershow();
+        $('#city').html('<option value="">Select City</option>');
+        if ($('#city').hasClass('select2-hidden-accessible')) $('#city').select2('destroy');
+        $('#city').select2({ placeholder: 'Select City', allowClear: true, width: '100%', dropdownParent: $('#gardenModal') });
+        loadstate($(this).val());
+    });
+
+    function loadstate(id = 0) {
+        $('#state').html('<option value="">Select State</option>');
+        const url = id == 0
+            ? "{{ route('state.search', session('user')['country_id']) }}"
+            : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
+            success: function (r) {
+                if (r.status == 200 && r.state != '') {
+                    $.each(r.state, function (k, v) {
+                        $('#state').append(`<option value="${v.id}">${v.state_name}</option>`);
+                });
+                if (id == 0) loadcity();
+            }
+            if ($('#state').hasClass('select2-hidden-accessible')) {
+                $('#state').select2('destroy');
+            }
+            $('#state').select2({
+                placeholder: 'Select State',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#gardenModal')
+            });
+            loaderhide();
+        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+    });
+}
+
+$('#state').on('change', function () {
+    loadershow();
+    loadcity($(this).val());
+});
+
+function loadcity(id = 0) {
+    $('#city').html('<option value="">Select City</option>');
+    const url = id == 0
+        ? "{{ route('city.search', session('user')['state_id']) }}"
+        : "{{ route('city.search','__id__') }}".replace('__id__', id);
+    $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
+        success: function (r) {
+            if (r.status == 200 && r.city != '') {
+                $.each(r.city, function (k, v) {
+                    $('#city').append(`<option value="${v.id}">${v.city_name}</option>`);
+                });
+            }
+            if ($('#city').hasClass('select2-hidden-accessible')) {
+                $('#city').select2('destroy');
+            }
+            $('#city').select2({
+                placeholder: 'Select City',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#gardenModal')
+            });
+            loaderhide();
+        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+    });
+}
+
+// Destroy on modal close to prevent ghost dropdowns
+$('#gardenModal').on('hidden.bs.modal', function () {
+    ['#country', '#state', '#city'].forEach(sel => {
+        if ($(sel).hasClass('select2-hidden-accessible')) {
+            $(sel).select2('destroy');
+        }
+    });
+});
     /* ════════════════════════════════
        LOCATION HELPERS — PARTY
-    ════════════════════════════════ */
+   /* ── LOCATION HELPERS — PARTY ── */
     function loadPartyCountry() {
         $.ajax({ type: 'GET', url: "{{ route('country.index') }}", data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
                 if (r.status == 200 && r.country != '') {
-                    $('#p_country').html('<option selected disabled>Select Country</option>');
-                    $.each(r.country, function (k, v) { if (v.id == 101) $('#p_country').append(`<option value="${v.id}" selected>${v.country_name}</option>`); });
+                    $('#p_country').html('<option value="">Select Country</option>');
+                    $.each(r.country, function (k, v) {
+                        let selected = v.id == 101 ? 'selected' : '';
+                        $('#p_country').append(`<option value="${v.id}" ${selected}>${v.country_name}</option>`);
+                    });
+                    // Destroy old instance before re-init
+                    if ($('#p_country').hasClass('select2-hidden-accessible')) {
+                        $('#p_country').select2('destroy');
+                    }
+                    $('#p_country').select2({
+                        placeholder: 'Select Country',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $('#partyModal')
+                    });
                     loadPartyState();
                 }
                 loaderhide();
             }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
         });
     }
-    $('#p_country').on('change', function () { loadershow(); loadPartyState($(this).val()); });
+
+    $('#p_country').on('change', function () {
+        loadershow();
+        loadPartyState($(this).val());
+    });
+
     function loadPartyState(id = 0) {
-        $('#p_state').html('<option selected disabled>Select State</option>');
-        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        $('#p_state').html('<option value="">Select State</option>');
+        const url = id == 0
+            ? "{{ route('state.search', session('user')['country_id']) }}"
+            : "{{ route('state.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
-                if (r.status == 200 && r.state != '') { $.each(r.state, function (k, v) { $('#p_state').append(`<option value="${v.id}">${v.state_name}</option>`); }); }
-                loaderhide();
-            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-        });
-    }
-    $('#p_state').on('change', function () { loadershow(); loadPartyCity($(this).val()); });
-    function loadPartyCity(id = 0) {
-        $('#p_city').html('<option selected disabled>Select City</option>');
-        const url = "{{ route('city.search','__id__') }}".replace('__id__', id);
-        $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
-            success: function (r) {
-                if (r.status == 200 && r.city != '') $.each(r.city, function (k, v) { $('#p_city').append(`<option value="${v.id}">${v.city_name}</option>`); });
-                loaderhide();
-            }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
-        });
-    }
+                if (r.status == 200 && r.state != '') {
+                    $.each(r.state, function (k, v) {
+                        $('#p_state').append(`<option value="${v.id}">${v.state_name}</option>`);
+                    });
+            }
+            if ($('#p_state').hasClass('select2-hidden-accessible')) {
+                $('#p_state').select2('destroy');
+            }
+            $('#p_state').select2({
+                placeholder: 'Select State',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#partyModal')
+            });
+            loaderhide();
+        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+    });
+}
+
+$('#p_state').on('change', function () {
+    loadershow();
+    loadPartyCity($(this).val());
+});
+
+function loadPartyCity(id = 0) {
+    $('#p_city').html('<option value="">Select City</option>');
+    const url = "{{ route('city.search','__id__') }}".replace('__id__', id);
+    $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
+        success: function (r) {
+            if (r.status == 200 && r.city != '') {
+                $.each(r.city, function (k, v) {
+                    $('#p_city').append(`<option value="${v.id}">${v.city_name}</option>`);
+                });
+            }
+            if ($('#p_city').hasClass('select2-hidden-accessible')) {
+                $('#p_city').select2('destroy');
+            }
+            $('#p_city').select2({
+                placeholder: 'Select City',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#partyModal')
+            });
+            loaderhide();
+        }, error: xhr => { loaderhide(); handleAjaxError(xhr); }
+    });
+}
+
+// Destroy Select2 instances when modal closes to prevent ghost dropdowns
+$('#partyModal').on('hidden.bs.modal', function () {
+    ['#p_country', '#p_state', '#p_city'].forEach(sel => {
+        if ($(sel).hasClass('select2-hidden-accessible')) {
+            $(sel).select2('destroy');
+        }
+    });
+});
 
     /* ════════════════════════════════
        FETCH GARDENS

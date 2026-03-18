@@ -151,8 +151,12 @@ class partyController extends commonController
             'party_type' => $request->party_type,
             'created_by' => $request->user_id,
         ]);
+        $data = [
+            'party_id' => $create->id,
+            'party_type' => $request->party_type,
+        ];
         if ($create) {
-            return $this->successresponse(200, 'message', 'party succesfully added', 'party_id', $create->id);
+            return $this->successresponse(200, 'message', 'party succesfully added','data', $data);
         } else {
             return $this->successresponse(500, 'message', 'party not succesfully added !');
         }
