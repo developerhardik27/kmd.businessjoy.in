@@ -620,7 +620,7 @@ $(document).ready(function () {
 
     // Track lastTyped on INPUT of bags/kg ONLY
     // net-kg input must NEVER set lastTyped — this is the key fix for TC-02/03/06
-    $(document).on('input', '.bags, .kg', function () {
+    $(document).on('focusout', '.bags, .kg', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
         if ($(this).hasClass('bags'))                                   row.data('lastTyped', 'bags');
@@ -629,7 +629,7 @@ $(document).ready(function () {
 
     // Main input handler — debounced 80ms for TC-15 stability
     let calcTimer = null;
-    $(document).on('input', '.bags, .kg, .net-kg, .rate', function () {
+    $(document).on('focusout', '.bags, .kg, .net-kg, .rate', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
         const changedField = ['bags','kg','net-kg'].find(c => $(this).hasClass(c)) || 'rate';

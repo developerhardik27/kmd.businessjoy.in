@@ -792,7 +792,7 @@ $(document).ready(function () {
 
     // Track which of bags/kg the user MANUALLY typed — used by changedNet logic
     // Set on INPUT (not focus) so auto-calculated values don't overwrite it
-    $(document).on('input', '.bags, .kg', function () {
+    $(document).on('focusout', '.bags, .kg', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
         if ($(this).hasClass('bags'))                         row.data('lastTyped', 'bags');
@@ -801,7 +801,7 @@ $(document).ready(function () {
 
     // TC-14 / TC-15: main input handler — debounced for TC-15 stability
     let calcTimer = null;
-    $(document).on('input', '.bags, .kg, .net-kg, .rate', function () {
+    $(document).on('focusout', '.bags, .kg, .net-kg, .rate', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
 
