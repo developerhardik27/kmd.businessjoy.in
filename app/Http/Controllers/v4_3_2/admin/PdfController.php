@@ -499,8 +499,13 @@ class PdfController extends commonController
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
-      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')->bankdetailspdf($invoice->account_id);
-
+      if (!empty($invoice->account_id)) {
+         $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')->bankdetailspdf($invoice->account_id);
+         $jsonbankContent = $jsonbankdetailsdata->getContent();
+         $bankdetailsdata = json_decode($jsonbankContent, true);
+      } else {
+         $bankdetailsdata = null;
+      }
       // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
 
@@ -512,14 +517,12 @@ class PdfController extends commonController
       //this get transport details data
       $jsontransportContent = $jsontransportdata->getContent();
       // this get bank details data
-      $jsonbankContent = $jsonbankdetailsdata->getContent();
 
       // Decode the JSON data
       $productdata = json_decode($jsonproductContent, true);
       $invdata = json_decode($jsoninvformdata, true);
       $companydetailsdata = json_decode($jsoncompanymasterContent, true);
       $transportdata = json_decode($jsontransportContent, true);
-      $bankdetailsdata = json_decode($jsonbankContent, true);
 
 
 
@@ -532,12 +535,12 @@ class PdfController extends commonController
          session()->flash('custom_error_message', 'Transport details not found');
          abort('404');
       }
-      if ($bankdetailsdata['status'] == 404) {
+      if ($bankdetailsdata && $bankdetailsdata['status'] == 404) {
          session()->flash('custom_error_message', 'Bank details not found');
          abort('404');
       }
 
-      if ($bankdetailsdata['status'] == 500) {
+      if ($bankdetailsdata && $bankdetailsdata['status'] == 500) {
          session()->flash('custom_error_message', 'Bank details Unauthorized');
          abort('404');
       }
@@ -560,7 +563,7 @@ class PdfController extends commonController
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
          'transportdetails' => $transportdata['party'] ?? null,
-         'bankdetails' => $bankdetailsdata['bankdetail'][0],
+         'bankdetails' => $bankdetailsdata['bankdetail'][0] ?? null,
          'paymentdetail' => $paymentdetail
       ];
 
@@ -741,7 +744,15 @@ class PdfController extends commonController
       $jsoninvdata = app('App\Http\Controllers\\' . $this->version . '\api\invoiceController')->index($invoice->id);
       $jsoncompanydetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companyController')->companydetailspdf($invoice->company_details_id);
       $jsontransportdata = app('App\Http\Controllers\\' . $this->version . '\api\partyController')->partydetailspdf($invoice->transport_id);
-      $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')->bankdetailspdf($invoice->account_id);
+      if (!empty($invoice->account_id)) {
+         $jsonbankdetailsdata = app('App\Http\Controllers\\' . $this->version . '\api\companymasterController')
+            ->bankdetailspdf($invoice->account_id);
+
+         $jsonbankContent = $jsonbankdetailsdata->getContent();
+         $bankdetailsdata = json_decode($jsonbankContent, true);
+      } else {
+         $bankdetailsdata = null;
+      }
       // this get form data is product data
       $jsonproductContent = $jsonproductdata->getContent();
 
@@ -753,14 +764,12 @@ class PdfController extends commonController
       //this get transport details data
       $jsontransportContent = $jsontransportdata->getContent();
       // this get bank details data
-      $jsonbankContent = $jsonbankdetailsdata->getContent();
 
       // Decode the JSON data
       $productdata = json_decode($jsonproductContent, true);
       $invdata = json_decode($jsoninvformdata, true);
       $companydetailsdata = json_decode($jsoncompanymasterContent, true);
       $transportdata = json_decode($jsontransportContent, true);
-      $bankdetailsdata = json_decode($jsonbankContent, true);
       //   dd($transportdata);
 
       if ($productdata['status'] == 404) {
@@ -771,12 +780,12 @@ class PdfController extends commonController
          session()->flash('custom_error_message', 'Transport details not found');
          abort('404');
       }
-      if ($bankdetailsdata['status'] == 404) {
+      if ($bankdetailsdata && $bankdetailsdata['status'] == 404) {
          session()->flash('custom_error_message', 'Bank details not found');
          abort('404');
       }
 
-      if ($bankdetailsdata['status'] == 500) {
+      if ($bankdetailsdata && $bankdetailsdata['status'] == 500) {
          session()->flash('custom_error_message', 'Bank details Unauthorized');
          abort('404');
       }
@@ -799,7 +808,7 @@ class PdfController extends commonController
          'invdata' => $invdata['invoice'][0],
          'companydetails' => $companydetailsdata['companydetails'][0],
          'transportdetails' => $transportdata['party'] ?? null,
-         'bankdetails' => $bankdetailsdata['bankdetail'][0]
+         'bankdetails' => $bankdetailsdata['bankdetail'][0] ?? null
       ];
 
       if (isset($paymentdetails)) {

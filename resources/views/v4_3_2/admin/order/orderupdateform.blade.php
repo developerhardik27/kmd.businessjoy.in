@@ -214,32 +214,89 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 .modal-content { border-radius: var(--radius) !important; border: none !important; box-shadow: 0 20px 60px rgba(0,0,0,.15) !important; font-family: var(--font); }
 .modal-header  { background: linear-gradient(90deg,#f0f3ff,#fff); border-bottom: 1px solid var(--c-border) !important; border-radius: var(--radius) var(--radius) 0 0 !important; padding: 16px 22px !important; }
 .modal-title   { font-weight: 700 !important; font-size: 14px !important; color: var(--c-text) !important; }
+/* ── Field Grid ── */
+.order-field-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px 14px;
+    align-items: end;
+}
 
+/* Amount cell pinned to last column on desktop only */
+.order-field-grid .amount-cell {
+    grid-column: 6;
+    grid-row: 1;
+}
+
+/* ── 1200px : 4 columns ── */
 @media (max-width: 1200px) {
-    .order-field-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .order-field-grid .amount-cell { grid-column: unset; grid-row: unset; }
+    .order-field-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .order-field-grid .amount-cell {
+        grid-column: unset;
+        grid-row: unset;
+    }
 }
-@media (max-width: 800px)  { .order-field-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-@media (max-width: 600px)  {
-    .li-topbar, .li-quickbar { flex-direction: column; align-items: flex-start; }
-    .order-field-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .order-card-body  { padding: 10px; }
-    .li-list          { padding: 10px; gap: 8px; }
-    .inv-section-body { padding: 14px; }
-    .li-totals        { padding: 14px; }
-    .t-val            { font-size: 12px; }
-    .t-row.grand .t-val { font-size: 15px; }
-    .btn-add-row      { width: 100%; justify-content: center; }
-    .inv-footer       { justify-content: stretch; }
-    .btn-f            { flex: 1; justify-content: center; }
-    .totals-inner     { max-width: 100%; }
-    .t-label          { font-size: 11.5px; }
+
+/* ── 900px : 3 columns ── */
+@media (max-width: 900px) {
+    .order-field-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .order-field-grid .amount-cell {
+        grid-column: unset;
+        grid-row: unset;
+    }
 }
-@media (max-width: 400px) {
-    .order-field-grid { grid-template-columns: repeat(1, minmax(0,1fr)); }
-    .order-card-head  { padding: 7px 10px; }
+
+/* ── 600px : 2 columns ── */
+@media (max-width: 600px) {
+    .li-topbar, .li-quickbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .order-field-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 10px;
+    }
+    .order-field-grid .amount-cell {
+        grid-column: unset;
+        grid-row: unset;
+        grid-column: span 2;        /* Amount takes full width on mobile */
+    }
+    .order-card-body        { padding: 10px; }
+    .order-card-body .f-ctrl { font-size: 13px; padding: 8px 10px; }
+    .order-card-body .f-label { font-size: 10px; }
+    .li-list                { padding: 10px; gap: 8px; }
+    .inv-section-body       { padding: 14px; }
+    .li-totals              { padding: 14px; }
+    .t-val                  { font-size: 12px; }
+    .t-row.grand .t-val     { font-size: 15px; }
+    .btn-add-row            { width: 100%; justify-content: center; }
+    .inv-footer             { justify-content: stretch; }
+    .btn-f                  { flex: 1; justify-content: center; }
+    .totals-inner           { max-width: 100%; }
+    .t-label                { font-size: 11.5px; }
+    .li-count-badge         { font-size: 10px; }
 }
-.order-field-grid .amount-cell { grid-column: 6; grid-row: 1; }
+
+/* ── 420px : 1 column ── */
+@media (max-width: 420px) {
+    .order-field-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 7px;
+    }
+    .order-field-grid .amount-cell {
+        grid-column: unset;
+        grid-row: unset;
+    }
+    .order-card-head        { padding: 7px 10px; }
+    .order-card-body        { padding: 8px; }
+    .order-card-body .f-ctrl { height: 38px; font-size: 13px; }
+    .li-quickbar            { padding: 10px; }
+    .li-list                { padding: 8px; gap: 6px; }
+}
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -551,12 +608,12 @@ $(document).ready(function () {
     ════════════════════════════════════════════════════════ */
 
     // TC-14: clear zero on focus
-    $(document).on('focus', '.bags, .kg, .net-kg, .rate', function () {
+    $(document).on('focus', '.bags, .kg, .net-kg, .rate, #discount', function () {
         if ($(this).val() == '0') $(this).val('');
     });
 
     // TC-15: restore 0 on blur if empty
-    $(document).on('blur', '.bags, .kg, .net-kg, .rate', function () {
+    $(document).on('blur', '.bags, .kg, .net-kg, .rate, #discount', function () {
         const val = parseFloat($(this).val());
         if (isNaN(val) || $(this).val().trim() === '') $(this).val('0');
     });

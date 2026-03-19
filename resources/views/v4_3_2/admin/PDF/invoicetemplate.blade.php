@@ -387,6 +387,7 @@
                                     </tr> --}}
 
                                 </table>
+                                @if(isset($bankdetails))
                                 <table width="100%" class="table-striped">
                                     <tr class="bgblue text-center">
                                         <th colspan="2">
@@ -423,8 +424,10 @@
                                             <td>{{ $bankdetails['branch_name'] }}</td>
                                         </tr>
                                     @endif
+                                     
                                 </table>
-                                  @if(isset($transportdetails))
+                                @endif 
+                                @if(isset($transportdetails))
                                 <table width="100%">
                                     <tr class="bgblue">
                                         <th class="font-weight-bold  bgblue" style="padding-left:10px">

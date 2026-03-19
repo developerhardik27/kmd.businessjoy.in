@@ -464,7 +464,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 @endif
                 <div class="col-sm-4 mb-3">
-                    <label class="f-label">Bank Account <span class="req">*</span></label>
+                    <label class="f-label">Bank Account </label>
                     <select class="f-ctrl" id="acc_details" name="acc_details">
                         <option selected disabled>Select Account</option>
                     </select>
@@ -986,20 +986,49 @@ function dynamiccalculaton(target) {
         applyRoundoff(total);
     }
 }
-/* ── Bank ── */
 async function loadBankDetails() {
     try {
         const $sel = $('#acc_details');
-        $sel.empty().append(`<option value="">Select Bank</option><option value="add_new">+ Add New Bank</option>`);
-        const r = await ajaxPromise('GET', "{{ route('bank_detail.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID, companymaster_id });
+
+        if ($sel.hasClass("select2-hidden-accessible")) {
+            $sel.select2('destroy');
+        }
+
+        $sel.empty().append(`
+            <option value="" selected>Select Bank</option>
+            <option value="add_new">+ Add New Bank</option>
+        `);
+
+        const r = await ajaxPromise(
+            'GET',
+            "{{ route('bank_detail.index') }}",
+            { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID, companymaster_id }
+        );
+
         if (r.status == 200 && r.bank && r.bank.length > 0) {
-            const latestId = Math.max(...r.bank.map(b => b.id));
+
             r.bank.forEach(b => {
-                const d = [b.account_no, b.branch_name, b.holder_name].filter(Boolean).join(' - ');
-                $sel.find('option[value="add_new"]').before(`<option value="${b.id}" ${b.id===latestId?'selected':''}>${d}</option>`);
+                const d = [b.account_no, b.branch_name, b.holder_name]
+                    .filter(Boolean)
+                    .join(' - ');
+
+                $sel.find('option[value="add_new"]').before(
+                    `<option value="${b.id}">${d}</option>`
+                );
             });
         }
-    } catch(e) { handleAjaxError(e); }
+
+        $sel.select2({
+            width: '100%',
+            placeholder: 'Select Bank',
+            allowClear: true
+        });
+
+        $sel.val('').trigger('change');
+
+    } catch (e) {
+        handleAjaxError(e);
+    }
 }
 
 /* ── GST settings ── */
@@ -1035,7 +1064,7 @@ $(function() {
     $(document).on('focus', '.calculation', function() { if ($(this).val() == '0') $(this).val(''); });
     $(document).on('blur',  '.calculation', function() { if ($(this).val() === '') $(this).val('0'); });
 
-    $("#modalcancelbtn").on('click', () => { $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); });
+    $("#modalcancelbtn").on('click', () => { $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); $('#acc_details').val('').trigger('change'); });
     $(document).on('change', '#acc_details', function() {
         if ($(this).val() === 'add_new') { $('#bankDetailModal').modal('show'); $(this).val(''); }
     });

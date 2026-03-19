@@ -596,11 +596,38 @@ $('document').ready(function () {
                     }
                 },
                 {
-                    data: 'garden_names', name: 'garden_names', orderable: true, searchable: true, defaultContent: '-',
+                    data: 'garden_names',
+                    name: 'garden_names',
+                    orderable: true,
+                    searchable: true,
+                    defaultContent: '-',
+
                     render: (data) => {
                         if (!data) return '-';
-                        let s = data.length > 20 ? data.substring(0,20)+'...' : data;
+                        let s = data.length > 20 ? data.substring(0, 20) + '...' : data;
                         return `<span data-toggle="tooltip" data-original-title="${data}">${s}</span>`;
+                    },
+
+                    createdCell: function (td, cellData, rowData) {
+
+                        let hasInvalidCompany = false;
+
+                        if (rowData.company_names) {
+                            let companies = rowData.company_names.split(',');
+
+                            hasInvalidCompany = companies.some(c => {
+                                return !c || c.trim() === '-' || c.trim() === '';
+                            });
+                        } else {
+                            hasInvalidCompany = true;
+                        }
+
+                        if (hasInvalidCompany) {
+                            $(td).css({
+                                'background-color': 'red',
+                                'color': 'white'
+                            });
+                        }
                     }
                 },
                 { data: 'buyer_name',     name: 'buyer_name',     orderable: true,  searchable: true,  defaultContent: '-' },

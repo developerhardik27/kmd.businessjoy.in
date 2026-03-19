@@ -510,7 +510,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 @endif
                 <div class="col-sm-4 mb-3">
-                    <label class="f-label">Bank Account <span class="req">*</span></label>
+                    <label class="f-label">Bank Account</label>
                     <select class="f-ctrl" id="acc_details" name="acc_details">
                         <option selected disabled>Select Account</option>
                     </select>
@@ -930,6 +930,11 @@ async function loadBankDetails(selectedId = null) {
                 $sel.find('option[value="add_new"]').before(`<option value="${b.id}" ${b.id==selectedId?'selected':''}>${d}</option>`);
             });
         }
+        $sel.select2({
+            width: '100%',
+            placeholder: 'Select Bank',
+            allowClear: true
+        });
     } catch(e) { handleAjaxError(e); }
 }
 
@@ -1010,7 +1015,7 @@ $(function() {
     $(document).on('focus', '.calculation', function() { if ($(this).val()=='0') $(this).val(''); });
     $(document).on('blur',  '.calculation', function() { if ($(this).val()==='') $(this).val('0'); });
 
-    $('#modalcancelbtn').on('click', () => { $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); });
+    $('#modalcancelbtn').on('click', () => { $('#bankdetailform')[0].reset(); $('#bankDetailModal').modal('hide'); $('#acc_details').select2('destroy'); });
     $(document).on('change','#acc_details', function() {
         if ($(this).val()==='add_new') { $('#bankDetailModal').modal('show'); $(this).val(''); }
     });

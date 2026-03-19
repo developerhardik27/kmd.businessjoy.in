@@ -479,7 +479,7 @@ class invoiceController extends commonController
 
             // validate incoming request data
             $validator = Validator::make($data, [
-                "bank_account" => 'required',
+                "bank_account" => 'nullable',
                 "customer" => 'required',
                 'companymaster_id' => 'required',
                 'transport_id' => 'nullable',
@@ -964,7 +964,7 @@ class invoiceController extends commonController
 
             // ────────────── VALIDATION ──────────────
             $validator = Validator::make($data, [
-                "bank_account"        => 'required',
+                "bank_account"        => 'nullable',
                 "customer"            => 'required',
                 'companymaster_id'    => 'required',
                 'transport_id'        => 'nullable',
@@ -1136,7 +1136,14 @@ class invoiceController extends commonController
             }
 
             $this->invoiceModel::where('id', $id)->update($invoicerec);
-
+            // ────────────── SOFT DELETE ALL OLD PRODUCT ROWS ──────────────
+            DB::connection('dynamic_connection')
+                ->table('mng_col')
+                ->where('invoice_id', $id)
+                ->update([
+                    'is_deleted' => 1,
+                    'is_active'  => 0
+                ]);
             // ────────────── INSERT OR UPDATE PRODUCT ROWS ──────────────
             if ($itemdata) {
                 foreach ($itemdata as $row) {
