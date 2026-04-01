@@ -49,7 +49,7 @@ class brokerPurchaseController extends commonController
                 $query->select(DB::raw(1))
                     ->from('broker_purchases')
                     ->whereColumn('broker_purchases.garden_id', 'order_details.garden_id')
-                    ->whereColumn('broker_purchases.invoice_no', 'order_details.invoice_no')
+                    ->whereColumn('broker_purchases.order_detail_id', 'order_details.id')
                     ->where('broker_purchases.is_deleted', 0);
             })
 
@@ -108,6 +108,7 @@ class brokerPurchaseController extends commonController
             ->whereNotIn('invoice_no', $usedInvoices)
             ->orderBy('invoice_no', 'ASC')
             ->get();
+        // dd("yes");
         return $this->successresponse(200, 'data', $allInvoices);
     }
     public function getOtherDetails(Request $request)
@@ -115,11 +116,13 @@ class brokerPurchaseController extends commonController
         if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+        // dd($request->all());
         $invoiceNos = is_array($request->invoice_nos) ? $request->invoice_nos : explode(',', $request->invoice_nos);
         $order = $this->order_detailModel
             ::join('grades', 'grades.id', '=', 'order_details.grade')
             ->where('order_details.is_deleted', 0)
             ->whereIn('order_details.invoice_no', $invoiceNos)
+            ->where('order_details.garden_id', $request->garden_id)
             ->select(
                 'order_details.id as order_id',
                 'order_details.garden_id',
@@ -147,9 +150,11 @@ class brokerPurchaseController extends commonController
         }
 
         $data = $request->all();
+        
         $buyerParties = explode(',', $request->buyer_parties);
         $companyIds = explode(',', $request->company_ids);
         $sampleIds = explode(',', $request->sampleIds);
+        $orderDetailIds = explode(',', $request->orderDetailIds);
 
         $data1 = $this->brokerpurchaseModel
             ::join('grades', 'grades.id', '=', 'broker_purchases.grade')
@@ -160,7 +165,7 @@ class brokerPurchaseController extends commonController
 
             ->join('order_details', function ($join) {
                 $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
-                    ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+                    ->on('order_details.id', '=', 'broker_purchases.order_detail_id');
             })
             ->join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
@@ -168,6 +173,7 @@ class brokerPurchaseController extends commonController
 
             ->select(
                 'broker_purchases.*',
+                'order_details.id as order_detail_id',
                 'order_details.bags as No_Of_Pkags',
                 'order_details.invoice_no as Invoice_no',
                 'order_details.net_kg as Net_Weight_Kgs',
@@ -195,6 +201,7 @@ class brokerPurchaseController extends commonController
                 'companymaster_id' => $companyIds,
                 'buyer_id' => $buyerParties,
                 'sampleIds' => $sampleIds,
+                'orderDetailIds' => $orderDetailIds,
             ],
             "line_items" => $data1,
         ];
@@ -210,10 +217,11 @@ class brokerPurchaseController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-
+        // dd($request->all());
         $buyerParties = $request->buyer_parties;
         $companyIds   = $request->company_ids;
         $invoice_no   = $request->invoice_no;
+        $orderDetailIds = $request->order_detail_ids;
 
 
 
@@ -233,6 +241,10 @@ class brokerPurchaseController extends commonController
             $buyerParties = explode(',', $buyerParties);
         }
         $buyerParties = (array) $buyerParties;
+        if (is_string($orderDetailIds)) {
+            $orderDetailIds = explode(',', $orderDetailIds);
+        }
+        $orderDetailIds = (array) $orderDetailIds;
 
 
         $data1 = $this->order_detailModel
@@ -245,6 +257,7 @@ class brokerPurchaseController extends commonController
             ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
 
             ->select(
+                'order_details.id as order_detail_id',
                 'order_details.bags as No_Of_Pkags',
                 'order_details.invoice_no as Invoice_no',
                 'order_details.net_kg as Net_Weight_Kgs',
@@ -262,7 +275,7 @@ class brokerPurchaseController extends commonController
                 'transporter.name as transport_name'
             )
 
-            ->whereIn('order_details.invoice_no', $invoice_no)
+            ->whereIn('order_details.id', $orderDetailIds)
             ->where('order_details.is_deleted', 0)
             ->get();
 
@@ -271,10 +284,10 @@ class brokerPurchaseController extends commonController
                 'companymaster_id' => $companyIds,
                 'buyer_id'         => $buyerParties,
                 'invoice_no'       => $invoice_no,
+                'orderDetailIds' => $orderDetailIds,
             ],
             'line_items' => $data1
         ];
-
 
 
         return $this->successresponse(
@@ -301,7 +314,7 @@ class brokerPurchaseController extends commonController
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->leftJoin('order_details', function ($join) {
                 $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
-                    ->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+                    ->on('order_details.id', '=', 'broker_purchases.order_detail_id');
             })
             ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
             ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
@@ -496,6 +509,7 @@ class brokerPurchaseController extends commonController
                 'bags'       => $detail['bags'],
                 'net_kg'     => $detail['net_kg'],
                 'rate'       => $detail['rate'] ?? null,
+                'order_detail_id' => $detail['order_detail_id'],
                 'created_by' => $request->user_id,
                 'brokerage'  => $brokerage,
                 'source'     => 'purchase',

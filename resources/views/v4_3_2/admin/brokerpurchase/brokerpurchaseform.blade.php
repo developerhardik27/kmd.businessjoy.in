@@ -227,6 +227,7 @@
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][bags]" value="${item.bags}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][net_kg]" value="${item.net_kg}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][rate]" value="${item.rate}">
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][order_detail_id]" value="${item.order_id}">
                         `);
                             });
                         } else {

@@ -435,7 +435,7 @@ class partyController extends commonController
         // dd($request->all());
         $get_purchase = $this->order_detailModel
             ::leftJoin('broker_purchases', function ($join) {
-                $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no')
+                $join->on('order_details.id', '=', 'broker_purchases.order_detail_id')
                     ->where('broker_purchases.is_deleted', 0);
             })
 
@@ -447,7 +447,7 @@ class partyController extends commonController
                     ->from('orders')
                     ->where('buyer_party', $request->buyer_id);
             })
-
+            ->leftJoin('gardens', 'order_details.garden_id', '=', 'gardens.id')
             // ✅ Filter by company_ids using company_garden table
             ->whereIn('order_details.garden_id', function ($query) use ($request) {
                 $query->select('garden_id')
@@ -466,6 +466,7 @@ class partyController extends commonController
                 'broker_purchases.invoice_id as broker_invoice_id',
                 'partys.id as tranport_id',
                 'partys.name as tranport_name',
+                'gardens.garden_name as garden_name'
             )
 
             ->get();

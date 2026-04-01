@@ -53,12 +53,14 @@ class brokerPurchaseController extends Controller
     public function storeInvoiceSession(Request $request)
     {
         session()->flash('invoice_data', $request->data);
+        // dd($request->data);
         //session(['invoice_data' => $request->data]);
         return response()->json(['status' => 200]);
     }
     public function lot_no_storeInvoiceSession(Request $request)
     {
         session()->flash('lot_no_invoice_data', $request->data);
+        // dd($request->data);
         // session(['lot_no_invoice_data' => $request->data]);
         return response()->json(['status' => 200]);
     }

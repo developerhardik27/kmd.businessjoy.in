@@ -73,7 +73,7 @@ class brokeragebillController extends commonController
             ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
             ->leftJoin('mng_col as mc', function ($join) {
                 $join->on('mc.invoice_id', '=', 'invoices.id')
-                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+                    ->on('mc.order_detail_id', '=', 'broker_purchases.order_detail_id');
             })
             ->select(
                 'broker_purchases.*',
@@ -105,7 +105,7 @@ class brokeragebillController extends commonController
             ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
             ->leftJoin('mng_col as mc', function ($join) {
                 $join->on('mc.invoice_id', '=', 'invoices.id')
-                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+                    ->on('mc.order_detail_id', '=', 'broker_purchases.order_detail_id');
             })
             ->select(
                 'broker_purchases.*',
@@ -135,7 +135,7 @@ class brokeragebillController extends commonController
             ->leftJoin('invoices', 'invoices.id', '=', 'broker_purchases.invoice_id')
             ->leftJoin('mng_col as mc', function ($join) {
                 $join->on('mc.invoice_id', '=', 'invoices.id')
-                    ->on('mc.Invoice_no', '=', 'broker_purchases.invoice_no');
+                    ->on('mc.order_detail_id', '=', 'broker_purchases.order_detail_id');
             })
             ->select(
                 'broker_purchases.*',
@@ -217,7 +217,7 @@ class brokeragebillController extends commonController
             $list->whereIn('broker_bill_invoice.id', function ($query) use ($buyerIds) {
                 $query->select('bp.brokerbill_no')
                     ->from('broker_purchases as bp')
-                    ->leftJoin('order_details as od', 'od.invoice_no', '=', 'bp.invoice_no')
+                    ->leftJoin('order_details as od', 'od.id', '=', 'bp.order_detail_id')
                     ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
                     ->whereIn('o.buyer_party', $buyerIds)
                     ->where('bp.is_deleted', 0)
@@ -264,7 +264,7 @@ class brokeragebillController extends commonController
                       WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
                 DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
                     FROM broker_purchases bp
-                    LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                    LEFT JOIN order_details od ON od.id = bp.order_detail_id
                     LEFT JOIN orders o ON o.id = od.order_id
                     LEFT JOIN partys p ON p.id = o.buyer_party
                     WHERE bp.brokerbill_no = broker_bill_invoice.id
@@ -272,7 +272,7 @@ class brokeragebillController extends commonController
                 ) as buyer_names"),
                 DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.id ORDER BY p.id SEPARATOR ',')
                     FROM broker_purchases bp
-                    LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                    LEFT JOIN order_details od ON od.id = bp.order_detail_id
                     LEFT JOIN orders o ON o.id = od.order_id
                     LEFT JOIN partys p ON p.id = o.buyer_party
                     WHERE bp.brokerbill_no = broker_bill_invoice.id
@@ -577,7 +577,7 @@ class brokeragebillController extends commonController
         ]);
 
         $brokrage_per = $request->brokerage;
-
+        // dd($billRecord->id);
         // ── FIX 3: Update brokerbill_no on ALL matching invoice_ids ─────────────────
         //    Old code looped over $linedata and used $invoice->invoice_id one by one.
         //    For bulk this is fine but unnecessarily slow. Use a single whereIn update.
@@ -588,7 +588,7 @@ class brokeragebillController extends commonController
                 'brokerage'      => $brokrage_per,
                 'brokerage_date' => $today->format('Y-m-d'),
             ]);
-
+        
         return $this->successresponse(200, 'message', 'Commission Bill PDF successfully created.');
     }
     public function brokeragebillpdfdelete(Request $request, $id)

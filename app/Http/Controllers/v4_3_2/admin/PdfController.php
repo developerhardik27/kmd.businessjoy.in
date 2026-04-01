@@ -136,7 +136,7 @@ class PdfController extends commonController
       ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
       ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
       ->join('order_details', function ($join) {
-         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         $join->on('order_details.id', '=', 'broker_purchases.order_detail_id');
       })
       ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
       ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
@@ -262,7 +262,7 @@ class PdfController extends commonController
       ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
       ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
       ->join('order_details', function ($join) {
-         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         $join->on('order_details.id', '=', 'broker_purchases.order_detail_id');
       })
       ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
       ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
@@ -391,7 +391,7 @@ class PdfController extends commonController
       ::leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
       ->leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
       ->join('order_details', function ($join) {
-         $join->on('order_details.invoice_no', '=', 'broker_purchases.invoice_no');
+         $join->on('order_details.id', '=', 'broker_purchases.order_detail_id');
       })
       ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
       ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
@@ -996,8 +996,7 @@ class PdfController extends commonController
    }
    public function orderreport(Request $request)
    {
-
-
+      
     $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
@@ -1225,7 +1224,7 @@ class PdfController extends commonController
          $list->whereIn('broker_bill_invoice.id', function ($query) use ($buyerIds) {
             $query->select('bp.brokerbill_no')
                ->from('broker_purchases as bp')
-               ->leftJoin('order_details as od', 'od.invoice_no', '=', 'bp.invoice_no')
+               ->leftJoin('order_details as od', 'od.id', '=', 'bp.order_detail_id')
                ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
                ->whereIn('o.buyer_party', $buyerIds)
                ->where('bp.is_deleted', 0)
@@ -1269,7 +1268,7 @@ class PdfController extends commonController
                       WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
             DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
                      FROM broker_purchases bp
-                     LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                     LEFT JOIN order_details od ON od.id = bp.order_detail_id
                      LEFT JOIN orders o ON o.id = od.order_id
                      LEFT JOIN partys p ON p.id = o.buyer_party
                      WHERE bp.brokerbill_no = broker_bill_invoice.id
@@ -1277,7 +1276,7 @@ class PdfController extends commonController
                   ) as buyer_names"),
             DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
                      FROM broker_purchases bp
-                     LEFT JOIN order_details od ON od.invoice_no = bp.invoice_no
+                     LEFT JOIN order_details od ON od.id = bp.order_detail_id
                      LEFT JOIN orders o ON o.id = od.order_id
                      LEFT JOIN partys p ON p.id = o.buyer_party
                      WHERE bp.brokerbill_no = broker_bill_invoice.id

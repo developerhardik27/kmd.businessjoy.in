@@ -668,6 +668,7 @@ $(document).ready(function () {
             </div>
             <div class="order-card-body">
                 <div class="order-field-grid">
+                    <input type="hidden" name="order_detail_id[]" id="order_detail_id_${rowId}" value="${val('id') || ''}">
                     <div>
                         <label class="f-label">Garden <span style="color:var(--c-danger)">*</span></label>
                         <select class="f-ctrl garden-select" name="garden_id[]" id="garden_${rowId}">${gardens}</select>
@@ -842,6 +843,7 @@ $(document).ready(function () {
                 $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
 
                 order_details.forEach(detail => addNewRow(detail));
+                console.log(order_details);
                 calculateTotals();
             } else {
                 Toast.fire({ icon: 'error', title: r.message });
@@ -884,12 +886,13 @@ $(document).ready(function () {
             const kg     = parseFloat($(this).find('input[name="kg[]"]').val())     || 0;
             const net_kg = parseFloat($(this).find('input[name="net_kg[]"]').val()) || 0;
             const rate   = parseFloat($(this).find('input[name="rate[]"]').val())   || 0;
+            const order_detail_id   = $(this).find('input[name="order_detail_id[]"]').val()   || 0;
             cardIds.push($(this).attr('id'));
             rows.push({
                 garden_id:  $(this).find('select[name="garden_id[]"]').val(),
                 invoice_no: $(this).find('input[name="invoice_no[]"]').val(),
                 grade:      $(this).find('select[name="grade[]"]').val(),
-                bags, kg, net_kg, rate, amount: net_kg * rate
+                bags, kg, net_kg, rate, order_detail_id, amount: net_kg * rate
             });
         });
 

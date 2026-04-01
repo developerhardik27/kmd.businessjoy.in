@@ -587,6 +587,9 @@
                 company_ids  : $('#companymaster_id').val(),
                 buyer_parties: $('#buyer_id').val(),
                 invoice_no   : $('#invoice_no').val(),
+                order_detail_ids: $('#invoice_no option:selected').map(function() {
+                    return $(this).data('order_detail_id');
+                }).get(),
                 user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN,
                 _token: "{{ csrf_token() }}"
             };
@@ -654,8 +657,8 @@
                 if (r.status == 200 && r.data.length > 0) {
                     $.each(r.data, function (k, v) {
                         $('#invoice_no').append(`
-                            <option value='${v.invoice_no}' data-order-id='${v.order_id}' data-tranport_id='${v.tranport_id}'>
-                                invoice/lot no: ${v.invoice_no} - Order No: ${v.order_id} - Transport ${v.tranport_name}
+                            <option value='${v.invoice_no}' data-order-id='${v.order_id}' data-tranport_id='${v.tranport_id}' data-order_detail_id ='${v.id}'>
+                                invoice/lot no: ${v.invoice_no + (v.garden_name ? ' - ' + v.garden_name : '')} - Order No: ${v.order_id} - Transport: ${v.tranport_name}
                             </option>`);
                     });
                     if (pre.length > 0) { $('#invoice_no').val(pre).trigger('change'); }

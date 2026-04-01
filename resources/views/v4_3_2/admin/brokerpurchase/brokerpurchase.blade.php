@@ -397,75 +397,97 @@ $('document').ready(function () {
     initialize();
 
     /* ── Checkbox logic ── */
-    $(document).on('change', '.purchase-checkbox', function () {
-        let companyId  = $(this).data('company-id');
-        let buyerParty = $(this).data('buyer-party');
-        let isChecked  = $(this).is(':checked');
+   $(document).on('change', '.purchase-checkbox', function () {
+    let companyId  = $(this).data('company-id');
+    let buyerParty = $(this).data('buyer-party');
+     let orderDetailIds = $(this).data('order_detail_ids');
+    let isChecked  = $(this).is(':checked');
 
-        if (isChecked) {
-            $('.purchase-checkbox').each(function () {
-                if ($(this).data('company-id') == companyId && $(this).data('buyer-party') != buyerParty) {
-                    $(this).prop('checked', false);
-                }
-            });
-            $('.purchase-checkbox').each(function () {
-                if ($(this).data('company-id') == companyId && $(this).data('buyer-party') == buyerParty) {
-                    $(this).prop('checked', true);
-                }
-            });
-        }
-        toggleCreateInvoiceBtn();
+    if (isChecked) {
+        // Uncheck different buyer parties in same company
+        $('.purchase-checkbox').each(function () {
+            if ($(this).data('company-id') == companyId && $(this).data('buyer-party') != buyerParty) {
+                $(this).prop('checked', false);
+            }
+        });
+        // Auto-check all same company + same buyer party
+        $('.purchase-checkbox').each(function () {
+            if ($(this).data('company-id') == companyId && $(this).data('buyer-party') == buyerParty) {
+                $(this).prop('checked', true);
+            }
+        });
+    }
+    // ✅ No else — uncheck only fires naturally for that one checkbox
+
+    toggleCreateInvoiceBtn();
+});
+    function toggleCreateInvoiceBtn() {
+    let checkedBoxes = $('.purchase-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+        $('#createInvoiceBtn').addClass('d-none').removeAttr('data-company-id data-buyer-party data-sample-ids data-order-detail-ids');
+        return;
+    }
+
+    let companyIds = [], buyerParties = [], sampleIds = [], orderDetailIds = [];
+
+    checkedBoxes.each(function () {
+        companyIds.push($(this).data('company-id'));
+        buyerParties.push($(this).data('buyer-party'));
+        sampleIds.push($(this).data('sample-id'));          // ✅ no Set — keep all
+        orderDetailIds.push($(this).data('order_detail_ids')); // ✅ no Set — keep all
     });
 
-    function toggleCreateInvoiceBtn() {
-        let checkedBoxes = $('.purchase-checkbox:checked');
-        if (checkedBoxes.length === 0) {
-            $('#createInvoiceBtn').addClass('d-none').removeAttr('data-company-id data-buyer-party data-sample-ids');
-            return;
-        }
-        let companyIds = [], buyerParties = [], sampleIds = [];
-        checkedBoxes.each(function () {
-            companyIds.push($(this).data('company-id'));
-            buyerParties.push($(this).data('buyer-party'));
-            sampleIds.push($(this).data('sample-id'));
-        });
-        $('#createInvoiceBtn')
-            .removeClass('d-none')
-            .attr('data-company-id',  [...new Set(companyIds)].join(','))
-            .attr('data-buyer-party', [...new Set(buyerParties)].join(','))
-            .attr('data-sample-ids',  [...new Set(sampleIds)].join(','));
-    }
+    $('#createInvoiceBtn')
+        .removeClass('d-none')
+        .attr('data-company-id',       [...new Set(companyIds)].join(','))   // unique only
+        .attr('data-buyer-party',      [...new Set(buyerParties)].join(',')) // unique only
+        .attr('data-sample-ids',       sampleIds.join(','))        // ✅ all ids
+        .attr('data-order-detail-ids', orderDetailIds.join(','));  // ✅ all ids
+}
 
     /* ── Create Invoice ── */
     $('#createInvoiceBtn').on('click', function () {
-        loadershow();
-        let companyIds  = ($('#createInvoiceBtn').data('company-id')  || '').toString();
-        let buyerParties = ($('#createInvoiceBtn').data('buyer-party') || '').toString();
-        let sampleIds   = ($('#createInvoiceBtn').data('sample-ids')   || '').toString();
-        if (!companyIds || !buyerParties) {
-            Toast.fire({ icon: 'error', title: 'No company or buyer selected' });
-            loaderhide(); return;
-        }
-        $.ajax({
-            url: "{{ route('brokerpurchase.createInvoice') }}", type: 'GET',
-            data: { company_ids: companyIds, buyer_parties: buyerParties, sampleIds, user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN, _token: "{{ csrf_token() }}" },
-            success: function (r) {
-                if (r.status === 200) {
-                    $.post("{{ route('admin.storeInvoiceSession') }}", { _token: "{{ csrf_token() }}", data: r.data }, function () {
-                        window.location.href = "{{ route('admin.addinvoice') }}";
-                    });
-                    $('.purchase-checkbox').prop('checked', false);
-                    toggleCreateInvoiceBtn();
-                    loaddata();
-                } else {
-                    loaderhide();
-                    Toast.fire({ icon: 'error', title: r.message || 'Something went wrong' });
-                }
-            },
-            error: xhr => { loaderhide(); handleAjaxError(xhr); }
-        });
-    });
+    loadershow();
 
+    // ✅ Use .attr() not .data() — .data() returns stale cached value
+    let companyIds     = ($('#createInvoiceBtn').attr('data-company-id')       || '').toString();
+    let buyerParties   = ($('#createInvoiceBtn').attr('data-buyer-party')      || '').toString();
+    let sampleIds      = ($('#createInvoiceBtn').attr('data-sample-ids')       || '').toString();
+    let orderDetailIds = ($('#createInvoiceBtn').attr('data-order-detail-ids') || '').toString();
+
+    if (!companyIds || !buyerParties) {
+        Toast.fire({ icon: 'error', title: 'No company or buyer selected' });
+        loaderhide(); return;
+    }
+
+    $.ajax({
+        url: "{{ route('brokerpurchase.createInvoice') }}", type: 'GET',
+        data: { 
+            company_ids: companyIds, 
+            buyer_parties: buyerParties, 
+            sampleIds, 
+            orderDetailIds, 
+            user_id: USER_ID, 
+            company_id: COMPANY_ID, 
+            token: API_TOKEN, 
+            _token: "{{ csrf_token() }}" 
+        },
+        success: function (r) {
+            if (r.status === 200) {
+                $.post("{{ route('admin.storeInvoiceSession') }}", { _token: "{{ csrf_token() }}", data: r.data }, function () {
+                    window.location.href = "{{ route('admin.addinvoice') }}";
+                });
+                $('.purchase-checkbox').prop('checked', false);
+                toggleCreateInvoiceBtn();
+                loaddata();
+            } else {
+                loaderhide();
+                Toast.fire({ icon: 'error', title: r.message || 'Something went wrong' });
+            }
+        },
+        error: xhr => { loaderhide(); handleAjaxError(xhr); }
+    });
+});
     /* ── DataTable ── */
     let table = '';
 
@@ -506,7 +528,7 @@ $('document').ready(function () {
                     render: (data, type, row) => {
                         if (row.invoice_id == null) {
                             return `<input type="checkbox" class="purchase-checkbox" value="${row.company_id}"
-                                data-company-id="${row.company_id}" data-buyer-party="${row.buyer_party}" data-sample-id="${row.id}">`;
+                                data-company-id="${row.company_id}" data-buyer-party="${row.buyer_party}" data-sample-id="${row.id}" data-order_detail_ids="${row.order_detail_id}">`;
                         }
                         return `<b>${row.id}</b>`;
                     }

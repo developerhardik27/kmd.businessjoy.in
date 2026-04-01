@@ -1063,8 +1063,56 @@ class versionupdateController extends commonController
                                             ->update(['rp' => $updatedRpJson]);
                                     }
                                 }
+                                if ($company->id != 1) {
+                                    $brokerpurchases = DB::connection('dynamic_connection')
+                                        ->table('broker_purchases')
+                                        ->get();
+                                    
+                                    if ($brokerpurchases->isNotEmpty()) {
+                                        foreach ($brokerpurchases as $bp) {
 
-                                break;
+                                        // ── Match by invoice_no + garden_id + grade to get exact order_detail ──
+                                        $orderDetail = DB::connection('dynamic_connection')
+                                            ->table('order_details')
+                                            ->where('invoice_no', $bp->invoice_no)
+                                            ->where('garden_id',  $bp->garden_id)
+                                            ->where('grade',   $bp->grade)
+                                            ->first();
+                                            \Log::warning("orderDetail: " . json_encode($orderDetail));
+                                      
+                                        if ($orderDetail) {
+
+                                            // ── Update broker_purchases.order_detail_id ──
+                                            DB::connection('dynamic_connection')
+                                                ->table('broker_purchases')
+                                                ->where('id', $bp->id)
+                                                ->update([
+                                                    'order_detail_id' => $orderDetail->id
+                                                ]);
+                                            \Log::warning("broker_purchases updated: " . json_encode($bp));
+                                            //   dd($$orderDetail->id);
+                                            // ── Update mng_col.order_detail_id ──
+                                            // Match mng_col by invoice_id AND old order_detail_id to avoid wrong row update
+                                            $garden = DB::connection('dynamic_connection')->table('gardens')->where('id', $bp->garden_id)->first();
+                                            $grade = DB::connection('dynamic_connection')->table('grades')->where('id', $bp->grade)->first();
+                                            DB::connection('dynamic_connection')
+                                                ->table('mng_col')
+                                                ->where('Invoice_no', $bp->invoice_no)
+                                                ->where('Garden', $garden->garden_name)
+                                                ->where('Grade', $grade->grade)
+                                                ->update([
+                                                    'order_detail_id' => $orderDetail->id
+                                                ]);
+                                            \Log::warning("mng_col updated: " . json_encode($bp));
+                                        } else {
+                                            // ── Log if no match found ──
+                                            \Log::warning("No order_detail found for broker_purchase id: {$bp->id}, invoice_no: {$bp->invoice_no}");
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            break;
                         }
                         $company->app_version = $request->version;
                         $company->save();
@@ -1078,5 +1126,6 @@ class versionupdateController extends commonController
                 }
             }
         });
+    
     }
 }

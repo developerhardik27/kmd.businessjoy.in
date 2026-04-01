@@ -704,11 +704,13 @@ async function getformula() {
 
 /* ── build card ──────────────────────────── */
 function buildCard(rowId, values, inventoryId, isLocked, showAction) {
+    const orderDetailId = values.order_detail_id;
     let fieldsHtml = allColumnData.map(col => {
         const cn     = col.column_name.replace(/\s+/g, '_');
         const val    = (values[cn] !== undefined && values[cn] !== null) ? values[cn] : (col.default_value || '');
         const hidden = col.is_hide === 1;
-        const lock   = (isLocked && cn !== 'shortage') ? 'disabled' : '';
+         const lock   = (isLocked && cn !== 'shortage') ? 'disabled' : '';
+        console.log(isLocked ,cn);
         if (hidden) return `<input type="hidden" name="${cn}_${rowId}" id="${cn}_${rowId}" value="${val}" data-oldproduct-id="${values.id||''}">`;
         const lbl = col.column_name === 'shortage' ? `${col.column_name} <small>(kg)</small>` : col.column_name;
         let ctrl = '';
@@ -749,6 +751,10 @@ function buildCard(rowId, values, inventoryId, isLocked, showAction) {
         </div>`;
 
     return `<div class="li-item-card iteam_row_${rowId}" data-inventory="${inventoryId}" data-line-item-id="${values.line_item_id||values.id||''}">
+        <input type="hidden" 
+       name="rows[${rowId}][order_detail_id]" 
+       id="order_detail_id_${rowId}" 
+       value="${orderDetailId}">
         <div class="li-card-head">
             <div class="li-card-num">
                 <span class="num-badge card-row-num"></span>
@@ -820,7 +826,7 @@ async function setdata() {
             // Build line items
             $.each(rows, function(k, v) {
                 addname++;
-                $('#li-empty').before(buildCard(addname, v, v.inventory_product_id || null, false, true));
+                $('#li-empty').before(buildCard(addname, v, v.inventory_product_id || null, true, false));
                 dynamiccalculaton(`#Amount_${addname}`);
                 updateCurrencySymbol();
             });
@@ -1077,7 +1083,46 @@ $(function() {
     });
 
     $(document).on('keyup change','.calculation', function() { dynamiccalculaton(this); });
+    /* ── Shortage validation: cannot exceed Net_Oty_Per_Pkg * No_Of_Pkags ── */
+    $(document).on('keyup change input', '.iteam_shortage', function () {
+        const $input  = $(this);
+        const rowId   = $input.attr('id').replace('shortage_', '');
 
+        const netOty  = parseFloat($(`#Net_Oty_Per_Pkg_${rowId}`).val()) || 0;
+        const noOfPkg = parseFloat($(`#No_Of_Pkags_${rowId}`).val())     || 0;
+        const maxVal  = parseFloat((netOty * noOfPkg).toFixed(3));
+        const entered = parseFloat($input.val()) || 0;
+
+        if (maxVal > 0 && entered > maxVal) {
+             $(`#Net_Weight_Kgs_${rowId}`).val(0);
+             $(`#Amount_${rowId}`).val(0);
+            // ── Show error only — do NOT cap the value ──
+            $input.css('border-color', 'var(--c-danger)');
+
+            let $err = $input.siblings('.shortage-err');
+            if (!$err.length) {
+                $input.after(`<span class="shortage-err f-err">Max shortage is ${maxVal}</span>`);
+            } else {
+                $err.text(`Max shortage is ${maxVal}`);
+            }
+
+            Toast.fire({
+                icon:  'warning',
+                title: `Shortage cannot exceed ${maxVal}`
+            });
+        } else {
+            // ── Clear error when value is valid ──
+            $input.css('border-color', '');
+            $input.siblings('.shortage-err').remove();
+        }
+    });
+
+    /* ── Re-validate shortage when No_Of_Pkags or Net_Oty_Per_Pkg change ── */
+    $(document).on('keyup change input', '.iteam_No_Of_Pkags, .iteam_Net_Oty_Per_Pkg', function () {
+        const rowId     = $(this).attr('id').replace(/^(No_Of_Pkags|Net_Oty_Per_Pkg)_/, '');
+        const $shortage = $(`#shortage_${rowId}`);
+        if ($shortage.length) $shortage.trigger('change');
+    });
     /* GST toggle */
     $('#type').on('change', function() {
         if ($(this).val()==2) {
@@ -1130,6 +1175,7 @@ $(function() {
             const inv=$(this).data('inventory'), lineItemId=$(this).data('line-item-id')||null;
             allColumnNames.forEach(cn=>{ const key=cn.replace(/\s+/g,'_'); rowData[key]=$(this).find(`#${key}_${rowNumber}`).val()||''; });
             rowData['amount']=$(this).find(`#Amount_${rowNumber}`).val();
+            rowData['order_detail_id'] = $(this).find(`#order_detail_id_${rowNumber}`).val() || '';
             rowData['inventoryproduct']=inv; rowData['line_item_id']=lineItemId;
             iteam_data.push(rowData);
         });
@@ -1153,7 +1199,25 @@ $(function() {
 
     /* Submit */
     $('#invoiceform').submit(function(e) {
-        e.preventDefault(); loadershow(); $('.f-err').text('');
+        e.preventDefault(); 
+        
+        if ($('.shortage-err').length > 0) {
+            const $firstErr = $('.shortage-err').first();
+            $('html, body').animate({
+                scrollTop: $firstErr.offset().top - 140
+            }, 400);
+
+            // ✅ Highlight all shortage fields with errors
+            $('.shortage-err').each(function() {
+                $(this).siblings('input').css('border-color', 'var(--c-danger)');
+            });
+
+            Toast.fire({ icon: 'error', title: 'Please fix shortage errors before submitting' });
+            return;
+        }
+        loadershow(); 
+        $('.f-err').text('');
+        
         const url = "{{ route('invoice.update','__id__') }}".replace('__id__', EDIT_ID);
         ajaxRequest('POST', url, {
             _method:'PUT', data:collectInvoiceDetails(), iteam_data:collectRowData(),

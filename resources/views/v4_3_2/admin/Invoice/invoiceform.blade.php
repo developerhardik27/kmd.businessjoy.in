@@ -404,6 +404,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     <input type="hidden" name="country_id"   id="country">
     <input type="hidden" name="sampleIds"    id="sampleIds">
     <input type="hidden" name="invoice_data" id="invoice_data">
+    <input type="hidden" name="order_details_id" id="order_details_id">
     <input type="hidden" name="user_id"      id="created_by" value="{{ $user_id }}">
     <input type="hidden" name="company_id"   id="company_id" value="{{ $company_id }}">
     <input type="hidden" name="currency"     id="currency"   value="101">
@@ -677,6 +678,7 @@ const USER_ID    = "{{ session()->get('user_id') }}";
 
 let companymaster_id;
 let invoice_data        = @json(session('invoice_data'));
+let order_details_id    = @json(session('invoice_data.maindata.orderDetailIds'));
 let lot_no_invoice_data = @json(session('lot_no_invoice_data'));
 let allColumnData  = [];
 let allColumnNames = [];
@@ -741,12 +743,15 @@ async function getformula() {
 /* ── Build item card HTML ── */
 function buildCard(rowId, values, inventoryId, isLocked, showAction) {
     // Build all dynamic column fields
+    const orderDetailId = values.order_detail_id;
     let fieldsHtml = allColumnData.map(col => {
         const cn     = col.column_name.replace(/\s+/g, '_');
         const val    = (values[cn] !== undefined && values[cn] !== null) ? values[cn] : (col.default_value || '');
         const hidden = col.is_hide === 1;
         const lock   = (isLocked && cn !== 'shortage') ? 'disabled' : '';
-
+        
+        // console.log("orderDetailId",orderDetailId);
+        // $('#line_order_detail_id').val(orderDetailId);
         // hidden columns → submit as hidden input only
         if (hidden) {
             return `<input type="hidden" name="${cn}_${rowId}" id="${cn}_${rowId}" value="${val}" data-oldproduct-id="${values.id||''}">`;
@@ -813,6 +818,10 @@ function buildCard(rowId, values, inventoryId, isLocked, showAction) {
         </div>`;
 
     return `<div class="li-item-card iteam_row_${rowId}" data-inventory="${inventoryId}">
+       <input type="hidden" 
+       name="rows[${rowId}][order_detail_id]" 
+       id="order_detail_id_${rowId}" 
+       value="${orderDetailId}">
         <div class="li-card-head">
             <div class="li-card-num">
                 <span class="num-badge card-row-num"></span>
@@ -839,6 +848,7 @@ async function setdata() {
     if (invoice_data) {
         productdetails   = invoice_data.line_items;
         $("#sampleIds").val(invoice_data.maindata.sampleIds.join(','));
+        $("#order_details_id").val(invoice_data.maindata.orderDetailIds.join(','));
         $("#bank_companymaster_id").val(invoice_data.maindata.companymaster_id[0]);
         companymaster_id = invoice_data.maindata.companymaster_id[0];
         await customers(invoice_data.line_items[0].buyer_id);
@@ -847,6 +857,7 @@ async function setdata() {
     } else {
         productdetails   = lot_no_invoice_data.line_items;
         $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
+        $("#order_details_id").val(lot_no_invoice_data.maindata.orderDetailIds.join(','));
         $("#bank_companymaster_id").val(lot_no_invoice_data.maindata.companymaster_id);
         companymaster_id = lot_no_invoice_data.maindata.companymaster_id;
         await customers(lot_no_invoice_data.line_items[0].buyer_id);
@@ -855,7 +866,7 @@ async function setdata() {
     }
     await loadBankDetails();
     await getoverduedays();
-
+    console.log("productdetails",productdetails);
     $.each(productdetails, function(k, v) {
         addname++;
         $('#li-empty').before(buildCard(addname, v, v.id || null, true, false));
@@ -1184,7 +1195,38 @@ $(function() {
 
     /* ── Calculation trigger ── */
     $(document).on('keyup change', '.calculation', function() { dynamiccalculaton(this); });
+    $(document).on('keyup change input', '.iteam_shortage', function () {
+        const $input  = $(this);
+        const rowId   = $input.attr('id').replace('shortage_', '');
 
+        const netOty  = parseFloat($(`#Net_Oty_Per_Pkg_${rowId}`).val()) || 0;
+        const noOfPkg = parseFloat($(`#No_Of_Pkags_${rowId}`).val())     || 0;
+        const maxVal  = parseFloat((netOty * noOfPkg).toFixed(3));
+        const entered = parseFloat($input.val()) || 0;
+
+        if (maxVal > 0 && entered > maxVal) {
+             $(`#Net_Weight_Kgs_${rowId}`).val(0);
+             $(`#Amount_${rowId}`).val(0);
+            // ── Show error only — do NOT cap the value ──
+            $input.css('border-color', 'var(--c-danger)');
+
+            let $err = $input.siblings('.shortage-err');
+            if (!$err.length) {
+                $input.after(`<span class="shortage-err f-err">Max shortage is ${maxVal}</span>`);
+            } else {
+                $err.text(`Max shortage is ${maxVal}`);
+            }
+
+            Toast.fire({
+                icon:  'warning',
+                title: `Shortage cannot exceed ${maxVal}`
+            });
+        } else {
+            // ── Clear error when value is valid ──
+            $input.css('border-color', '');
+            $input.siblings('.shortage-err').remove();
+        }
+    })
     /* ── GST type toggle ── */
     $('#type').on('change', function() {
         if ($(this).val() == 2) {
@@ -1250,6 +1292,7 @@ $(function() {
                 rowData[key] = $(this).find(`#${key}_${rowNumber}`).val() || '';
             });
             rowData['amount'] = $(this).find(`#Amount_${rowNumber}`).val();
+            rowData['order_detail_id'] = $(this).find(`#order_detail_id_${rowNumber}`).val() || '';
             rowData['inventoryproduct'] = inv;
             iteam_data.push(rowData);
         });
@@ -1262,6 +1305,7 @@ $(function() {
             company_id: $('#company_id').val(), companymaster_id: $('#companymaster_id').val(),
             transport_id: $('#transport_id').val(), sampleIds: $('#sampleIds').val(),
             invoice_data: $('#invoice_data').val(), HSN: $('#HSN').val(),
+            order_details_id: $('#order_details_id').val(),
             Description: $('#Description').val(), bank_account: $('#acc_details').val(),
             invoice_date: $('#invoice_date').val(), inv_number: $('#inv_number').val(),
             consignment_date: $('#consignment_date').val(), consignment_number: $('#consignment_number').val(),
@@ -1277,7 +1321,22 @@ $(function() {
 
     /* ── Submit ── */
     $('#invoiceform').submit(function(e) {
-        e.preventDefault(); loadershow(); $('.f-err').text('');
+        e.preventDefault();
+        if ($('.shortage-err').length > 0) {
+            const $firstErr = $('.shortage-err').first();
+            $('html, body').animate({
+                scrollTop: $firstErr.offset().top - 140
+            }, 400);
+
+            // ✅ Highlight all shortage fields with errors
+            $('.shortage-err').each(function() {
+                $(this).siblings('input').css('border-color', 'var(--c-danger)');
+            });
+
+            Toast.fire({ icon: 'error', title: 'Please fix shortage errors before submitting' });
+            return;
+        }
+        loadershow(); $('.f-err').text('');
         ajaxRequest('POST', "{{ route('invoice.store') }}", {
             data: collectInvoiceDetails(), iteam_data: collectRowData(),
             token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID

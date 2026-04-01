@@ -32,6 +32,7 @@ class orderController extends commonController
         $this->masterdbname = DB::connection()->getDatabaseName();
         $this->orderModel = $this->getmodel('order');
         $this->order_detailModel = $this->getmodel('order_detail');
+        $this->brokerPurchaseModel = $this->getmodel('broker_purchase');
     }
    public function index(Request $request)
     {
@@ -221,25 +222,33 @@ class orderController extends commonController
 
         $errors = [];
         $invoiceNumbers = [];
-
+        $invoiceGardenMap = [];
         foreach ($request->rows as $index => $row) {
 
             if (empty($row['garden_id'])) {
                 $errors["rows.$index.garden_id"] = ['Select at least one garden.'];
             }
             if (empty($row['invoice_no'])) {
-                $errors["rows.$index.invoice_no"] = ['The invoice number is required.'];
+            $errors["rows.$index.invoice_no"] = ['The invoice number is required.'];
             } else {
-                if (in_array($row['invoice_no'], $invoiceNumbers)) {
-                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the request.'];
+
+                $key = $row['garden_id'] . '_' . $row['invoice_no'];
+
+                // Check duplicate in same request (garden-wise)
+                if (in_array($key, $invoiceGardenMap)) {
+                    $errors["rows.$index.invoice_no"] = ['Duplicate invoice number for same garden in request.'];
                 } else {
-                    $invoiceNumbers[] = $row['invoice_no'];
+                    $invoiceGardenMap[] = $key;
                 }
+
+                // Check duplicate in DB (garden-wise)
                 $exists = $this->order_detailModel
-                    ::where('invoice_no', $row['invoice_no'])
+                    ::where('garden_id', $row['garden_id'])
+                    ->where('invoice_no', $row['invoice_no'])
                     ->exists();
+
                 if ($exists) {
-                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the system.'];
+                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists for the selected garden.'];
                 }
             }
             if (!isset($row['bags']) || $row['bags'] < 0) {
@@ -315,11 +324,12 @@ class orderController extends commonController
         ];
         return $this->successresponse(200, 'orders', $order);
     }
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
         if ($this->rp['teamodule']['order']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
+
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -334,29 +344,38 @@ class orderController extends commonController
         ]);
 
         $errors = [];
-        $invoiceNumbers = [];
+        $invoiceGardenMap = [];
 
         foreach ($request->rows as $index => $row) {
 
             if (empty($row['garden_id'])) {
                 $errors["rows.$index.garden_id"] = ['Select at least one garden.'];
             }
+
             if (empty($row['invoice_no'])) {
                 $errors["rows.$index.invoice_no"] = ['The invoice number is required.'];
             } else {
-                if (in_array($row['invoice_no'], $invoiceNumbers)) {
-                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the request.'];
+
+                $gardenId = $row['garden_id'];
+                $key = $gardenId . '_' . $row['invoice_no'];
+
+                if (in_array($key, $invoiceGardenMap)) {
+                    $errors["rows.$index.invoice_no"] = ['Duplicate invoice number for same garden in request.'];
                 } else {
-                    $invoiceNumbers[] = $row['invoice_no'];
+                    $invoiceGardenMap[] = $key;
                 }
+
                 $exists = $this->order_detailModel
-                    ::where('invoice_no', $row['invoice_no'])
+                    ::where('garden_id', $gardenId)
+                    ->where('invoice_no', $row['invoice_no'])
                     ->where('order_id', '!=', $id)
                     ->exists();
+
                 if ($exists) {
-                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists in the system.'];
+                    $errors["rows.$index.invoice_no"] = ['This invoice number already exists for the selected garden.'];
                 }
             }
+
             if (!isset($row['bags']) || $row['bags'] < 0) {
                 $errors["rows.$index.bags"] = ['Enter Bags cannot be negative!'];
             }
@@ -373,6 +392,7 @@ class orderController extends commonController
                 $errors["rows.$index.amount"] = ['Amount cannot be negative!'];
             }
         }
+
         if ($validator->fails() || !empty($errors)) {
             $validationErrors = $validator->errors()->toArray();
             $allErrors = array_merge($validationErrors, $errors);
@@ -380,39 +400,92 @@ class orderController extends commonController
         }
 
         $order = $this->orderModel::find($id);
+
+        if (!$order) {
+            return $this->successresponse(500, 'message', 'Order not found!');
+        }
+
         if ($this->rp['teamodule']['order']['alldata'] != 1) {
             if ($order->created_by != $this->userId) {
                 return $this->successresponse(500, 'message', 'You are Unauthorized');
             }
         }
-        if (!$order) {
-            return $this->successresponse(500, 'message', 'Order not found!');
-        }
+
+        // ✅ Update order
         $order->update([
             'buyer_party'    => $request->buyer_party,
             'transport'      => $request->transport,
             'credit_days'    => $request->credit_days,
-            'discount' => $request->discount ?? 0,
+            'discount'       => $request->discount ?? 0,
             'totalNetKg'     => $request->totalNetKg,
             'totalAmount'    => $request->totalAmount,
             'discountAmount' => $request->discountAmount,
             'finalAmount'    => $request->finalAmount,
             'updated_by'     => $request->user_id,
         ]);
-        $this->order_detailModel::where('order_id', $id)->delete();
+
+        $existingIds = [];
+
         foreach ($request->rows as $row) {
-            $this->order_detailModel::create([
-                'order_id'   => $id,
-                'garden_id'  => $row['garden_id'],
-                'invoice_no' => $row['invoice_no'],
-                'grade'      => $row['grade'] ?? null,
-                'bags'       => $row['bags'],
-                'kg'         => $row['kg'],
-                'net_kg'     => $row['net_kg'],
-                'rate'       => $row['rate'],
-                'amount'     => $row['amount'],
-            ]);
+
+            // ✅ UPDATE
+            if (!empty($row['order_detail_id'])) {
+
+                $detail = $this->order_detailModel::where('id', $row['order_detail_id'])
+                    ->where('order_id', $id)
+                    ->first();
+
+                if ($detail) {
+
+                    $detail->update([
+                        'garden_id'  => $row['garden_id'],
+                        'invoice_no' => $row['invoice_no'],
+                        'grade'      => $row['grade'] ?? null,
+                        'bags'       => $row['bags'],
+                        'kg'         => $row['kg'],
+                        'net_kg'     => $row['net_kg'],
+                        'rate'       => $row['rate'],
+                        'amount'     => $row['amount'],
+                    ]);
+
+                    $existingIds[] = $row['order_detail_id'];
+
+                    // ✅ Broker Purchase UPDATE
+                    $this->brokerPurchaseModel::where('order_detail_id', $row['order_detail_id'])->update([
+                        'garden_id'  => $row['garden_id'],
+                        'invoice_no' => $row['invoice_no'],
+                        'bags'       => $row['bags'],
+                        'net_kg'     => $row['net_kg'],
+                        'rate'       => $row['rate'],
+                    ]);
+                }
+
+            } else {
+
+                $newDetail = $this->order_detailModel::create([
+                    'order_id'   => $id,
+                    'garden_id'  => $row['garden_id'],
+                    'invoice_no' => $row['invoice_no'],
+                    'grade'      => $row['grade'] ?? null,
+                    'bags'       => $row['bags'],
+                    'kg'        => $row['kg'],
+                    'net_kg'     => $row['net_kg'],
+                    'rate'       => $row['rate'],
+                    'amount'     => $row['amount'],
+                ]);
+
+                $existingIds[] = $newDetail->id;
+            }
         }
+
+        // ✅ DELETE removed rows
+        $this->order_detailModel::where('order_id', $id)
+            ->whereNotIn('id', $existingIds)
+            ->delete();
+
+        $this->brokerPurchaseModel::whereNotIn('order_detail_id', $existingIds)
+            ->delete();
+
         return $this->successresponse(200, 'message', 'Order successfully updated');
     }
     public function destroy($id)
