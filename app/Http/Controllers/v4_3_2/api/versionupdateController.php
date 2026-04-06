@@ -1078,7 +1078,7 @@ class versionupdateController extends commonController
                                             ->where('garden_id',  $bp->garden_id)
                                             ->where('grade',   $bp->grade)
                                             ->first();
-                                            \Log::warning("orderDetail: " . json_encode($orderDetail));
+                                            Log::warning("orderDetail: " . json_encode($orderDetail));
                                       
                                         if ($orderDetail) {
 
@@ -1089,7 +1089,7 @@ class versionupdateController extends commonController
                                                 ->update([
                                                     'order_detail_id' => $orderDetail->id
                                                 ]);
-                                            \Log::warning("broker_purchases updated: " . json_encode($bp));
+                                            Log::warning("broker_purchases updated: " . json_encode($bp));
                                             //   dd($$orderDetail->id);
                                             // ── Update mng_col.order_detail_id ──
                                             // Match mng_col by invoice_id AND old order_detail_id to avoid wrong row update
@@ -1103,15 +1103,26 @@ class versionupdateController extends commonController
                                                 ->update([
                                                     'order_detail_id' => $orderDetail->id
                                                 ]);
-                                            \Log::warning("mng_col updated: " . json_encode($bp));
+                                            Log::warning("mng_col updated: " . json_encode($bp));
                                         } else {
                                             // ── Log if no match found ──
-                                            \Log::warning("No order_detail found for broker_purchase id: {$bp->id}, invoice_no: {$bp->invoice_no}");
+                                            Log::warning("No order_detail found for broker_purchase id: {$bp->id}, invoice_no: {$bp->invoice_no}");
                                         }
                                     }
-                                }
                                 
-                            }
+                                    }
+                                    $orders = DB::connection('dynamic_connection')
+                                        ->table('orders')
+                                        ->get();
+                                    foreach ($orders as $order) {
+                                        DB::connection('dynamic_connection')
+                                            ->table('orders')
+                                            ->where('id', $order->id)
+                                            ->update([
+                                                'order_date' => $order->created_at
+                                            ]);
+                                    }
+                                }
                             break;
                         }
                         $company->app_version = $request->version;

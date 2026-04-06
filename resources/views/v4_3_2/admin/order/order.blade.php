@@ -406,6 +406,9 @@
     <button class="btn btn-primary" id="pdfBtn">
         <i class="ri-file-chart-line"></i> Generate Report
     </button>
+    <button class="btn btn-success" id="excelBtn">
+        <i class="ri-file-excel-2-line"></i> Export Excel
+    </button>
 </div>
 
 <table id="data" class="table display table-bordered table-striped w-100">
@@ -417,6 +420,7 @@
             <th>Gardens</th>
             <th>Buyer</th>
             <th>Invoice/Lot No</th>
+            <th>Grades</th>
             <th>Invoice Status</th>
             <th>Total Net Kg</th>
             <th>Order Pdf</th>
@@ -569,9 +573,11 @@ $('document').ready(function () {
                 },
                 dataSrc: function (json) {
                     $('#pdfBtn').removeClass('d-none');
+                    $('#excelBtn').removeClass('d-none');
                     if (json.message) {
                         Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
                         $('#pdfBtn').addClass('d-none');
+                        $('#excelBtn').addClass('d-none');
                     }
                     global_response = json;
                     return json.data;
@@ -630,7 +636,12 @@ $('document').ready(function () {
                         }
                     }
                 },
-                { data: 'buyer_name',     name: 'buyer_name',     orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'buyer_name',     name: 'buyer_name',     orderable: true,  searchable: true,  defaultContent: '-' 
+                    ,render:(data) =>{
+                        if(!data) return '<span style = "color:red"> Buyer Not Selected </span>';
+                        else return data;
+                    }
+                },
                 {
                     data: 'invoice_nos', name: 'invoice_nos', orderable: true, searchable: true, defaultContent: '-',
                     render: (data) => {
@@ -639,6 +650,7 @@ $('document').ready(function () {
                         return `<span data-toggle="tooltip" data-original-title="${data}">${s}</span>`;
                     }
                 },
+                { data: 'grades',         name: 'grades',         orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'invoice_status', name: 'invoice_status', orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'totalNetKg',     name: 'totalNetKg',     orderable: true,  searchable: true,  defaultContent: '-' },
                 {
@@ -714,8 +726,9 @@ $('document').ready(function () {
 
     /* ── Generate Report ── */
     let params;
-    $('#pdfBtn').on('click', function () {
-        params = table.ajax.params();
+    /* ── Generate Report (shared helper) ── */
+    function exportReport(type) {
+        let params = table.ajax.params();
         params.filter_buyer             = $('#filter_buyer').val();
         params.filter_transport         = $('#filter_transport').val();
         params.filter_garden            = $('#filter_garden').val();
@@ -728,14 +741,29 @@ $('document').ready(function () {
         params.filter_final_amount_to   = $('#filter_final_amount_to').val();
         params.filter_date_from         = $('#filter_date_from').val();
         params.filter_date_to           = $('#filter_date_to').val();
+        params.type                     = type;   // <-- key addition
+
         let url = "{{ route('brokragbill.orderreport') }}" + '?' + $.param(params);
+
         loadershow();
         $.ajax({
-            type: 'GET', url: "{{ route('brokragbill.orderreport') }}", data: params,
-            success: () => { window.open(url, '_blank'); loaderhide(); },
-            error: xhr => { loaderhide(); handleAjaxError(xhr); }
+            type: 'GET',
+            url: "{{ route('brokragbill.orderreport') }}",
+            data: params,
+            success: function () {
+                if (type === 'pdf') {
+                    window.open(url, '_blank');   // stream in new tab
+                } else {
+                    window.location.href = url;   // direct download for excel
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
         });
-    });
+    }
+
+    $('#pdfBtn').on('click',   function () { exportReport('pdf');   });
+    $('#excelBtn').on('click', function () { exportReport('excel'); });
 
     /* ── View Order Details ── */
     $(document).on('click', '.view-btn', function () {
@@ -754,12 +782,17 @@ $('document').ready(function () {
                     <td colspan="2">${order.buyer_name||'-'}</td>
                     <td>${order.transport_name||'-'}</td>
                     <td>${order.credit_days||'-'}</td>
-                    <td>${order.discount||'-'}</td>
+                    <td>${order.discount||'-'}</td> 
                     <td>${order.final_amount||'-'}</td>
                     <td colspan="2">${order.totalNetKg||'-'}</td>
                 </tr></tbody>
             </table>
-            <div class="p-2"><h5>Order Details</h5></div>
+            <table class="table" style="border-top: none;">
+                <tr>
+                    <td colspan="8" class="p-0" style="background-color: white;"> <div class="p-2" style="text-align: center;"><h5>Order Details</h5></div></td>
+                </tr>
+               
+                </table>
             <table class="table table-striped table-bordered">
                 <thead><tr>
                     <th>Garden</th><th>Grade</th><th>Invoice/Lot No</th>

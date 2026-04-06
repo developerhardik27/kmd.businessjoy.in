@@ -509,7 +509,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                     <span class="f-err" id="error-tax_type"></span>
                 </div>
                 @endif
-                <div class="col-sm-4 mb-3">
+                <div class="col-sm-4 mb-3 d-none">
                     <label class="f-label">Bank Account</label>
                     <select class="f-ctrl" id="acc_details" name="acc_details">
                         <option selected disabled>Select Account</option>

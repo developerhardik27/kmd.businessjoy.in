@@ -216,9 +216,13 @@
 <div class="action-bar d-flex justify-content-between align-items-center w-100 mb-3">
 
     <div>
-        <button class="btn btn-primary" id="pdfBtn">
-            <i class="ri-file-chart-line"></i> Generate Report
-        </button>
+   
+    <button class="btn btn-primary" id="pdfBtn">
+        <i class="ri-file-chart-line"></i> Generate Report
+    </button>
+    <button class="btn btn-success" id="excelBtn">
+        <i class="ri-file-excel-2-line"></i> Export Excel
+    </button>
     </div>
 
     <div>
@@ -363,6 +367,7 @@
                 <th>Buyer Name</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Commission <br> Bill Status</th>
                 <th>Invoice</th>
                 <th>Payment</th>
                 <th>Action</th>
@@ -856,10 +861,12 @@
                         d.filter_buyer          = $('#filter_buyer').val();
                     },
                     dataSrc: function (json) {
-                        $('#pdfBtn').removeClass('d-none');
+                         $('#pdfBtn').removeClass('d-none');
+                        $('#excelBtn').removeClass('d-none');
                         if (json.message) {
                             Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
                             $('#pdfBtn').addClass('d-none');
+                            $('#excelBtn').addClass('d-none');
                         }
                         global_response = json;
                         return json.data;
@@ -947,7 +954,16 @@
                             return actions;
                         }
                     },
-
+                    {data: 'brokerbill_no', name: 'brokerbill_no', orderable: false, searchable: false, defaultContent: '-',
+                        render: function (data, type, row) {
+                            if (row.brokerbill_no) {
+                                return `<span class="badge badge-info">Bill Generated</span>`;
+                            }
+                            else{
+                                    return `<span class="badge badge-warning">Pending</span>`;
+                            }
+                        }
+                    },
                     // ── Col 8: Invoice PDF Download ────────────────────────────────
                     {
                         data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
@@ -1140,20 +1156,27 @@
 
         // ── Generate Report ───────────────────────────────────────────────────────
         let params;
-        $('#pdfBtn').on('click', function () {
+       function exportReport(type) {
             params = table.ajax.params();
             params.filter_payment_status = $('#filter_payment_status').val();
             params.filter_buyer          = $('#filter_buyer').val();
             params.filter_company        = $('#filter_company').val();
+            params.type                     = type;
             let url = "{{ route('invoice.leger') }}" + '?' + $.param(params);
             loadershow();
             $.ajax({
                 type: 'GET', url: "{{ route('invoice.leger') }}", data: params,
-                success: function () { window.open(url, '_blank'); loaderhide(); },
+                success: function () { 
+                    if (type === 'pdf') {
+                    window.open(url, '_blank');   // stream in new tab
+                } else {
+                    window.location.href = url;   // direct download for excel
+                } loaderhide(); },
                 error  : function (xhr) { loaderhide(); handleAjaxError(xhr); }
             });
-        });
-
+       }
+        $('#pdfBtn').on('click', function () { exportReport('pdf'); });
+        $('#excelBtn').on('click', function () { exportReport('excel'); });
         // ── Delete Invoice ────────────────────────────────────────────────────────
         $(document).on("click", ".del-btn", function () {
             let deleteid = $(this).data('id');

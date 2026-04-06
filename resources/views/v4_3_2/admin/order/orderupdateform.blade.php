@@ -29,273 +29,234 @@
     --c-text:      #1a1d2e;
     --c-muted:     #6b7280;
     --c-light:     #f8f9fc;
-    --radius:      10px;
-    --radius-sm:   7px;
-    --shadow-sm:   0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
+    --radius:      8px;
+    --radius-sm:   6px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.07);
     --font:        'Inter', sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; }
 body { font-family: var(--font) !important; background: var(--c-bg) !important; }
 
-.inv-section {
-    background: var(--c-white); border: 1px solid var(--c-border);
-    border-radius: var(--radius); box-shadow: var(--shadow-sm);
-    margin-bottom: 18px; overflow: hidden;
+/* ── Compact top header bar (replaces both sections) ── */
+.order-header-bar {
+    background: var(--c-white);
+    border: 1px solid var(--c-border);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 16px;
+    margin-bottom: 10px;
 }
-.inv-section-head {
-    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
-    border-bottom: 1px solid var(--c-border);
-    background: linear-gradient(90deg, #f5f7ff 0%, var(--c-white) 100%);
+.order-header-bar .row { margin: 0 -6px; }
+.order-header-bar .col-sm-2,
+.order-header-bar .col-sm-3,
+.order-header-bar .col-sm-4 {
+    padding: 0 6px;
 }
-.inv-section-head .ico {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--c-primary-s); color: var(--c-primary);
-    display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
-}
-.inv-section-head h6 { margin: 0; font-size: 13px; font-weight: 700; color: var(--c-text); }
-.inv-section-body { padding: 20px; }
+.order-header-bar .mb-0 { margin-bottom: 0 !important; }
 
+/* ── Field labels & controls ── */
 .f-label {
-    display: block; font-size: 11.5px; font-weight: 600;
+    display: block; font-size: 10.5px; font-weight: 600;
     color: var(--c-muted); text-transform: uppercase;
-    letter-spacing: .055em; margin-bottom: 5px;
+    letter-spacing: .05em; margin-bottom: 3px;
 }
 .f-label .req { color: var(--c-danger); margin-left: 2px; }
 .f-ctrl {
     width: 100%; background: var(--c-light);
     border: 1.5px solid var(--c-border); border-radius: var(--radius-sm);
-    padding: 8px 12px; font-size: 13px; color: var(--c-text);
-    font-family: var(--font); transition: border .15s, box-shadow .15s, background .15s;
-    outline: none; appearance: none;
+    padding: 5px 10px; font-size: 12.5px; color: var(--c-text);
+    font-family: var(--font); transition: border .15s, box-shadow .15s;
+    outline: none; appearance: none; height: 32px;
 }
 .f-ctrl:focus { border-color: var(--c-primary); background: #fff; box-shadow: 0 0 0 3px var(--c-primary-s); }
 .f-ctrl[disabled],.f-ctrl:disabled { background: #f4f5f8 !important; cursor: default; color: var(--c-text); opacity: .85; }
-textarea.f-ctrl { resize: vertical; min-height: 70px; }
-.f-err { font-size: 11px; color: var(--c-danger); margin-top: 3px; display: block; }
+.f-err { font-size: 10px; color: var(--c-danger); margin-top: 2px; display: block; }
 .f-ctrl.field-error { border-color: var(--c-danger) !important; background: var(--c-danger-s) !important; }
 
+/* ── Select2 compact ── */
 .select2-container { width: 100% !important; }
 .select2-container--default .select2-selection--single {
-    height: 37px !important; border: 1.5px solid var(--c-border) !important;
+    height: 32px !important; border: 1.5px solid var(--c-border) !important;
     border-radius: var(--radius-sm) !important; background: var(--c-light) !important;
     display: flex; align-items: center;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 35px !important; font-size: 13px; color: var(--c-text) !important; padding-left: 12px !important;
+    line-height: 30px !important; font-size: 12.5px; color: var(--c-text) !important; padding-left: 10px !important;
 }
-.select2-container--default .select2-selection--single .select2-selection__arrow { height: 35px !important; }
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 30px !important; }
 .select2-container--default.select2-container--focus .select2-selection--single {
     border-color: var(--c-primary) !important; box-shadow: 0 0 0 3px var(--c-primary-s) !important;
 }
 .select2-results__option[aria-disabled="true"] { color: var(--c-danger) !important; }
 
+/* ── Line items wrapper ── */
 .li-wrap {
     background: var(--c-white); border: 1px solid var(--c-border);
-    border-radius: var(--radius); box-shadow: var(--shadow-sm);
-    margin-bottom: 18px; overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0px; overflow: hidden;
 }
-.li-topbar {
-    padding: 14px 20px; display: flex; align-items: center;
-    justify-content: space-between; flex-wrap: wrap; gap: 10px;
-    border-bottom: 1px solid var(--c-border);
-    background: linear-gradient(90deg, #eef1fd 0%, var(--c-white) 100%);
+
+/* ── Totals ── */
+.li-totals {
+    border-top: 1.5px solid var(--c-border); background: #f8f9fd;
+    padding: 10px 16px; display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 16px;
 }
-.li-topbar-left { display: flex; align-items: center; gap: 10px; }
-.li-topbar-left .ico {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--c-primary); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 15px;
-}
-.li-topbar-left h6 { margin: 0; font-size: 13px; font-weight: 700; color: var(--c-text); }
+.li-totals-left { flex: 1; }
+.li-totals-center { flex: 1; display: flex; justify-content: center; }
+.totals-inner { max-width: 420px; min-width: 320px; }
+
+/* .li-list { display: flex; flex-direction: column; gap: 8px; padding: 10px; } */
+.li-topbar-left h6 { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--c-text); }
 .li-count-badge {
-    font-size: 11px; font-weight: 700; padding: 2px 9px;
+    font-size: 10px; font-weight: 700; padding: 2px 7px;
     background: var(--c-primary); color: #fff; border-radius: 20px;
 }
 .li-quickbar {
-    padding: 12px 20px; display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap; background: var(--c-light); border-bottom: 1px solid var(--c-border);
+    padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+    background: var(--c-light); border-bottom: 1px solid var(--c-border);
 }
 .btn-add-row {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 14px; border-radius: var(--radius-sm);
     background: var(--c-primary); color: #fff; border: none;
-    font-size: 12.5px; font-weight: 600; font-family: var(--font);
+    font-size: 12px; font-weight: 600; font-family: var(--font);
     cursor: pointer; white-space: nowrap;
     transition: background .15s, transform .1s;
-    box-shadow: 0 2px 8px rgba(59,91,219,.2);
+    box-shadow: 0 2px 6px rgba(59,91,219,.2);
 }
 .btn-add-row:hover { background: var(--c-primary-h); transform: translateY(-1px); }
 
-.li-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
-.li-empty { text-align: center; padding: 48px 20px; color: var(--c-muted); }
+.li-list {  display: flex; flex-direction: column; gap: 8px; }
+.li-empty { text-align: center; padding: 30px 20px; color: var(--c-muted); }
 .li-empty-icon {
-    width: 52px; height: 52px; border-radius: 14px;
+    width: 40px; height: 40px; border-radius: 10px;
     background: var(--c-primary-s); color: var(--c-primary);
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; margin: 0 auto 12px;
+    font-size: 20px; margin: 0 auto 8px;
 }
-.li-empty p { font-size: 13px; margin: 0; }
+.li-empty p { font-size: 12.5px; margin: 0; }
 
+/* ── Row card ── */
 .order-row-card {
-    border: 1.5px solid var(--c-border); border-radius: var(--radius);
+    border: 1.5px solid var(--c-border); 
     background: var(--c-white); overflow: hidden;
     transition: border-color .15s, box-shadow .15s;
-    animation: cardIn .2s ease both;
+    animation: cardIn .18s ease both;
 }
-@keyframes cardIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
-.order-row-card:hover { border-color: #b8c4f5; box-shadow: 0 2px 10px rgba(59,91,219,.09); }
+@keyframes cardIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.order-row-card:hover { border-color: #b8c4f5; box-shadow: 0 2px 8px rgba(59,91,219,.08); }
 .order-row-card.card-error { border-color: var(--c-danger) !important; }
 
 .order-card-head {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 14px; background: #f7f8fd; border-bottom: 1px solid var(--c-border);
+    padding: 6px 12px; background: #f7f8fd; border-bottom: 1px solid var(--c-border);
 }
-.order-card-num { display: flex; align-items: center; gap: 8px; }
+.order-card-num { display: flex; align-items: center; gap: 6px; }
 .order-card-num .num-badge {
-    width: 24px; height: 24px; border-radius: 6px;
+    width: 20px; height: 20px; border-radius: 5px;
     background: var(--c-primary); color: #fff;
-    font-size: 11px; font-weight: 700;
+    font-size: 10px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
 }
-.order-card-num span.lbl { font-size: 12px; font-weight: 600; color: var(--c-muted); }
-
+.order-card-num span.lbl { font-size: 11px; font-weight: 600; color: var(--c-muted); }
 .btn-card-del {
-    width: 28px; height: 28px; border-radius: 6px; border: none;
+    width: 24px; height: 24px; border-radius: 5px; border: none;
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; cursor: pointer;
+    font-size: 12px; cursor: pointer;
     background: var(--c-danger-s); color: var(--c-danger);
     transition: background .13s, transform .1s;
 }
 .btn-card-del:hover { background: #ffd5d5; transform: scale(1.1); }
 
-.order-card-body { padding: 14px; }
+.order-card-body { padding: 10px 12px; }
 .order-field-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 10px 14px; align-items: end;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 8px 10px; align-items: end;
 }
 .order-field-grid .amount-cell .f-ctrl {
     font-weight: 700 !important; color: var(--c-primary) !important;
     background: #eef1fd !important; border-color: #c5cff5 !important;
 }
-.order-card-body .f-label { font-size: 10.5px; margin-bottom: 4px; }
-.order-card-body .f-ctrl  { font-size: 12.5px; padding: 7px 10px; }
+.order-card-body .f-label { font-size: 10px; margin-bottom: 3px; }
+.order-card-body .f-ctrl  { font-size: 12px; padding: 5px 8px; height: 30px; }
 
-.li-totals { border-top: 2px solid var(--c-border); background: #f8f9fd; padding: 20px; }
-.totals-inner { max-width: 380px; margin-left: auto; }
+/* ── Totals ── */
+.li-totals {
+    border-top: 1.5px solid var(--c-border); background: #f8f9fd;
+    padding: 10px 16px;
+}
+/* .totals-inner { max-width: 420px; margin-left: auto; } */
 .t-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 0; border-bottom: 1px dashed var(--c-border); gap: 12px;
+    padding: 5px 0; border-bottom: 1px dashed var(--c-border); gap: 10px;
 }
 .t-row:last-child { border-bottom: none; }
-.t-row.grand { border-top: 2px solid var(--c-primary); border-bottom: none; margin-top: 8px; padding-top: 14px; }
-.t-label { flex: 1; font-size: 12.5px; font-weight: 500; color: var(--c-muted); }
-.t-row.grand .t-label { font-size: 14px; font-weight: 700; color: var(--c-text); }
-.t-val { font-size: 13px; font-weight: 700; color: var(--c-text); min-width: 110px; text-align: right; }
-.t-row.grand .t-val { font-size: 18px; color: var(--c-primary); }
+.t-row.grand { border-top: 1.5px solid var(--c-primary); border-bottom: none; margin-top: 5px; padding-top: 8px; }
+.t-label { flex: 1; font-size: 12px; font-weight: 500; color: var(--c-muted); }
+.t-row.grand .t-label { font-size: 13px; font-weight: 700; color: var(--c-text); }
+.t-val { font-size: 12.5px; font-weight: 700; color: var(--c-text); min-width: 100px; text-align: right; }
+.t-row.grand .t-val { font-size: 16px; color: var(--c-primary); }
 .t-row.discount .t-val { color: var(--c-danger); }
-.t-badge { font-size: 10px; font-weight: 700; background: var(--c-warn-s); color: var(--c-warn); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+.t-badge { font-size: 10px; font-weight: 700; background: var(--c-warn-s); color: var(--c-warn); border-radius: 4px; padding: 1px 5px; margin-left: 5px; }
 
-.inv-footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+/* ── Footer ── */
+.inv-footer { display: flex; justify-content: flex-end; gap: 7px; flex-wrap: wrap; padding: 10px 16px; background: var(--c-white); border: 1px solid var(--c-border);  box-shadow: var(--shadow-sm); }
 .btn-f {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 20px; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 600; border: none;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 16px; border-radius: var(--radius-sm);
+    font-size: 12.5px; font-weight: 600; border: none;
     cursor: pointer; font-family: var(--font); transition: background .15s, transform .1s;
 }
 .btn-f:hover { transform: translateY(-1px); }
-.btn-f-success { background: var(--c-success); color: #fff; box-shadow: 0 2px 10px rgba(47,158,68,.25); }
-.btn-f-success:hover { background: #267a37; }
+.btn-f-primary { background: var(--c-primary); color: #fff; box-shadow: 0 2px 8px rgba(59,91,219,.22); }
+.btn-f-primary:hover { background: var(--c-primary-h); }
 .btn-f-reset  { background: var(--c-danger-s); color: var(--c-danger); }
 .btn-f-reset:hover { background: #ffd5d5; }
 .btn-f-cancel { background: #edf0f7; color: var(--c-muted); }
 .btn-f-cancel:hover { background: #e2e6ef; }
 
+/* ── Modals ── */
 .modal-content { border-radius: var(--radius) !important; border: none !important; box-shadow: 0 20px 60px rgba(0,0,0,.15) !important; font-family: var(--font); }
-.modal-header  { background: linear-gradient(90deg,#f0f3ff,#fff); border-bottom: 1px solid var(--c-border) !important; border-radius: var(--radius) var(--radius) 0 0 !important; padding: 16px 22px !important; }
-.modal-title   { font-weight: 700 !important; font-size: 14px !important; color: var(--c-text) !important; }
-/* ── Field Grid ── */
-.order-field-grid {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 10px 14px;
-    align-items: end;
-}
+.modal-header  { background: linear-gradient(90deg,#f0f3ff,#fff); border-bottom: 1px solid var(--c-border) !important; border-radius: var(--radius) var(--radius) 0 0 !important; padding: 12px 18px !important; }
+.modal-title   { font-weight: 700 !important; font-size: 13.5px !important; color: var(--c-text) !important; }
 
-/* Amount cell pinned to last column on desktop only */
-.order-field-grid .amount-cell {
-    grid-column: 6;
-    grid-row: 1;
-}
-
-/* ── 1200px : 4 columns ── */
+/* ── Responsive ── */
 @media (max-width: 1200px) {
-    .order-field-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .order-field-grid .amount-cell {
-        grid-column: unset;
-        grid-row: unset;
-    }
+    .order-field-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .order-field-grid .amount-cell { grid-column: unset; }
 }
-
-/* ── 900px : 3 columns ── */
 @media (max-width: 900px) {
-    .order-field-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .order-field-grid .amount-cell {
-        grid-column: unset;
-        grid-row: unset;
-    }
+    .order-field-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-
-/* ── 600px : 2 columns ── */
-@media (max-width: 600px) {
-    .li-topbar, .li-quickbar {
-        flex-direction: column;
-        align-items: flex-start;
+@media (max-width: 768px) {
+    .order-header-bar .row { flex-wrap: wrap; }
+    .order-header-bar [class*="col-sm"] {
+        width: 100% !important; max-width: 100% !important;
+        flex: 0 0 100% !important; margin-bottom: 8px !important;
     }
-    .order-field-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px 10px;
-    }
-    .order-field-grid .amount-cell {
-        grid-column: unset;
-        grid-row: unset;
-        grid-column: span 2;        /* Amount takes full width on mobile */
-    }
-    .order-card-body        { padding: 10px; }
-    .order-card-body .f-ctrl { font-size: 13px; padding: 8px 10px; }
-    .order-card-body .f-label { font-size: 10px; }
-    .li-list                { padding: 10px; gap: 8px; }
-    .inv-section-body       { padding: 14px; }
-    .li-totals              { padding: 14px; }
-    .t-val                  { font-size: 12px; }
-    .t-row.grand .t-val     { font-size: 15px; }
-    .btn-add-row            { width: 100%; justify-content: center; }
-    .inv-footer             { justify-content: stretch; }
-    .btn-f                  { flex: 1; justify-content: center; }
-    .totals-inner           { max-width: 100%; }
-    .t-label                { font-size: 11.5px; }
-    .li-count-badge         { font-size: 10px; }
+    .order-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 8px; }
+    .order-field-grid .amount-cell { grid-column: span 2; }
+    .li-totals { flex-direction: column; align-items: stretch !important; gap: 12px; padding: 12px; }
+    .li-totals-left { display: none; }
+    .li-totals-center { justify-content: center; }
+    .btn-add-row { width: 100%; justify-content: center; }
+    .totals-inner { max-width: 100%; min-width: unset; width: 100%; }
+    .inv-footer { justify-content: stretch; flex-wrap: wrap; }
+    .btn-f { flex: 1 1 auto; justify-content: center; min-width: 100px; }
 }
-
-/* ── 420px : 1 column ── */
-@media (max-width: 420px) {
-    .order-field-grid {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-        gap: 7px;
+@media (max-width: 480px) {
+    .order-header-bar [class*="col-sm"] {
+        width: 50% !important; max-width: 50% !important; flex: 0 0 50% !important;
     }
-    .order-field-grid .amount-cell {
-        grid-column: unset;
-        grid-row: unset;
+    .order-header-bar [class*="col-sm"]:last-child {
+        width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important;
     }
-    .order-card-head        { padding: 7px 10px; }
-    .order-card-body        { padding: 8px; }
-    .order-card-body .f-ctrl { height: 38px; font-size: 13px; }
-    .li-quickbar            { padding: 10px; }
-    .li-list                { padding: 8px; gap: 6px; }
+    .order-field-grid { grid-template-columns: 1fr; gap: 6px; }
+    .order-field-grid .amount-cell { grid-column: unset; }
+    .order-card-head { padding: 5px 10px; }
+    .order-card-body { padding: 8px 10px; }
+    .btn-f { flex: 0 0 100%; }
 }
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
@@ -310,101 +271,84 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
     <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
-    <div class="inv-section">
-        <div class="inv-section-head">
-            <div class="ico"><i class="ri-user-3-line"></i></div>
-            <h6>Party Details</h6>
-        </div>
-        <div class="inv-section-body">
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <label class="f-label">Buyer Party <span class="req">*</span></label>
-                    <select class="form-control" name="buyer_party" id="buyer_party">
-                        <option value="" selected disabled>Select Buyer</option>
-                    </select>
-                    <span class="f-err" id="error-buyer_party"></span>
-                </div>
-                <div class="col-sm-6 mb-3">
-                    <label class="f-label">Transport</label>
-                    <select class="form-control" name="transport" id="transport">
-                        <option value="" selected disabled>Select Transport</option>
-                    </select>
-                    <span class="f-err" id="error-transport"></span>
-                </div>
+    {{-- ── Single compact header bar: Party + Order Info merged ── --}}
+    <div class="order-header-bar">
+        <div class="row align-items-end" style="margin:0 -6px;">
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+                <label class="f-label">Buyer Party </label>
+                <select class="form-control" name="buyer_party" id="buyer_party">
+                    <option value="" selected disabled>Select Buyer</option>
+                </select>
+                <span class="f-err" id="error-buyer_party"></span>
+            </div>
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+                <label class="f-label">Transport</label>
+                <select class="form-control" name="transport" id="transport">
+                    <option value="" selected disabled>Select Transport</option>
+                </select>
+                <span class="f-err" id="error-transport"></span>
+            </div>
+            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+                <label class="f-label">Credit Days <span class="req">*</span></label>
+                <select class="f-ctrl" name="credit_days" id="credit_days">
+                    <option value="" disabled selected>Select</option>
+                    <option value="CD">CD</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                    <option value="60">60</option>
+                    <option value="90">90</option>
+                </select>
+                <span class="f-err" id="error-credit_days"></span>
+            </div>
+            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+                <label class="f-label">Discount (%)</label>
+                <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount" placeholder="0.00" value="0" min="0">
+                <span class="f-err" id="error-discount"></span>
+            </div>
+            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+                <label class="f-label">Order Date <span class="req">*</span></label>
+                <input type="date" class="f-ctrl" name="order_date" id="order_date" value="{{ date('Y-m-d') }}">
+                <span class="f-err" id="error-order_date"></span>
             </div>
         </div>
     </div>
 
-    <div class="inv-section">
-        <div class="inv-section-head">
-            <div class="ico"><i class="ri-file-list-3-line"></i></div>
-            <h6>Order Information</h6>
-        </div>
-        <div class="inv-section-body">
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <label class="f-label">Credit Days <span class="req">*</span></label>
-                    <select class="f-ctrl" name="credit_days" id="credit_days">
-                        <option value="" disabled selected>Select Day</option>
-                        <option value="CD">CD</option>
-                        <option value="15">15</option>
-                        <option value="30">30</option>
-                        <option value="45">45</option>
-                        <option value="60">60</option>
-                        <option value="90">90</option>
-                    </select>
-                    <span class="f-err" id="error-credit_days"></span>
-                </div>
-                <div class="col-sm-6 mb-3">
-                    <label class="f-label">Discount (%)</label>
-                    <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount" placeholder="0.00" value="0" min="0">
-                    <span class="f-err" id="error-discount"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    {{-- ── Line Items ── --}}
     <div class="li-wrap">
-        <div class="li-topbar">
-            <div class="li-topbar-left">
-                <div class="ico"><i class="ri-list-check-2"></i></div>
-                <h6>Order Items</h6>
-                <span class="li-count-badge" id="li-count">0</span>
-            </div>
+    <div class="li-list" id="purchaseBody">
+        <div id="li-empty" class="li-empty">
+            <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
+            <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
         </div>
-        <div class="li-quickbar">
+    </div>
+    <div class="li-totals">
+        <div class="li-totals-left"></div>
+        <div class="li-totals-center">
             <button type="button" id="addRowBtn" class="btn-add-row">
                 <i class="ri-add-circle-line"></i> Add New Row
             </button>
         </div>
-        <div class="li-list" id="purchaseBody">
-            <div id="li-empty" class="li-empty">
-                <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
-                <p><strong>No items yet.</strong> Loading order data…</p>
+        <div class="totals-inner">
+            <div class="t-row">
+                <span class="t-label">Total Net Kg</span>
+                <span class="t-val" id="totalNetKg">0.00</span>
             </div>
-        </div>
-        <div class="li-totals">
-            <div class="totals-inner">
-                <div class="t-row">
-                    <span class="t-label">Total Net Kg</span>
-                    <span class="t-val" id="totalNetKg">0.00</span>
-                </div>
-                <div class="t-row">
-                    <span class="t-label">Total Amount</span>
-                    <span class="t-val" id="totalAmount">0.00</span>
-                </div>
-                <div class="t-row discount">
-                    <span class="t-label">Discount <span class="t-badge" id="discountBadge">0%</span></span>
-                    <span class="t-val" id="discountAmount">0.00</span>
-                </div>
-                <div class="t-row grand">
-                    <span class="t-label">Final Amount</span>
-                    <span class="t-val" id="finalAmount">0.00</span>
-                </div>
+            <div class="t-row">
+                <span class="t-label">Total Amount</span>
+                <span class="t-val" id="totalAmount">0.00</span>
+            </div>
+            <div class="t-row discount">
+                <span class="t-label">Discount <span class="t-badge" id="discountBadge">0%</span></span>
+                <span class="t-val" id="discountAmount">0.00</span>
+            </div>
+            <div class="t-row grand">
+                <span class="t-label">Final Amount</span>
+                <span class="t-val" id="finalAmount">0.00</span>
             </div>
         </div>
     </div>
-
+</div>
     <div class="inv-section">
         <div class="inv-section-body">
             <div class="inv-footer">
@@ -659,7 +603,7 @@ $(document).ready(function () {
             <div class="order-card-head">
                 <div class="order-card-num">
                     <span class="num-badge">${rowId}</span>
-                    <span class="lbl">Row ${rowId}</span>
+                    <span class="lbl">Line Item ${rowId}</span>
                 </div>
                 <button type="button" class="btn-card-del remove-row"
                     data-toggle="tooltip" data-original-title="Delete Row">
@@ -748,14 +692,9 @@ $(document).ready(function () {
     }
 
     /* ADD ROW */
-    $('#addRowBtn').on('click', function () {
-        const $firstGarden = $('.garden-select').first();
-        if ($firstGarden.length > 0 && !$firstGarden.val()) {
-            Toast.fire({ icon: 'warning', title: 'Please select a garden in the first row before adding new rows.' });
-            return;
-        }
-        addNewRow(null);
-    });
+   $('#addRowBtn').on('click', function () {
+    addNewRow(null);
+});
 
     /* REMOVE ROW */
     $(document).on('click', '.remove-row', function () {
@@ -840,18 +779,22 @@ $(document).ready(function () {
                 $('#transport').val(order.transport).trigger('change');
                 $('#credit_days').val(order.credit_days);
                 $('#discount').val(order.discount ?? 0);
+                $('#order_date').val(order.order_date);
                 $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
 
                 order_details.forEach(detail => addNewRow(detail));
                 console.log(order_details);
                 calculateTotals();
+                
             } else {
                 Toast.fire({ icon: 'error', title: r.message });
             }
         } catch (e) { handleAjaxError(e); }
         finally { loaderhide(); }
     }
-
+    $(document).on('focus', '.select2-selection', function () {
+        $(this).closest('.select2-container').prev('select').select2('open');
+    });
     /* ════════════════════════════════════════════════════════
        INIT
     ════════════════════════════════════════════════════════ */
@@ -908,6 +851,7 @@ $(document).ready(function () {
             transport:      $('#transport').val(),
             credit_days:    $('#credit_days').val(),
             discount:       $('#discount').val(),
+            order_date:      $('#order_date').val(),
             totalNetKg:     $('#totalNetKg').text(),
             totalAmount:    $('#totalAmount').text(),
             discountAmount: $('#discountAmount').text(),

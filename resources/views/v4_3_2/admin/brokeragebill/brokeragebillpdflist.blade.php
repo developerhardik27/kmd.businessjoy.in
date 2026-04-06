@@ -265,9 +265,19 @@
 </div>
 
 {{-- ── Action Bar ── --}}
-<div class="action-bar">
+<div class="action-bar d-flex justify-content-between align-items-center w-100 mb-3">
+    <div>
     <button class="btn btn-primary" id="pdfBtn">
         <i class="ri-file-chart-line"></i> Generate Report
+    </button>
+    <button class="btn btn-success" id="excelBtn">
+        <i class="ri-file-excel-2-line"></i> Export Excel
+    </button>
+    </div>
+    <button class="btn btn-success generate-invoice"
+        data-toggle="tooltip" data-placement="bottom"
+        data-original-title="Create New Invoice">
+        <i class="ri-add-line"></i> New Invoice
     </button>
 </div>
 
@@ -370,7 +380,57 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="pdfDateModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="pdfDateForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Generate Commission Bill PDF</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="invoice_id">Select Invoice</label>
+                            <select name="invoice_id" id="invoice_id" class="form-control select2" required>
+                                <option value="" disabled selected>Select Invoice</option>
+                            </select>
+                        </div>
+                        {{-- Hidden system fields --}}
+                        <input type="hidden" name="token"              value="{{ session('api_token') }}" required />
+                        <input type="hidden" name="user_id"            value="{{ session('user_id') }}">
+                        <input type="hidden" name="company_id"         value="{{ session('company_id') }}">
+                        <input type="hidden" name="garden_id"          id="garden_id"          value="">
+                        <input type="hidden" name="company_details_id" id="company_details_id" value="">
 
+                        {{-- Summary banner — shown only for bulk selections --}}
+                        <div id="pdfModalSummary" class="alert alert-info py-2 px-3 mb-3" style="font-size:13px; display:none;">
+                            <!-- <strong>Selected Invoice IDs:</strong> <span id="summaryInvoiceIds">-</span><br> -->
+                            <strong>No. of Invoices:</strong> <span id="summaryCount">-</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Invoice Total</label>
+                            <input type="number" name="line_total" id="line_total" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Brokerage (%)</label>
+                            <input type="number" name="brokerage" id="brokerage" step="0.01" min="0" max="100"
+                                class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Brokerage Amount</label>
+                            <input type="number" name="brokrageAmount" id="brokrageAmount" step="0.01" min="0"
+                                class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Generate</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('ajax')
@@ -495,7 +555,12 @@ $('document').ready(function () {
                 },
                 dataSrc: function (json) {
                     $('#pdfBtn').removeClass('d-none');
-                    if (json.message) { Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' }); $('#pdfBtn').addClass('d-none'); }
+                    $('#excelBtn').removeClass('d-none');
+                    if (json.message) {
+                        Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
+                        $('#pdfBtn').addClass('d-none');
+                        $('#excelBtn').addClass('d-none');
+                    }
                     global_response = json;
                     return json.data;
                 },
@@ -634,7 +699,7 @@ $('document').ready(function () {
 
     /* ── Generate Report ── */
     let params;
-    $('#pdfBtn').on('click', function () {
+    function exportReport(type) {
         params = table.ajax.params();
         params.filter_payment_status = $('#filter_payment_status').val();
         params.filter_garden         = $('#filter_garden').val();
@@ -642,15 +707,21 @@ $('document').ready(function () {
         params.filter_buyer          = $('#filter_buyer').val();
         params.filter_date_from      = $('#filter_date_from').val();
         params.filter_date_to        = $('#filter_date_to').val();
+        params.type = type;
         let url = "{{ route('brokragbill.outstanding') }}" + '?' + $.param(params);
         loadershow();
         $.ajax({
             type: 'GET', url: "{{ route('brokragbill.outstanding') }}", data: params,
-            success: () => { window.open(url, '_blank'); loaderhide(); },
+            success: () => { if (type === 'pdf') {
+                    window.open(url, '_blank');   // stream in new tab
+                } else {
+                    window.location.href = url;   // direct download for excel
+                } loaderhide(); },
             error: xhr => { loaderhide(); handleAjaxError(xhr); }
         });
-    });
-
+    }
+    $('#pdfBtn').on('click', function () { exportReport('pdf'); });
+    $('#excelBtn').on('click', function () { exportReport('excel'); });
     /* ── Delete Payment Record ── */
     $(document).on('click', '.pay-del-btn', function () {
         let deleteid = $(this).data('id'), invId = $(this).data('inv-id');
@@ -827,7 +898,122 @@ $('document').ready(function () {
         $('#filter_date_to, #filter_date_from').val('');
         table.draw();
     });
+    $('#pdfDateForm').on('submit', function (e) {
+            e.preventDefault();
+            loadershow();
+            $.ajax({
+                type: 'POST',
+                url : "{{ route('brokeragebill.brokeragebillpdf') }}",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.status == 200) {
+                        Toast.fire({ icon: 'success', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                        $('#pdfDateModal').modal('hide');
+                        $('#pdfModalSummary').hide();
+                        // Reset checkboxes + hide bulk button
+                        $('.invoice-checkbox, #selectAllCheckbox').prop('checked', false);
+                        $('#bulkGeneratePdfBtn').addClass('d-none').removeData('selected-rows');
+                        $('#bulkSelectionCount').text('0');
+                        table.draw();
+                    } else if (response.status == 500) {
+                        Toast.fire({ icon: 'error', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                        $('#pdfDateModal').modal('hide');
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.message });
+                        $('#pdfDateForm')[0].reset();
+                    }
+                    loaderhide();
+                },
+                error: function (xhr) { console.log(xhr.responseText); loaderhide(); }
+            });
+        });
+    $('#pdfDateModal').on('hidden.bs.modal', function () {
+        // Reset the form fields
+        $('#pdfDateForm')[0].reset();
 
+        // Reset Select2 dropdown (clear selection)
+        $('#invoice_id').val(null).trigger('change');
+
+        // Hide summary banner
+        $('#pdfModalSummary').hide();
+
+        // Clear hidden inputs manually if needed
+        $('#garden_id').val('');
+        $('#company_details_id').val('');
+
+        // Clear brokerage amount field
+        $('#brokrageAmount').val('');
+    });    
+    function loadinvoiceids()
+    {
+        let url = "{{ route('brokeragebill.brokerbillinvoicelist') }}";
+        $.ajax({
+            type: 'GET',
+            url: url,
+            data: { token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID },
+            success: r => {
+                if (r.status == 200 && r.data.length) {
+                    $('#invoice_id').html('<option value="" disabled selected>Select Invoice</option>');
+                    r.data.forEach(v => { 
+                        $('#invoice_id').append(`
+                            <option 
+                                value="${v.invoice_id}" 
+                                data-line_total="${v.line_total}" 
+                                data-brokerage="${v.brokerage}"
+                                data-garden_id="${v.garden_id}"
+                                data-company_details_id="${v.company_details_id}">
+                                [${v.invoice_number}] - [${v.company_name}]
+                            </option>`);
+                    });
+                } else {
+                    $('#invoice_id').html('<option value="" disabled selected>No Invoices Found</option>');
+                }
+            },
+            error: xhr => { 
+                console.log(xhr.responseText); 
+                Toast.fire({ icon: 'error', title: 'Error loading invoices' }); 
+            }
+        });
+    }
+
+    $(document).on("click", ".generate-invoice", function () { 
+        loadinvoiceids(); 
+        $('#pdfDateModal').modal('show'); 
+    });
+
+    $("#invoice_id").on('change', function () {
+        let selectedOption = $(this).find('option:selected');
+        let lineTotal = parseFloat(selectedOption.data('line_total')) || 0;
+        let brokerage = parseFloat(selectedOption.data('brokerage')) || 0;
+        let brokerageAmount = ((lineTotal * brokerage) / 100).toFixed(2);
+        let gardenId = selectedOption.data('garden_id') || '';
+        let companyDetailsId = selectedOption.data('company_details_id') || '';
+
+        $('#line_total').val(lineTotal.toFixed(2));
+        $('#brokerage').val(brokerage.toFixed(2));
+        $('#brokrageAmount').val(brokerageAmount);
+        $('#garden_id').val(gardenId);
+        $('#company_details_id').val(companyDetailsId);
+
+        $('#summaryCount').text('1');
+        $('#pdfModalSummary').show();
+    });
+
+    // Optional: Recalculate brokerage amount if user changes brokerage %
+    $('#brokerage').on('input', function() {
+        let lineTotal = parseFloat($('#line_total').val()) || 0;
+        let brokeragePercent = parseFloat($(this).val()) || 0;
+        let brokerageAmount = ((lineTotal * brokeragePercent) / 100).toFixed(2);
+        $('#brokrageAmount').val(brokerageAmount);
+    });
+    $('#invoice_id').select2({
+        placeholder: "Select Invoice",
+        allowClear: true,
+        width: '100%',
+        dropdownParent: $('#pdfDateModal')
+    });
 });
 </script>
 @endpush

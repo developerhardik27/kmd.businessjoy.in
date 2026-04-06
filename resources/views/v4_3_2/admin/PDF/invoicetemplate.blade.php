@@ -427,6 +427,7 @@
                                      
                                 </table>
                                 @endif 
+                                
                                 @if(isset($transportdetails))
                                 <table width="100%">
                                     <tr class="bgblue">

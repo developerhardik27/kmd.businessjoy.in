@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class brokeragebillController extends commonController
 {
-    public $version, $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel, $companymasterModel;
+    public $version, $userId, $companyId, $masterdbname, $rp, $brokerpurchaseModel, $order_detailModel, $gradenModel, $brokerbillinvoiceModel, $companymasterModel, $invoiceModel;
 
     public function __construct(Request $request)
     {
@@ -33,7 +33,7 @@ class brokeragebillController extends commonController
         $this->rp = json_decode($user_rp, true);
 
         $this->masterdbname = DB::connection()->getDatabaseName();
-
+        $this->invoiceModel = $this->getmodel('invoice');
         $this->brokerpurchaseModel = $this->getmodel('broker_purchase');
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->gradenModel = $this->getmodel('graden');
@@ -588,7 +588,7 @@ class brokeragebillController extends commonController
                 'brokerage'      => $brokrage_per,
                 'brokerage_date' => $today->format('Y-m-d'),
             ]);
-        
+
         return $this->successresponse(200, 'message', 'Commission Bill PDF successfully created.');
     }
     public function brokeragebillpdfdelete(Request $request, $id)
@@ -637,5 +637,78 @@ class brokeragebillController extends commonController
             return $this->successresponse(500, 'message', 'payment not found !');
         }
         return $this->successresponse(200, 'payment', $payment);
+    }
+
+    // this not invoice create but bill not created thisin invoice 
+
+   public function brokerbillinvoicelist(Request $request)
+    {
+        if ($this->rp['teamodule']['brokerpurchase']['view'] != 1 ||
+            $this->rp['invoicemodule']['invoice']['view'] != 1) {
+
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+            ]);
+        }
+
+        $lineTotalSub = DB::connection('dynamic_connection')
+            ->table('mng_col')
+            ->select(
+                'invoice_id',
+                DB::raw("ROUND(SUM(amount), 2) as line_total")
+            )
+            ->where('is_deleted', 0)
+            ->groupBy('invoice_id');
+
+        $brokerSub = DB::connection('dynamic_connection')
+            ->table('broker_purchases')
+            ->select(
+                'invoice_id',
+                'garden_id'
+            )
+            ->where('is_deleted', 0)
+            ->whereNull('brokerbill_no')
+            ->groupBy('invoice_id', 'garden_id');
+
+        $invoiceres = $this->invoiceModel
+            ::joinSub($brokerSub, 'broker_totals', function ($join) {
+                $join->on('broker_totals.invoice_id', '=', 'invoices.id');
+            })
+            ->leftJoinSub($lineTotalSub, 'mc_totals', function ($join) {
+                $join->on('mc_totals.invoice_id', '=', 'invoices.id');
+            })
+            ->select(
+                'broker_totals.garden_id',
+                'invoices.id as invoice_id',
+                'invoices.inv_no as invoice_number',
+                'invoices.company_details_id',
+                'mc_totals.line_total',
+                'companymasters.brokerage',
+                'companymasters.company_name',
+            DB::raw('ROUND(mc_totals.line_total * companymasters.brokerage / 100, 2) as brokerageAmount')
+            )
+            ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+            ->where('invoices.is_deleted', 0)
+            ->orderBy('invoices.inv_date', 'desc');
+
+        if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
+            $invoiceres->where('invoices.created_by', $this->userId);
+        }
+
+        $invoice = $invoiceres->get();
+
+        if ($invoice->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Data Found',
+                'data' => [],
+            ]);
+        }
+        return response()->json([
+            'status' => 200,
+            'data' => $invoice,
+        ]);
     }
 }

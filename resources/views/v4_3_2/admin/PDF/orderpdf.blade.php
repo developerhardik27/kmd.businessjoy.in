@@ -309,7 +309,7 @@
                     </tr>
                 </table>
 
-
+                
                 <table style="table-layout:fixed;" cellspacing=0 cellpadding=0 class="horizontal-border border data"
                     width="100%">
                     <thead>
@@ -335,7 +335,7 @@
                             <tr>
                                 <td style="text-align:center;width:4%;">{{ $srno }}</td>
                                 <td style="text-align:center;">
-                                    {{ !empty($row['created_at']) ? \Carbon\Carbon::parse($row['created_at'])->format('d-m-Y') : '-' }}
+                                    {{ $order['order_date'] ?? '-' }}
                                 </td>
                                 <td style="text-align:center;">{{ $row['garden_name'] ?? '-' }}</td>
                                 <td style="text-align:center;">{{ $row['invoice_no'] ?? '-' }}</td>

@@ -12,7 +12,7 @@ use App\Http\Controllers\v4_3_2\api\commonController;
 
 class orderController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $orderModel, $order_detailModel;
+    public $userId, $companyId, $masterdbname, $rp, $orderModel, $order_detailModel ,$brokerPurchaseModel;
 
     public function __construct(Request $request)
     {
@@ -42,7 +42,7 @@ class orderController extends commonController
         }
 
         // Base query
-        $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
+        $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
@@ -110,7 +110,7 @@ class orderController extends commonController
                 'buyer.name as buyer_name',
                 'transport.name as transport_name',
                 'orders.*',
-                DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
+                DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
                 'order_details.*',
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade_name',
@@ -157,6 +157,12 @@ class orderController extends commonController
                     'invoice_nos'    => $details
                         ->filter(fn($item) => !empty($item->invoice_no))
                         ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'grades'         => $details
+                        ->filter(fn($item) => !empty($item->grade_name))
+                        ->pluck('grade_name')
                         ->unique()
                         ->values()
                         ->implode(', '),
@@ -210,10 +216,11 @@ class orderController extends commonController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'buyer_party'    => 'required|integer',
+            'buyer_party'    => 'nullable|integer',
             'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
+            'order_date'     => 'required|date',
             'totalNetKg'     => 'required|numeric|min:0',
             'totalAmount'    => 'required|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
@@ -278,6 +285,7 @@ class orderController extends commonController
             'transport' => $request->transport,
             'credit_days' => $request->credit_days,
             'discount' => $request->discount ?? 0,
+            'order_date' => $request->order_date,
             'totalNetKg' => $request->totalNetKg,
             'totalAmount' => $request->totalAmount,
             'discountAmount' => $request->discountAmount,
@@ -333,10 +341,11 @@ class orderController extends commonController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'buyer_party'    => 'required|integer',
+            'buyer_party'    => 'nullable|integer',
             'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
+            'order_date'     => 'required|date',
             'totalNetKg'     => 'required|numeric|min:0',
             'totalAmount'    => 'required|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
@@ -418,6 +427,7 @@ class orderController extends commonController
             'credit_days'    => $request->credit_days,
             'discount'       => $request->discount ?? 0,
             'totalNetKg'     => $request->totalNetKg,
+            'order_date'     => $request->order_date,
             'totalAmount'    => $request->totalAmount,
             'discountAmount' => $request->discountAmount,
             'finalAmount'    => $request->finalAmount,
@@ -483,8 +493,8 @@ class orderController extends commonController
             ->whereNotIn('id', $existingIds)
             ->delete();
 
-        $this->brokerPurchaseModel::whereNotIn('order_detail_id', $existingIds)
-            ->delete();
+        // $this->brokerPurchaseModel::whereNotIn('order_detail_id', $existingIds)
+        //     ->delete();
 
         return $this->successresponse(200, 'message', 'Order successfully updated');
     }
@@ -534,31 +544,31 @@ class orderController extends commonController
         $month = $request->input('month');
 
         $query = $this->orderModel::where('is_deleted', 0)
-            ->whereYear('created_at', now()->year); // ✅ Only current year
+            ->whereYear('order_date', now()->year); // ✅ Only current year
 
         if ($month && strtolower($month) !== 'all') {
             // Specific month of current year
             $data = $query
                 ->select(
-                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('MONTH(order_date) as month'),
                     DB::raw('COUNT(id) as total_orders'),
                     DB::raw('SUM(totalNetKg) as total_kg'),
                     DB::raw('SUM(finalAmount) as total_amount')
                 )
-                ->whereMonth('created_at', $month)
-                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->whereMonth('order_date', $month)
+                ->groupBy(DB::raw('MONTH(order_date)'))
                 ->orderBy('month', 'ASC')
                 ->get();
         } else {
             // All months of current year
             $data = $query
                 ->select(
-                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('MONTH(order_date) as month'),
                     DB::raw('COUNT(id) as total_orders'),
                     DB::raw('SUM(totalNetKg) as total_kg'),
                     DB::raw('SUM(finalAmount) as total_amount')
                 )
-                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->groupBy(DB::raw('MONTH(order_date)'))
                 ->orderBy('month', 'ASC')
                 ->get();
         }

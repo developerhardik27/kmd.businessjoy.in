@@ -1142,22 +1142,244 @@ class PdfController extends commonController
       if ($orderData->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
+      /* ───────── PDF ───────── */
+      if (($request->type ?? 'pdf') === 'pdf') {
 
-      $options = [
-         'isPhpEnabled' => true,
-         'isHtml5ParserEnabled' => true,
-         'margin_top' => 0,
-         'margin_right' => 0,
-         'margin_bottom' => 0,
-         'margin_left' => 0,
-      ];
+         $options = [
+            'isPhpEnabled'        => true,
+            'isHtml5ParserEnabled'=> true,
+            'margin_top'          => 0,
+            'margin_right'        => 0,
+            'margin_bottom'       => 0,
+            'margin_left'         => 0,
+         ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderreport', ["order" => $orderData])->setPaper('a4', 'portrait');
+         $pdf = PDF::setOptions($options)
+                     ->loadView($this->version . '.admin.PDF.orderreport', ['order' => $orderData])
+                     ->setPaper('a4', 'portrait');
 
-      $name = 'Order-Report.pdf';
-      // return view($this->version . '.admin.PDF.orderreport', ["order" => $order]);
-      // return $pdf->download('order_report_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream($name);
+         return $pdf->stream('Order-Report.pdf');
+      }
+
+      /* ───────── EXCEL ───────── */
+
+      if ($request->type === 'excel') {
+
+         $filename = 'Sauda-Register-' . date('Y-m-d') . '.xls';
+
+         // ── Get company info from first order ──
+         $firstOrder    = $orderData->first();
+         $companyName   = $firstOrder['company_names']  ?? 'KMD TEA AND AGRO';
+         $todayDate     = date('d-m-Y');
+
+         $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
+         $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
+         $html .= '<head><meta charset="UTF-8">';
+         $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
+         $html .= '<x:ExcelWorksheet><x:Name>Sauda Register</x:Name>';
+         $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
+         $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+         $html .= '<style>
+            body  { font-family: Arial, sans-serif; font-size: 11px; }
+            table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
+
+            /* ── Top header ── */
+            .company-header {
+                  font-size: 16px;
+                  font-weight: bold;
+            }
+            .company-sub {
+                  font-size: 10px;
+                  color: #444444;
+            }
+            .page-title {
+                  font-size: 15px;
+                  font-weight: bold;
+                  text-align: center;
+                  background-color: #f0f0f0;
+                  border: 1px solid #cccccc;
+                  padding: 8px;
+                  letter-spacing: 2px;
+            }
+            .date-cell {
+                  text-align: right;
+                  font-size: 11px;
+                  vertical-align: top;
+            }
+            .spacer { height: 10px; }
+
+            /* ── Order block ── */
+            .order-block { margin-bottom: 16px; }
+
+            .order-title-row td {
+                  background-color: #f7f7f7;
+                  border: 1px solid #cccccc;
+                  padding: 6px 10px;
+                  font-weight: bold;
+                  font-size: 12px;
+            }
+            .order-id-cell {
+                  text-align: right;
+                  font-weight: bold;
+                  font-size: 12px;
+            }
+
+            .order-info-row td {
+                  border-left: 1px solid #cccccc;
+                  border-right: 1px solid #cccccc;
+                  padding: 4px 10px;
+                  font-size: 10.5px;
+                  background-color: #fbfbfb;
+            }
+
+            /* ── Detail table header ── */
+            .detail-th {
+                  background-color: #253566;
+                  color: #ffffff;
+                  font-weight: bold;
+                  border: 1px solid #cccccc;
+                  padding: 5px 8px;
+                  text-align: center;
+                  font-size: 10px;
+                  white-space: nowrap;
+                  letter-spacing: 0.5px;
+            }
+
+            /* ── Detail rows ── */
+            .detail-td {
+                  border: 1px solid #dddddd;
+                  padding: 4px 8px;
+                  vertical-align: middle;
+                  font-size: 11px;
+            }
+            .detail-td-num {
+                  border: 1px solid #dddddd;
+                  padding: 4px 8px;
+                  text-align: right;
+                  vertical-align: middle;
+                  font-size: 11px;
+            }
+            .row-even td { background-color: #f5f8ff; }
+            .row-odd  td { background-color: #ffffff; }
+
+            /* ── Final amount ── */
+            .final-row td {
+                  border: 1px solid #cccccc;
+                  padding: 5px 10px;
+                  text-align: right;
+                  font-weight: bold;
+                  font-size: 12px;
+                  background-color: #f0f4ff;
+            }
+
+            /* ── Spacer row ── */
+            .gap-row td {
+                  border: none;
+                  padding: 6px;
+                  background-color: #ffffff;
+            }
+         </style></head><body>';
+
+         /* ════════════════════════════════
+            TOP HEADER TABLE
+         ════════════════════════════════ */
+         $html .= '<table>';
+         $html .= '<tr>
+            <td class="date-cell" colspan="11">Date: ' . $todayDate . '</td>
+         </tr>';
+         $html .= '</table>';
+
+         /* ── SAUDA REGISTER Title ── */
+         $html .= '<table style="margin-top:11px; margin-bottom:14px;">
+            <tr><td class="page-title" colspan="10">SAUDA REGISTER</td></tr>
+         </table>';
+
+         /* ════════════════════════════════
+            ORDER BLOCKS
+         ════════════════════════════════ */
+         foreach ($orderData as $index => $order) {
+
+            $details     = $order['details'];
+            $detailCount = count($details);
+
+            $html .= '<table style="margin-bottom:16px; border: 1px solid #cccccc;">';
+
+            /* ── Order title row: Buyer Name | Order Id ── */
+            $html .= '<tr class="order-title-row">
+                  <td colspan="9">Buyer Name #' . htmlspecialchars($order['buyer_name'] ?? '-') . '</td>
+                  <td colspan="2" class="order-id-cell">Order Id #' . htmlspecialchars($order['id'] ?? '-') . '</td>
+            </tr>';
+
+            /* ── Order info row ── */
+            $html .= '<tr class="order-info-row">
+                  <td colspan="11">
+                     <b>Credit Days:</b> ' . htmlspecialchars($order['credit_days']    ?? '-') . ' &nbsp;|&nbsp;
+                     <b>Discount:</b> '    . htmlspecialchars($order['discount']        ?? '-') . ' &nbsp;|&nbsp;
+                     <b>Transport Name:</b> ' . htmlspecialchars($order['transport_name'] ?? '-') . ' &nbsp;|&nbsp;
+                     <b>Total Net KG:</b> ' . htmlspecialchars($order['totalNetKg']    ?? '-') . ' &nbsp;|&nbsp;
+                     <b>Order Date:</b> '  . htmlspecialchars($order['order_date']     ?? '-') . '
+                  </td>
+            </tr>';
+
+            /* ── Invoice Status row ── */
+            $html .= '<tr class="order-info-row">
+                  <td colspan="11">
+                     <b>Invoice Status:</b> ' . htmlspecialchars($order['invoice_status'] ?? '-') . '
+                  </td>
+            </tr>';
+
+            /* ── Detail table header ── */
+            $html .= '<tr>
+                  <th class="detail-th">COMPANY NAME</th>
+                  <th class="detail-th">GARDEN NAME</th>
+                  <th class="detail-th">GRADE NAME</th>
+                  <th class="detail-th">INVOICE NO</th>
+                  <th class="detail-th">BAGS</th>
+                  <th class="detail-th">KG</th>
+                  <th class="detail-th">NET KG</th>
+                  <th class="detail-th">RATE</th>
+                  <th class="detail-th">DISCOUNT</th>
+                  <th class="detail-th" colspan="2">AMOUNT</th>
+            </tr>';
+
+            /* ── Detail rows ── */
+            foreach ($details as $i => $detail) {
+                  $rowClass = ($i % 2 === 0) ? 'row-odd' : 'row-even';
+                  $html .= "<tr class=\"{$rowClass}\">";
+                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['company_name'] ?? '-') . '</td>';
+                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['garden_name']  ?? '-') . '</td>';
+                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['grade_name']   ?? '-') . '</td>';
+                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['invoice_no']   ?? '-') . '</td>';
+                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['bags']         ?? '-') . '</td>';
+                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['kg']           ?? '-') . '</td>';
+                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['net_kg']       ?? '-') . '</td>';
+                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['rate']         ?? '-') . '</td>';
+                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['discount']     ?? '0') . '</td>';
+                  $html .= '<td class="detail-td-num" colspan="2">' . htmlspecialchars($detail['amount'] ?? '-') . '</td>';
+                  $html .= '</tr>';
+            }
+
+            /* ── Final Amount row ── */
+            $html .= '<tr class="final-row">
+                  <td colspan="11">Final Amount &nbsp;&nbsp; ' . htmlspecialchars($order['final_amount'] ?? '0') . '</td>
+            </tr>';
+
+            $html .= '</table>';
+
+            /* ── Gap between orders ── */
+            $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+         }
+
+         $html .= '</body></html>';
+
+         return response($html, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+         ]);
+      }
    }
 
    public function outstanding(Request $request)
@@ -1323,7 +1545,7 @@ class PdfController extends commonController
       if ($list->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
-
+      if (($request->type ?? 'pdf') === 'pdf') {
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,
@@ -1344,6 +1566,267 @@ class PdfController extends commonController
       // return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
       // return $pdf->stream($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      }
+     if ($request->type === 'excel') {
+    $filename = 'Outstanding-Report-' . date('Y-m-d') . '.xls';
+
+    $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
+    $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
+    $html .= '<head><meta charset="UTF-8">';
+    $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
+    $html .= '<x:ExcelWorksheet><x:Name>Outstanding Report</x:Name>';
+    $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
+    $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+    $html .= '<style>
+        body  { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
+
+        /* ── Page header ── */
+        .company-name { font-size: 16px; font-weight: bold; color: #000; }
+        .company-sub  { font-size: 10px; color: #444; line-height: 1.6; }
+        .date-cell    { text-align: right; font-size: 11px; vertical-align: top; }
+
+        /* ── Report title ── */
+        .page-title {
+            font-size: 15px; font-weight: bold; text-align: center;
+            text-transform: uppercase; background-color: #f9f9f9;
+            border-top: 1px solid #eeeeee; border-bottom: 1px solid #eeeeee;
+            padding: 10px; letter-spacing: 1px;
+        }
+
+        /* ── Invoice box header row 1 (Company | Gardens) ── */
+        .inv-header-1 td {
+            background-color: #f4f7f9;
+            border: 1px solid #999999;
+            padding: 7px 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* ── Invoice box header row 2 (Invoice # | Buyers) ── */
+        .inv-header-2 td {
+            background-color: #f4f7f9;
+            border: 1px solid #999999;
+            border-top: none;
+            padding: 6px 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* ── Invoice meta ── */
+        .inv-meta td {
+            background-color: #ffffff;
+            border-left: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #eeeeee;
+            padding: 5px 10px;
+            font-size: 10px;
+            color: #666666;
+        }
+
+        /* ── Column headers ── */
+        .col-th {
+            background-color: #fcfcfc;
+            color: #555555;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #444444;
+            border-top: 1px solid #e0e0e0;
+            border-left: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+            padding: 7px 5px;
+            text-align: left;
+        }
+        .col-th-right {
+            background-color: #fcfcfc;
+            color: #555555;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #444444;
+            border-top: 1px solid #e0e0e0;
+            border-left: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+            padding: 7px 5px;
+            text-align: right;
+        }
+
+        /* ── Data rows ── */
+        .data-td {
+            border: 1px solid #eeeeee;
+            padding: 7px 5px;
+            vertical-align: top;
+            font-size: 11px;
+        }
+        .data-td-right {
+            border: 1px solid #eeeeee;
+            padding: 7px 5px;
+            text-align: right;
+            vertical-align: top;
+            font-size: 11px;
+        }
+
+        /* ── No payments ── */
+        .no-payment-row td {
+            text-align: center;
+            border: 1px solid #eeeeee;
+            padding: 7px 5px;
+            color: #999999;
+            font-size: 11px;
+        }
+
+        /* ── Total outstanding row ── */
+        .total-row td {
+            border: 1px solid #e0e0e0;
+            padding: 7px 5px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #fafafa;
+        }
+        .due-pending { color: #d9534f; font-weight: bold; }
+        .due-paid    { color: #2e7d32; font-weight: bold; }
+
+        /* ── Gap between invoice blocks ── */
+        .gap-row td { border: none; padding: 10px; background: #ffffff; }
+
+        /* ── Footer ── */
+        .footer-td { font-size: 10px; color: #999999; border-top: 1px solid #eeeeee; padding-top: 6px; }
+    </style></head><body>';
+
+    /* ════════════════════════════════
+       PAGE HEADER
+    ════════════════════════════════ */
+    $html .= '<table>
+        <tr>
+            <td class="date-cell" colspan="7" text-align="center">Date: ' . date('d-m-Y') . '</td>
+        </tr>
+    </table>';
+
+    /* ── Report Title ── */
+    $html .= '<table style="margin-top:12px; margin-bottom:16px;">
+        <tr><td class="page-title" colspan="7">Outstanding Report</td></tr>
+    </table>';
+
+    /* ════════════════════════════════
+       INVOICE BLOCKS
+    ════════════════════════════════ */
+    foreach ($list as $invoice) {
+
+        /* ── Calculate totals ── */
+        $totalPaid = 0;
+        foreach ($invoice['details'] ?? [] as $pmt) {
+            $totalPaid += $pmt['paid_amount'] ?? 0;
+        }
+        $due          = ($invoice['grand_total'] ?? 0) - $totalPaid;
+        $dueClass     = $due == 0 ? 'due-paid' : 'due-pending';
+        $dueFormatted = function_exists('formatINR') ? formatINR($due)                        : number_format($due, 2);
+        $grandFmt     = function_exists('formatINR') ? formatINR($invoice['grand_total'] ?? 0) : number_format($invoice['grand_total'] ?? 0, 2);
+
+        /* ── Invoice date ── */
+        $invDate = '-';
+        if (!empty($invoice['invoice_date'])) {
+            try { $invDate = \Carbon\Carbon::parse($invoice['invoice_date'])->format('d-m-Y'); } catch (\Exception $e) {}
+        }
+
+        /* ── Header row 1: Company | Gardens ── */
+        $html .= '<table style="margin-bottom:0;">
+            <tr class="inv-header-1">
+                <td width="50%" colspan="2">Company: ' . htmlspecialchars($invoice['company_name'] ?? '-') . '</td>
+                <td width="50%" style="text-align:right;" colspan="5">Gardens: ' . htmlspecialchars($invoice['garden_name'] ?? '-') . '</td>
+            </tr>
+        </table>';
+
+        /* ── Header row 2: Invoice # | Buyers ── */
+        $html .= '<table style="margin-bottom:0;">
+            <tr class="inv-header-2">
+                <td width="50%" colspan="2">Invoice #' . htmlspecialchars($invoice['invoice_no'] ?? '-') . '</td>
+                <td width="50%" style="text-align:right;" colspan="5">Buyers: ' . htmlspecialchars($invoice['buyer_names'] ?? '-') . '</td>
+            </tr>
+        </table>';
+
+        /* ── Meta row ── */
+        $html .= '<table style="margin-bottom:0;">
+            <tr class="inv-meta">
+                <td colspan="7">
+                    <b>Date:</b> ' . $invDate . ' &nbsp;|&nbsp;
+                    <b>IGST:</b> '      . htmlspecialchars($invoice['igst']      ?? '0.00') . ' &nbsp;|&nbsp;
+                    <b>CGST:</b> '      . htmlspecialchars($invoice['cgst']      ?? '0.00') . ' &nbsp;|&nbsp;
+                    <b>SGST:</b> '      . htmlspecialchars($invoice['sgst']      ?? '0.00') . ' &nbsp;|&nbsp;
+                    <b>Status:</b> '    . strtoupper(htmlspecialchars($invoice['status']    ?? '-')) . ' &nbsp;|&nbsp;
+                    <b>Net Kg:</b> '    . htmlspecialchars($invoice['net_kg']    ?? '0.00') . ' &nbsp;|&nbsp;
+                    <b>Brokerage:</b> ' . htmlspecialchars($invoice['brokerage'] ?? '0.00') . ' &nbsp;|&nbsp;
+                    <b>Total Amount:</b> ' . $grandFmt . '
+                </td>
+            </tr>
+        </table>';
+
+        /* ── Payment table ── */
+        $html .= '<table style="margin-bottom:0;">
+            <tr>
+                <th class="col-th"       width="13%">Payment Date</th>
+                <th class="col-th"       width="13%">Receipt No.</th>
+                <th class="col-th"       width="18%">Transaction ID</th>
+                <th class="col-th"       width="14%">Paid By</th>
+                <th class="col-th"       width="10%">Type</th>
+                <th class="col-th"       width="12%">Paid Amt</th>
+                <th class="col-th-right" width="12%">Balance</th>
+            </tr>';
+
+        /* ── Filter valid payments (has receipt_number) ── */
+        $payments = array_values(array_filter(
+            $invoice['details'] ?? [],
+            fn($d) => !empty($d['receipt_number'])
+        ));
+
+        if (count($payments) === 0) {
+            $html .= '<tr class="no-payment-row">
+                <td colspan="7">No payments available</td>
+            </tr>';
+        } else {
+            foreach ($payments as $detail) {
+                $pmtDate = '-';
+                if (!empty($detail['datetime'])) {
+                    try { $pmtDate = \Carbon\Carbon::parse($detail['datetime'])->format('d-m-Y'); } catch (\Exception $e) {}
+                }
+                $paidFmt    = function_exists('formatINR') ? formatINR($detail['paid_amount']    ?? 0) : number_format($detail['paid_amount']    ?? 0, 2);
+                $pendingFmt = function_exists('formatINR') ? formatINR($detail['pending_amount'] ?? 0) : number_format($detail['pending_amount'] ?? 0, 2);
+
+                $html .= '<tr>
+                    <td class="data-td">'       . $pmtDate . '</td>
+                    <td class="data-td">'       . htmlspecialchars($detail['receipt_number'] ?? '-') . '</td>
+                    <td class="data-td"><small>' . htmlspecialchars($detail['transaction_id'] ?? '-') . '</small></td>
+                    <td class="data-td">'       . htmlspecialchars($detail['paid_by']         ?? '-') . '</td>
+                    <td class="data-td">'       . htmlspecialchars($detail['paid_type']       ?? '-') . '</td>
+                    <td class="data-td">'       . $paidFmt    . '</td>
+                    <td class="data-td-right">' . $pendingFmt . '</td>
+                </tr>';
+            }
+        }
+
+        /* ── Total Outstanding row ── */
+        $html .= '<tr class="total-row">
+            <td colspan="6" style="text-align:right;"><b>Total Outstanding</b></td>
+            <td style="text-align:right; border:1px solid #e0e0e0; padding:7px 5px; font-weight:bold;">
+                <span class="' . $dueClass . '">' . $dueFormatted . '</span>
+            </td>
+        </tr>';
+
+        $html .= '</table>';
+
+        /* ── Gap between blocks ── */
+        $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+    }
+    $html .= '</body></html>';
+
+    return response($html, 200, [
+        'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        'Pragma'              => 'no-cache',
+        'Expires'             => '0',
+        'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+    ]);
+}
    }
 
    public function leger(Request $request)
@@ -1420,18 +1903,278 @@ class PdfController extends commonController
       if ($grouped->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }
+      if (($request->type ?? 'pdf') === 'pdf') {
+         $options = [
+            'isPhpEnabled' => true,
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+         ];
+         // dd($grouped);
+         $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.ledger', ["ledger" => $grouped])->setPaper('a4', 'portrait');
 
-      $options = [
-         'isPhpEnabled' => true,
-         'isHtml5ParserEnabled' => true,
-         'isRemoteEnabled' => true,
-      ];
-      // dd($grouped);
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.ledger', ["ledger" => $grouped])->setPaper('a4', 'portrait');
+         // return view($this->version . '.admin.PDF.ledger', ["ledger" => $grouped]);
+         // return $pdf->download('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+         return $pdf->stream('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+      }
+      if ($request->type === 'excel') {
+         $filename = 'Ledger-' . date('Y-m-d') . '.xls';
 
-      // return view($this->version . '.admin.PDF.ledger', ["ledger" => $grouped]);
-      // return $pdf->download('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+         $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
+         $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
+         $html .= '<head><meta charset="UTF-8">';
+         $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
+         $html .= '<x:ExcelWorksheet><x:Name>Ledger</x:Name>';
+         $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
+         $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+         $html .= '<style>
+            body  { font-family: Arial, sans-serif; font-size: 11px; }
+            table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
+
+            /* ── Top header ── */
+            .company-name  { font-size: 16px; font-weight: bold; }
+            .company-sub   { font-size: 10px; color: #444444; }
+            .date-cell     { text-align: right; font-size: 11px; vertical-align: top; }
+            .page-title    {
+                  font-size: 15px; font-weight: bold; text-align: center;
+                  background-color: #f0f0f0; border: 1px solid #cccccc;
+                  padding: 8px; letter-spacing: 2px; text-transform: uppercase;
+            }
+
+            /* ── Customer block ── */
+            .customer-header td {
+                  background-color: #eeeeee;
+                  border: 1px solid #999999;
+                  padding: 6px 10px;
+                  font-weight: bold;
+                  font-size: 13px;
+            }
+
+            /* ── Company block ── */
+            .company-header td {
+                  background-color: #f9f9f9;
+                  border: 1px solid #999999;
+                  padding: 5px 10px;
+                  font-weight: bold;
+                  font-size: 12px;
+            }
+
+            /* ── Invoice meta row ── */
+            .invoice-meta td {
+                  background-color: #f9f9f9;
+                  border: 1px solid #cccccc;
+                  padding: 5px 10px;
+                  font-size: 11px;
+            }
+            .due-pending { color: #d32f2f; font-weight: bold; }
+            .due-paid    { color: #2e7d32; font-weight: bold; }
+
+            /* ── Detail column headers ── */
+            .col-th {
+                  background-color: #ffffff;
+                  border-bottom: 1px solid #999999;
+                  border-top: 1px solid #cccccc;
+                  border-left: 1px solid #cccccc;
+                  border-right: 1px solid #cccccc;
+                  padding: 6px 8px;
+                  font-weight: bold;
+                  font-size: 10px;
+                  text-transform: uppercase;
+            }
+            .col-th-right {
+                  background-color: #ffffff;
+                  border-bottom: 1px solid #999999;
+                  border-top: 1px solid #cccccc;
+                  border-left: 1px solid #cccccc;
+                  border-right: 1px solid #cccccc;
+                  padding: 6px 8px;
+                  font-weight: bold;
+                  font-size: 10px;
+                  text-transform: uppercase;
+                  text-align: right;
+            }
+
+            /* ── Data rows ── */
+            .data-td {
+                  border: 1px solid #eeeeee;
+                  padding: 6px 8px;
+                  vertical-align: top;
+                  font-size: 11px;
+            }
+            .data-td-right {
+                  border: 1px solid #eeeeee;
+                  padding: 6px 8px;
+                  text-align: right;
+                  vertical-align: top;
+                  font-size: 11px;
+                  font-weight: bold;
+            }
+            .debit-cell  { color: #d32f2f; font-weight: bold; text-align: right;
+                           border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
+            .credit-cell { color: #2e7d32; font-weight: bold; text-align: right;
+                           border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
+
+            /* ── All payments completed ── */
+            .paid-row td {
+                  text-align: center;
+                  color: #2ecc71;
+                  font-weight: bold;
+                  border: 1px solid #eeeeee;
+                  padding: 5px;
+            }
+
+            /* ── No payments ── */
+            .no-payment-row td {
+                  text-align: center;
+                  color: #e74c3c;
+                  font-weight: bold;
+                  border: 1px solid #eeeeee;
+                  padding: 5px;
+                  font-size: 11px;
+            }
+
+            /* ── Gap ── */
+            .gap-row td { border: none; padding: 8px; background: #ffffff; }
+         </style></head><body>';
+
+         /* ════════════════════════════════
+            PAGE HEADER
+         ════════════════════════════════ */
+         $html .= '<table>';
+         $html .= '<tr>
+            <td class="date-cell" text-align="center" colspan="5">Date: ' . date('d-m-Y') . '</td>
+         </tr>
+         ';
+         $html .= '</table>';
+
+         /* ── Title ── */
+         $html .= '<table style="margin-top:10px; margin-bottom:14px;">
+            <tr><td class="page-title" colspan="5">Ledger</td></tr>
+         </table>';
+
+         /* ════════════════════════════════
+            CUSTOMER BLOCKS
+         ════════════════════════════════ */
+         foreach ($grouped as $customer) {
+
+            /* ── Customer header ── */
+            $html .= '<table style="margin-bottom:2px;">
+                  <tr class="customer-header">
+                     <td colspan="5">Buyer: ' . htmlspecialchars($customer['customer_name'] ?? 'N/A') . '</td>
+                  </tr>
+            </table>';
+
+            foreach ($customer['companies'] as $company) {
+
+                  /* ── Company header ── */
+                  $html .= '<table style="margin-bottom:2px;">
+                     <tr class="company-header">
+                        <td colspan="5">Company: ' . htmlspecialchars($company['company_name'] ?? 'N/A') . '</td>
+                     </tr>
+                  </table>';
+
+                  foreach ($company['invoices'] as $invoice) {
+
+                     /* ── Calculate due ── */
+                     $due = $invoice['grand_total'] ?? 0;
+                     foreach ($invoice['payment_details'] ?? [] as $pmt) {
+                        $due -= $pmt['paid_amount'] ?? 0;
+                     }
+                     $dueClass  = $due > 0 ? 'due-pending' : 'due-paid';
+                     $dueFormatted = function_exists('formatINR') ? formatINR($due) : number_format($due, 2);
+                     $grandFormatted = function_exists('formatINR')
+                        ? formatINR($invoice['grand_total'] ?? 0)
+                        : number_format($invoice['grand_total'] ?? 0, 2);
+
+                     /* ── Invoice meta row ── */
+                     $html .= '<table style="margin-bottom:0;">
+                        <tr class="invoice-meta">
+                              <td width="33%" colspan="2"><b>Invoice No:</b> ' . htmlspecialchars($invoice['inv_no'] ?? '-') . '</td>
+                              <td width="34%" style="text-align:center;"><b>Date:</b> ' . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
+                              <td width="33%" colspan="2" style="text-align:right;">
+                                 <b>Due:</b> <span class="' . $dueClass . '">' . $dueFormatted . '</span>
+                              </td>
+                        </tr>
+                     </table>';
+
+                     /* ── Column headers ── */
+                     $html .= '<table style="margin-bottom:0;">
+                        <tr>
+                              <th class="col-th"    width="12%">Date</th>
+                              <th class="col-th"    width="43%">Details / Remarks</th>
+                              <th class="col-th-right" width="15%">Debit</th>
+                              <th class="col-th-right" width="15%">Credit</th>
+                              <th class="col-th-right" width="15%">Balance</th>
+                        </tr>';
+
+                     /* ── Invoice balance row ── */
+                     $html .= '<tr>
+                        <td class="data-td">'       . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
+                        <td class="data-td">Invoice Balance</td>
+                        <td class="debit-cell">'    . $grandFormatted . '</td>
+                        <td class="data-td-right">0.00</td>
+                        <td class="data-td-right">' . $grandFormatted . '</td>
+                     </tr>';
+
+                     /* ── Payment rows ── */
+                     $payments = $invoice['payment_details'] ?? [];
+
+                     if (count($payments) > 0) {
+                        foreach ($payments as $payment) {
+                              $paidDate    = isset($payment['datetime'])
+                                 ? \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y')
+                                 : '-';
+                              $paidAmt     = function_exists('formatINR')
+                                 ? formatINR($payment['paid_amount'] ?? 0)
+                                 : number_format($payment['paid_amount'] ?? 0, 2);
+                              $pendingAmt  = function_exists('formatINR')
+                                 ? formatINR($payment['pending_amount'] ?? 0)
+                                 : number_format($payment['pending_amount'] ?? 0, 2);
+
+                              $html .= '<tr>
+                                 <td class="data-td">' . $paidDate . '</td>
+                                 <td class="data-td">
+                                    Payment Received (' . htmlspecialchars($payment['paid_type'] ?? 'N/A') . ')<br>
+                                    <small>Ref: ' . htmlspecialchars($payment['receipt_number'] ?? '-') . ' | By: ' . htmlspecialchars($payment['paid_by'] ?? '-') . '</small>
+                                 </td>
+                                 <td class="data-td-right">0.00</td>
+                                 <td class="credit-cell">' . $paidAmt . '</td>
+                                 <td class="data-td-right">' . $pendingAmt . '</td>
+                              </tr>';
+
+                              /* ── All payments completed ── */
+                              if (($payment['pending_amount'] ?? 1) == 0) {
+                                 $html .= '<tr class="paid-row">
+                                    <td colspan="5">All payments completed</td>
+                                 </tr>';
+                              }
+                        }
+                     } else {
+                        /* ── No payments ── */
+                        $html .= '<tr class="no-payment-row">
+                              <td colspan="5">No payment transactions found for this invoice.</td>
+                        </tr>';
+                     }
+
+                     $html .= '</table>';
+
+                     /* ── Small gap between invoices ── */
+                     $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+                  }
+            }
+
+            /* ── Gap between customers ── */
+            $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+         }
+         $html .= '</body></html>';
+
+         return response($html, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+         ]);
+      }
    }
 
    public function orderpdf($id)
@@ -1489,10 +2232,10 @@ class PdfController extends commonController
          'isHtml5ParserEnabled' => true,
          'isRemoteEnabled' => true,
       ];
-
+      // dd($order);
       $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.orderpdf', ["order" => $order])->setPaper('a4', 'portrait');
       //return view($this->version . '.admin.PDF.orderpdf', ["order" => $order]);
       // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream('orderpdf - ' . $id . date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('Order Pdf:-' . $id .'Order Date:-'. $order['order']->order_date.'.pdf');
    }
 }
