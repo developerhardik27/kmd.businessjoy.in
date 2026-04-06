@@ -25,59 +25,153 @@ NOTE: This file contains the styling for responsive Template.
 }
 
 @media (min-width: 1300px) {
-
-    /* Always full width — remove 80px collapsed state */
-    body.sidebar-main-active .iq-sidebar,
-    body.sidebar-main-active .iq-sidebar:hover,
-    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-logo {
-        width: 220px !important;
+    
+    /* Sidebar toggle styles - Desktop (>=1300px) */
+    .sidebar-toggle-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 40px !important;
+        height: 40px !important;
+        background: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        color: #333 !important;
+        margin-right: 0px !important;
+    }
+    
+    .sidebar-toggle-btn:hover {
+        background: #f0f0f0 !important;
+        transform: scale(1.05) !important;
     }
 
-    /* Always show menu title span, hide icon — no hover needed */
-    body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title span,
-    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title span {
-        display: block !important;
+    /* Default sidebar state - expanded but narrower */
+    body:not(.sidebar-collapsed) .iq-sidebar {
+        width: 180px !important;
+        transition: width 0.3s ease;
     }
-    body.sidebar-main-active .iq-sidebar-menu .iq-menu .iq-menu-title i,
-    body.sidebar-main-active .iq-sidebar:hover .iq-sidebar-menu .iq-menu .iq-menu-title i {
+    
+    /* Collapsed sidebar state */
+    body.sidebar-collapsed .iq-sidebar {
+        width: 60px !important;
+        transition: width 0.3s ease;
+    }
+    
+    /* Hide text when collapsed */
+    body.sidebar-collapsed .iq-sidebar-menu .iq-menu .iq-menu-title span,
+    body.sidebar-collapsed .iq-sidebar .iq-sidebar-menu .iq-menu li a span,
+    body.sidebar-collapsed .iq-sidebar-logo a span,
+    body.sidebar-collapsed .iq-sidebar .iq-sidebar-menu .iq-menu li a .badge {
+        opacity: 0 !important;
         display: none !important;
     }
-
-    /* Always show span text in menu links */
-    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a span,
-    body.sidebar-main-active .iq-sidebar-logo a span,
-    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a .badge {
+    
+    /* Show icons when collapsed */
+    body.sidebar-collapsed .iq-sidebar-menu .iq-menu .iq-menu-title i,
+    body.sidebar-collapsed .iq-sidebar .iq-sidebar-menu .iq-menu li a .iq-arrow-right {
         opacity: 1 !important;
         display: inline-block !important;
     }
-
-    /* Always show arrow icons */
-    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li a .iq-arrow-right {
-        opacity: 1 !important;
+    
+    /* Adjust navbar and content margins for expanded sidebar (180px) */
+    body:not(.sidebar-collapsed).right-column-fixed .iq-top-navbar {
+        width: calc(100% - 180px) !important;
+        margin-left: 180px !important;
+        transition: all 0.3s ease;
     }
-
-    /* Always show submenu link text at correct size */
-    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu li a {
+    
+    body:not(.sidebar-collapsed).right-column-fixed .content-page,
+    body:not(.sidebar-collapsed).right-column-fixed .iq-footer {
+        margin-left: 180px !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* Adjust navbar and content margins for collapsed sidebar (60px) */
+    body.sidebar-collapsed.right-column-fixed .iq-top-navbar {
+        width: calc(100% - 60px) !important;
+        margin-left: 60px !important;
+        transition: all 0.3s ease;
+    }
+    
+    body.sidebar-collapsed.right-column-fixed .content-page,
+    body.sidebar-collapsed.right-column-fixed .iq-footer {
+        margin-left: 60px !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* Always show menu text in expanded state */
+    body:not(.sidebar-collapsed) .iq-sidebar-menu .iq-menu .iq-menu-title span,
+    body:not(.sidebar-collapsed) .iq-sidebar .iq-sidebar-menu .iq-menu li a span,
+    body:not(.sidebar-collapsed) .iq-sidebar-logo a span,
+    body:not(.sidebar-collapsed) .iq-sidebar .iq-sidebar-menu .iq-menu li a .badge {
+        opacity: 1 !important;
+        display: inline-block !important;
+    }
+    
+    /* Hide icons in expanded state */
+    body:not(.sidebar-collapsed) .iq-sidebar-menu .iq-menu .iq-menu-title i {
+        display: none !important;
+    }
+    
+    /* Submenu styles */
+    body:not(.sidebar-collapsed) .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu li a {
         font-size: 14px !important;
         padding: 15px 20px !important;
     }
-
-    /* Always correct submenu-data indent */
-    body.sidebar-main-active .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu.iq-submenu-data li a {
+    
+    body:not(.sidebar-collapsed) .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu.iq-submenu-data li a {
         padding-left: 50px !important;
     }
-
-    /* Fix navbar and content margins for 260px sidebar */
-    body.sidebar-main-active.right-column-fixed .iq-top-navbar {
-        width: calc(100% - 280px) !important;
+    
+    /* Hide submenus when collapsed */
+    body.sidebar-collapsed .iq-sidebar .iq-sidebar-menu .iq-menu li ul.iq-submenu {
+        display: none !important;
     }
-    body.sidebar-main-active.right-column-fixed .content-page,
-    body.sidebar-main-active.right-column-fixed .iq-footer {
-        margin-left: 220px !important;
+    
+    /* Ensure consistent logo sizes in sidebar */
+    #sidebar-logo-img,
+    #sidebar-logo-img2 {
+        width: 70px !important;
+        height: 70px !important;
+        object-fit: contain !important;
     }
-	
-	 #sidebar-logo-img,.iq-menu-bt-sidebar{display: none;}
-	
+    
+    /* Logo adjustments for collapsed sidebar */
+    body.sidebar-collapsed #sidebar-logo-img,
+    body.sidebar-collapsed #sidebar-logo-img2 {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    /* Hide toggle button on smaller screens */
+    @media (max-width: 1299px) {
+        .sidebar-toggle-btn {
+            display: none !important;
+        }
+    }
+    
+    /* Align toggle button and search bar in one line within search container */
+    .iq-search-bar {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    
+    .sidebar-toggle-btn {
+        flex-shrink: 0 !important;
+        order: -1 !important;
+    }
+    
+    .iq-search-bar .searchbox {
+        flex: 1 !important;
+        margin: 0 !important;
+    }
+    
+    #sidebar-logo-img, .iq-menu-bt-sidebar { display: none; }
 
 }
 @media(max-width:1399px) {

@@ -59,6 +59,8 @@
 <script async src="{{ asset('admin/js/chart-custom.js') }}"></script>
 <!-- Custom JavaScript -->
 <script src="{{ asset('admin/js/custom.js') }}"></script>
+{{-- Sidebar Toggle JavaScript --}}
+<script src="{{ asset('admin/js/sidebar-toggle.js') }}"></script>
 {{-- summernot javascript --}}
 <script src="{{ asset('admin/js/summernote-bs4.js') }}"></script>
 {{-- sweet alert  --}}

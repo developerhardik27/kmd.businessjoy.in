@@ -341,7 +341,7 @@ div#lottie-beil svg path, div#lottie-mail svg path, div#lottie-fullscreen svg pa
 .topnav-toolbar li.active a { background: var(--iq-color-light); color: var(--iq-primary); }
 .topnav-toolbar ul li { list-style: none; padding: 13px 0; }
 .navbar-list li > .dropdown { line-height: 73px; cursor: pointer; }
-.iq-search-bar { padding: 0 15px; }
+.iq-search-bar { padding: 0 0px; }
 .iq-search-bar .searchbox { width: 480px; position: relative; }
 .iq-search-bar .search-input { width: 100%; padding: 5px 40px 5px 15px; border-radius: 8px; border: none; background: var(--iq-body-bg); }
 body.top-tab-horizontal .iq-show .search-box { padding: 0; }

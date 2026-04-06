@@ -241,7 +241,11 @@
                                 @endif
                             @endif
                         </ul>
+                        
                         <div class="iq-search-bar d-none d-md-block">
+                            <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                                <span id="sidebar-toggle-icon">✕</span>
+                            </button>
                             <form action="" class="searchbox">
                                 <input type="text" name="search" class="text search-input"
                                     placeholder="Type here to search {{ session('menu') }} data" required>
