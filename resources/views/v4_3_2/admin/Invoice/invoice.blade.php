@@ -198,6 +198,14 @@
                     <option value="due">Over Due</option>
                 </select>
             </div>
+            <div class="filter-field">
+                <label>Commision Bill Status</label>
+                <select name="filter_commission_bill_status" class="filter form-control select2" id="filter_commission_bill_status">
+                    <option value="">Select Status</option>
+                    <option value="0">Pending</option>
+                    <option value="1">Bill Generated</option>
+                </select>
+            </div>
 
         </div>
 
@@ -486,7 +494,7 @@
         // Sidebar filter selects
         // ────────────────────────────────────────────────────────────────────────────
         $('#filter_payment_status').select2({ placeholder: "Select Payment Status", allowClear: true, width: '100%' });
-
+        $('#filter_commission_bill_status').select2({ placeholder: "Select Status", allowClear: true, width: '100%' });
         function getCompanyData() {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -857,6 +865,7 @@
                         d.company_id            = COMPANY_ID;
                         d.token                 = API_TOKEN;
                         d.filter_payment_status = $('#filter_payment_status').val();
+                        d.filter_commission_bill_status = $('#filter_commission_bill_status').val();
                         d.filter_company        = $('#filter_company').val();
                         d.filter_buyer          = $('#filter_buyer').val();
                     },
@@ -1159,6 +1168,7 @@
        function exportReport(type) {
             params = table.ajax.params();
             params.filter_payment_status = $('#filter_payment_status').val();
+            params.filter_commission_bill_status = $('#filter_commission_bill_status').val();
             params.filter_buyer          = $('#filter_buyer').val();
             params.filter_company        = $('#filter_company').val();
             params.type                     = type;
@@ -1387,7 +1397,7 @@
         // ── Sidebar filter buttons ────────────────────────────────────────────────
         $('.applyfilters').on('click',  function () { table.draw(); hideOffCanvass(); });
         $('.removefilters').on('click', function () {
-            $('#filter_payment_status, #filter_company, #filter_buyer').val(null).trigger('change');
+            $('#filter_payment_status, #filter_company, #filter_buyer,#filter_commission_bill_status').val(null).trigger('change');
             table.draw();
             hideOffCanvass();
         });

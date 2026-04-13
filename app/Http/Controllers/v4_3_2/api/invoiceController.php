@@ -371,7 +371,13 @@ class invoiceController extends commonController
                 }
             }
         }
-
+        if (isset($request->filter_commission_bill_status) && $request->filter_commission_bill_status !== '') {
+            if ($request->filter_commission_bill_status == 1) {
+                $invoiceres->whereNotNull('broker_totals.brokerbill_no');
+            } else {
+                $invoiceres->whereNull('broker_totals.brokerbill_no');
+            }
+        }
         // -------------------
         // 5️⃣ Final Select
         $invoiceres = $invoiceres

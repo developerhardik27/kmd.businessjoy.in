@@ -180,9 +180,10 @@ function formatINR($amount)
                 @foreach ($company['invoices'] as $invoice)
                     <div style=" background: #f9f9f9; font-size:13px ;border-color: #999;">
                         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-                            <tr>
-                                <td style="text-align: left;"><strong>Invoice No:</strong> {{ $invoice['inv_no'] }}</td>
-                                <td style="text-align: center;"><strong>Date:</strong>
+                            <tr style="font-size: 12px;">
+                                <td style="width:20%;"><strong>Invoice No:</strong> {{ $invoice['inv_no'] }}</td>
+                                <td style="width:35%; text-align: left;"><strong>Commision Bill Status:</strong>{{ $invoice['brokerbill_no'] ? 'Generated' : 'Pending' }}</td>
+                                <td style="width:20%; text-align: right;" ><strong>Date:</strong>
                                     {{ $invoice['inv_date_formatted'] }}</td>
                                 @php
                                     $due = $invoice['grand_total'] ?? 0;
@@ -190,7 +191,7 @@ function formatINR($amount)
                                         $due -= $payment['paid_amount'] ?? 0;
                                     }
                                 @endphp
-                                <td style="text-align: right;  background: #f9f9f9;">
+                                <td style="width:25%; text-align: right;  background: #f9f9f9;">
                                     <strong>Due:</strong>
                                     <span class="{{ $due > 0 ? 'pending-box' : 'credit' }}"  style="text-align: right;  background: #f9f9f9;">
                                         {{ formatINR($due) }}

@@ -270,12 +270,46 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="token"      value="{{ session('api_token') }}">
     <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
+    <div class="order-header-bar">
+        <div class="row align-items-end" style="margin:0 -6px;">
+            <div class="col-sm-12 mb-0" style="padding:0 6px;">
+                <label class="f-label">Order Date <span class="req">*</span></label>
+                <input type="date" class="f-ctrl" name="order_date" id="order_date"
+                       value="{{ date('Y-m-d') }}">
+                <span class="f-err" id="error-order_date"></span>
+            </div>
+        </div>
+    </div>
+    {{-- ── 1. Line Items ── --}}
+    <div class="li-wrap" style="margin-bottom: 0; border-bottom: none;">
+        <div class="li-list" id="purchaseBody">
+            <div id="li-empty" class="li-empty">
+                <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
+                <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
+            </div>
+        </div>
+    </div>
 
-    {{-- ── Single compact header bar: Party + Order Info merged ── --}}
+    {{-- ── 2. Add New Row Button ── --}}
+    <div style="
+        display: flex;
+        justify-content: center;
+        padding: 8px 14px;
+        background: var(--c-light);
+        border: 1px solid var(--c-border);
+        border-top: none;
+        margin-bottom: 10px;
+    ">
+        <button type="button" id="addRowBtn" class="btn-add-row">
+            <i class="ri-add-circle-line"></i> Add New Row
+        </button>
+    </div>
+
+    {{-- ── 3. Order Header Bar ── --}}
     <div class="order-header-bar">
         <div class="row align-items-end" style="margin:0 -6px;">
             <div class="col-sm-3 mb-0" style="padding:0 6px;">
-                <label class="f-label">Buyer Party </label>
+                <label class="f-label">Buyer Party</label>
                 <select class="form-control" name="buyer_party" id="buyer_party">
                     <option value="" selected disabled>Select Buyer</option>
                 </select>
@@ -288,7 +322,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 </select>
                 <span class="f-err" id="error-transport"></span>
             </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
                 <label class="f-label">Credit Days <span class="req">*</span></label>
                 <select class="f-ctrl" name="credit_days" id="credit_days">
                     <option value="" disabled selected>Select</option>
@@ -301,34 +335,19 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 </select>
                 <span class="f-err" id="error-credit_days"></span>
             </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
                 <label class="f-label">Discount (%)</label>
-                <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount" placeholder="0.00" value="0" min="0">
+                <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount"
+                       placeholder="0.00" value="0" min="0">
                 <span class="f-err" id="error-discount"></span>
-            </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
-                <label class="f-label">Order Date <span class="req">*</span></label>
-                <input type="date" class="f-ctrl" name="order_date" id="order_date" value="{{ date('Y-m-d') }}">
-                <span class="f-err" id="error-order_date"></span>
             </div>
         </div>
     </div>
 
-    {{-- ── Line Items ── --}}
-    <div class="li-wrap">
-    <div class="li-list" id="purchaseBody">
-        <div id="li-empty" class="li-empty">
-            <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
-            <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
-        </div>
-    </div>
-    <div class="li-totals">
+    {{-- ── 4. Totals ── --}}
+    <div class="li-totals" style="border: 1px solid var(--c-border); border-top: none; margin-bottom: 10px;">
         <div class="li-totals-left"></div>
-        <div class="li-totals-center">
-            <button type="button" id="addRowBtn" class="btn-add-row">
-                <i class="ri-add-circle-line"></i> Add New Row
-            </button>
-        </div>
+        <div class="li-totals-center"></div>
         <div class="totals-inner">
             <div class="t-row">
                 <span class="t-label">Total Net Kg</span>
@@ -348,13 +367,20 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
             </div>
         </div>
     </div>
-</div>
+
+    {{-- ── 5. Footer Buttons ── --}}
     <div class="inv-section">
         <div class="inv-section-body">
             <div class="inv-footer">
-                <button id="cancelbtn" type="button" class="btn-f btn-f-cancel"><i class="ri-close-line"></i> Cancel</button>
-                <button type="reset"                 class="btn-f btn-f-reset"><i class="ri-refresh-line"></i> Reset</button>
-                <button type="submit"                class="btn-f btn-f-success"><i class="ri-save-line"></i> Update Order</button>
+                <button id="cancelbtn" type="button" class="btn-f btn-f-cancel">
+                    <i class="ri-close-line"></i> Cancel
+                </button>
+                <button type="reset" class="btn-f btn-f-reset">
+                    <i class="ri-refresh-line"></i> Reset
+                </button>
+                <button type="submit" class="btn-f btn-f-success">
+                    <i class="ri-save-line"></i> Update Order
+                </button>
             </div>
         </div>
     </div>

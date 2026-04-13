@@ -37,11 +37,10 @@
 *, *::before, *::after { box-sizing: border-box; }
 body { font-family: var(--font) !important; background: var(--c-bg) !important; }
 
-/* ── Compact top header bar (replaces both sections) ── */
+/* ── Compact top header bar ── */
 .order-header-bar {
     background: var(--c-white);
     border: 1px solid var(--c-border);
-    /* border-radius: var(--radius); */
     box-shadow: var(--shadow-sm);
     padding: 10px 16px;
     margin-bottom: 10px;
@@ -49,9 +48,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 .order-header-bar .row { margin: 0 -6px; }
 .order-header-bar .col-sm-2,
 .order-header-bar .col-sm-3,
-.order-header-bar .col-sm-4 {
-    padding: 0 6px;
-}
+.order-header-bar .col-sm-4 { padding: 0 6px; }
 .order-header-bar .mb-0 { margin-bottom: 0 !important; }
 
 /* ── Field labels & controls ── */
@@ -92,7 +89,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 /* ── Line items wrapper ── */
 .li-wrap {
     background: var(--c-white); border: 1px solid var(--c-border);
-     box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 0px; overflow: hidden;
 }
 .li-topbar {
@@ -139,7 +136,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 
 /* ── Row card ── */
 .order-row-card {
-    border: 1.5px solid var(--c-border); ;
+    border: 1.5px solid var(--c-border);
     background: var(--c-white); overflow: hidden;
     transition: border-color .15s, box-shadow .15s;
     animation: cardIn .18s ease both;
@@ -205,7 +202,11 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 .t-badge { font-size: 10px; font-weight: 700; background: var(--c-warn-s); color: var(--c-warn); border-radius: 4px; padding: 1px 5px; margin-left: 5px; }
 
 /* ── Footer ── */
-.inv-footer { display: flex; justify-content: flex-end; gap: 7px; flex-wrap: wrap; padding: 10px 16px; background: var(--c-white); border: 1px solid var(--c-border);  box-shadow: var(--shadow-sm); }
+.inv-footer {
+    display: flex; justify-content: flex-end; gap: 7px; flex-wrap: wrap;
+    padding: 10px 16px; background: var(--c-white);
+    border: 1px solid var(--c-border); box-shadow: var(--shadow-sm);
+}
 .btn-f {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 7px 16px; border-radius: var(--radius-sm);
@@ -234,59 +235,32 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     .order-field-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 768px) {
-    /* Header bar fields stack */
     .order-header-bar .row { flex-wrap: wrap; }
     .order-header-bar [class*="col-sm"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-        margin-bottom: 8px !important;
+        width: 100% !important; max-width: 100% !important;
+        flex: 0 0 100% !important; margin-bottom: 8px !important;
     }
-
-    /* Line items grid: 2 columns */
     .order-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 8px; }
     .order-field-grid .amount-cell { grid-column: span 2; }
-
-    /* Totals: stack vertically */
-    .li-totals {
-        flex-direction: column;
-        align-items: stretch !important;
-        gap: 12px;
-        padding: 12px;
-    }
-    .li-totals-left  { display: none; } /* hide empty spacer */
+    .li-totals { flex-direction: column; align-items: stretch !important; gap: 12px; padding: 12px; }
+    .li-totals-left  { display: none; }
     .li-totals-center { justify-content: center; }
     .btn-add-row { width: 100%; justify-content: center; }
     .totals-inner { max-width: 100%; min-width: unset; width: 100%; }
-
-    /* Footer buttons full width */
     .inv-footer { justify-content: stretch; flex-wrap: wrap; }
     .btn-f { flex: 1 1 auto; justify-content: center; min-width: 100px; }
 }
-
 @media (max-width: 480px) {
-    /* Header bar: 2-column grid for compact look */
     .order-header-bar [class*="col-sm"] {
-        width: 50% !important;
-        max-width: 50% !important;
-        flex: 0 0 50% !important;
+        width: 50% !important; max-width: 50% !important; flex: 0 0 50% !important;
     }
-    /* Order date full width on smallest screens */
     .order-header-bar [class*="col-sm"]:last-child {
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
+        width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important;
     }
-
-    /* Line items: single column */
     .order-field-grid { grid-template-columns: 1fr; gap: 6px; }
     .order-field-grid .amount-cell { grid-column: unset; }
-
-    /* Card head padding */
     .order-card-head { padding: 5px 10px; }
     .order-card-body { padding: 8px 10px; }
-
-    /* Footer: stack buttons */
     .btn-f { flex: 0 0 100%; }
 }
 </style>
@@ -460,16 +434,52 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
-    {{-- ── Single compact header bar: Party + Order Info merged ── --}}
+    {{-- ── 1. Line Items ── --}}
+    <div class="order-header-bar">
+        <div class="row align-items-end" style="margin:0 -6px;">
+            {{-- Order Date — FIRST ── --}}
+            <div class="col-sm-12 mb-0" style="padding:0 6px;">
+                <label class="f-label">Order Date <span class="req">*</span></label>
+                <input type="date" class="f-ctrl" name="order_date" id="order_date">
+                <span class="f-err" id="error-order_date"></span>
+            </div>
+        </div>
+    </div>
+    <div class="li-wrap" style="margin-bottom: 0; border-bottom: none;">
+        <div class="li-list" id="purchaseBody">
+            <div id="li-empty" class="li-empty">
+                <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
+                <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── 2. Add New Row Button ── --}}
+    <div style="
+        display: flex;
+        justify-content: center;
+        padding: 8px 14px;
+        background: var(--c-light);
+        border: 1px solid var(--c-border);
+        border-top: none;
+        margin-bottom: 10px;
+    ">
+        <button type="button" id="addRowBtn" class="btn-add-row">
+            <i class="ri-add-circle-line"></i> Add New Row
+        </button>
+    </div>
+
+    {{-- ── 3. Order Header Bar ── --}}
     <div class="order-header-bar">
         <div class="row align-items-end" style="margin:0 -6px;">
             <div class="col-sm-3 mb-0" style="padding:0 6px;">
-                <label class="f-label">Buyer Party </label>
+                <label class="f-label">Buyer Party</label>
                 <select class="form-control" name="buyer_party" id="buyer_party">
                     <option value="" selected disabled>Select Buyer</option>
                 </select>
                 <span class="f-err" id="error-buyer_party"></span>
             </div>
+
             <div class="col-sm-3 mb-0" style="padding:0 6px;">
                 <label class="f-label">Transport</label>
                 <select class="form-control" name="transport" id="transport">
@@ -477,7 +487,8 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 </select>
                 <span class="f-err" id="error-transport"></span>
             </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
                 <label class="f-label">Credit Days <span class="req">*</span></label>
                 <select class="f-ctrl" name="credit_days" id="credit_days">
                     <option value="" disabled selected>Select</option>
@@ -490,72 +501,52 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 </select>
                 <span class="f-err" id="error-credit_days"></span>
             </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
+
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
                 <label class="f-label">Discount (%)</label>
-                <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount" placeholder="0.00" value="0" min="0">
+                <input type="number" step="0.01" class="f-ctrl" name="discount" id="discount"
+                       placeholder="0.00" value="0" min="0">
                 <span class="f-err" id="error-discount"></span>
             </div>
-            <div class="col-sm-2 mb-0" style="padding:0 6px;">
-                <label class="f-label">Order Date <span class="req">*</span></label>
-                <input type="date" class="f-ctrl" name="order_date" id="order_date" value="{{ date('Y-m-d') }}">
-                <span class="f-err" id="error-order_date"></span>
+
+        </div>
+    </div>
+
+    {{-- ── 4. Totals ── --}}
+    <div class="li-totals" style="border: 1px solid var(--c-border); border-top: none; margin-bottom: 10px;">
+        <div class="li-totals-left"></div>
+        <div class="li-totals-center"></div>
+        <div class="totals-inner">
+            <div class="t-row">
+                <span class="t-label">Total Net Kg</span>
+                <span class="t-val" id="totalNetKg">0.00</span>
+            </div>
+            <div class="t-row">
+                <span class="t-label">Total Amount</span>
+                <span class="t-val" id="totalAmount">0.00</span>
+            </div>
+            <div class="t-row discount">
+                <span class="t-label">Discount <span class="t-badge" id="discountBadge">0%</span></span>
+                <span class="t-val" id="discountAmount">0.00</span>
+            </div>
+            <div class="t-row grand">
+                <span class="t-label">Final Amount</span>
+                <span class="t-val" id="finalAmount">0.00</span>
             </div>
         </div>
     </div>
 
-    {{-- ── Line Items ── --}}
-    <div class="li-wrap">
-        {{-- <div class="li-topbar">
-            <div class="li-topbar-left">
-                <div class="ico"><i class="ri-list-check-2"></i></div>
-                <h6>Order Items</h6>
-                <span class="li-count-badge" id="li-count">0</span>
-            </div>
-        </div> --}}
-        {{-- <div class="li-quickbar">
-            <button type="button" id="addRowBtn" class="btn-add-row">
-                <i class="ri-add-circle-line"></i> Add New Row
-            </button>
-        </div> --}}
-        <div class="li-list" id="purchaseBody">
-            <div id="li-empty" class="li-empty">
-                <div class="li-empty-icon"><i class="ri-inbox-line"></i></div>
-                <p><strong>No items yet.</strong> Click "Add New Row" to get started.</p>
-            </div>
-        </div>
-        <div class="li-totals">
-            <div class="li-totals-left"></div>
-            <div class="li-totals-center">
-                <button type="button" id="addRowBtn" class="btn-add-row">
-                    <i class="ri-add-circle-line"></i> Add New Row
-                </button>
-            </div>
-            <div class="totals-inner">
-                <div class="t-row">
-                    <span class="t-label">Total Net Kg</span>
-                    <span class="t-val" id="totalNetKg">0.00</span>
-                </div>
-                <div class="t-row">
-                    <span class="t-label">Total Amount</span>
-                    <span class="t-val" id="totalAmount">0.00</span>
-                </div>
-                <div class="t-row discount">
-                    <span class="t-label">Discount <span class="t-badge" id="discountBadge">0%</span></span>
-                    <span class="t-val" id="discountAmount">0.00</span>
-                </div>
-                <div class="t-row grand">
-                    <span class="t-label">Final Amount</span>
-                    <span class="t-val" id="finalAmount">0.00</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Footer Buttons ── --}}
+    {{-- ── 5. Footer Buttons ── --}}
     <div class="inv-footer">
-        <button id="cancelbtn" type="button" class="btn-f btn-f-cancel"><i class="ri-close-line"></i> Cancel</button>
-        <button type="reset"                 class="btn-f btn-f-reset"><i class="ri-refresh-line"></i> Reset</button>
-        <button type="submit"                class="btn-f btn-f-primary"><i class="ri-save-line"></i> Save Order</button>
+        <button id="cancelbtn" type="button" class="btn-f btn-f-cancel">
+            <i class="ri-close-line"></i> Cancel
+        </button>
+        <button type="reset" class="btn-f btn-f-reset">
+            <i class="ri-refresh-line"></i> Reset
+        </button>
+        <button type="submit" class="btn-f btn-f-primary">
+            <i class="ri-save-line"></i> Save Order
+        </button>
     </div>
 </form>
 @endsection
@@ -563,7 +554,52 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 @push('ajax')
 <script src="{{ asset('admin/js/select2.min.js') }}"></script>
 <script>
-document.getElementById('order_date').value = new Date().toISOString().split('T')[0];
+/* ════════════════════════════════════════════════════════
+   ORDER DATE — localStorage logic
+   • Same day  → restore saved date
+   • New day   → clear storage, leave field blank
+   • On change → save to localStorage
+════════════════════════════════════════════════════════ */
+(function () {
+    const $dateField = document.getElementById('order_date');
+    if (!$dateField) return;
+
+    // ✅ Get today's LOCAL date
+    const now = new Date();
+    const today = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0');
+
+    let storedDay  = localStorage.getItem('order_default_day');
+    let storedDate = localStorage.getItem('order_default_date');
+
+    // ✅ If NEW DAY → reset everything
+    if (storedDay !== today) {
+        localStorage.removeItem('order_default_date');
+        localStorage.setItem('order_default_day', today);
+        storedDate = null;
+    }
+
+    // ✅ Always apply default if exists
+    if (storedDate) {
+        $dateField.value = storedDate;
+    } else {
+        $dateField.value = today; // first time default
+    }
+
+    // ✅ Save ONLY FIRST TIME (very important)
+    $dateField.addEventListener('change', function () {
+        const alreadySaved = localStorage.getItem('order_default_date');
+
+        if (!alreadySaved && this.value) {
+            // 👉 Save only once per day
+            localStorage.setItem('order_default_date', this.value);
+            localStorage.setItem('order_default_day', today);
+        }
+    });
+
+})();
+
 $(document).ready(function () {
 
     let message = "{{ session('message') }}";
@@ -574,24 +610,13 @@ $(document).ready(function () {
 
     /* ════════════════════════════════════════════════════════
        CALCULATION ENGINE
-       lastTyped stored per-row as jQuery data on the card
     ════════════════════════════════════════════════════════ */
-
-    /**
-     * Safe parse — returns null for empty/non-numeric, number otherwise
-     * TC-16: non-numeric returns null → treated as empty
-     */
     function safeFloat(val) {
         if (val === '' || val === null || val === undefined) return null;
         const n = parseFloat(val);
         return isNaN(n) ? null : n;
     }
 
-    /**
-     * Validate a single number field
-     * TC-11: negatives → error
-     * TC-16: non-numeric → error
-     */
     function validateField($el) {
         const raw = $el.val().trim();
         if (raw === '' || raw === '0') { $el.removeClass('field-error'); return true; }
@@ -612,9 +637,6 @@ $(document).ready(function () {
         return true;
     }
 
-    /**
-     * Core calculation — all TC rules
-     */
     function recalcRow(row, changedField) {
         const $bags = row.find('.bags');
         const $kg   = row.find('.kg');
@@ -622,7 +644,6 @@ $(document).ready(function () {
         const $rate = row.find('.rate');
         const $amt  = row.find('.amount');
 
-        // TC-16 validation on changed field
         if (!validateField(row.find('.' + changedField))) return;
 
         let bags = safeFloat($bags.val());
@@ -630,17 +651,14 @@ $(document).ready(function () {
         let net  = safeFloat($net.val());
         const rate = safeFloat($rate.val()) || 0;
 
-        // TC-13: all empty → nothing to calculate
         if (bags === null && kg === null && net === null) {
             $amt.val('0.00');
             calculateTotals();
             return;
         }
 
-        // TC-12: only one field filled → no calculation yet
         const filledCount = [bags, kg, net].filter(v => v !== null && v > 0).length;
         if (filledCount < 2 && changedField !== 'rate') {
-            // Still update amount if we have net + rate
             if (net !== null && net > 0 && rate > 0) {
                 $amt.val((net * rate).toFixed(2));
             }
@@ -648,96 +666,47 @@ $(document).ready(function () {
             return;
         }
 
-        // Normalise nulls to 0 for math
         bags = bags || 0;
         kg   = kg   || 0;
         net  = net  || 0;
 
-        /* ── TC-11: negative → reset ── */
         if (bags < 0 || kg < 0 || net < 0) {
             $bags.val('0'); $kg.val('0'); $net.val('0'); $amt.val('0.00');
             calculateTotals();
             return;
         }
 
-        /* ── LOGIC ── */
         if (changedField === 'bags') {
-            // TC-01: Bags + Kg → Net   (bags=10, kg=50 → net=500)
-            // TC-04: Change Bags       (bags→12, kg=50 → net=600)
-            // TC-08: Bags=0, Kg=50 → Net=0
-            // TC-09: Bags=2.5, Kg=40 → Net=100
-            // TC-10: Large values
-            if (kg > 0) {
-                net = bags * kg;
-            }
-            // TC-02 partial: Bags + Net → Kg
-            else if (net > 0 && bags > 0) {
-                kg = net / bags;
-            }
+            if (kg > 0)              net = bags * kg;
+            else if (net > 0 && bags > 0) kg = net / bags;
         }
-
         else if (changedField === 'kg') {
-            // TC-01 variant: Bags + Kg → Net
-            // TC-05: Change Kg (bags=10, kg→60 → net=600)
-            if (bags > 0) {
-                net = bags * kg;
-            }
-            // TC-03 partial: Kg + Net → Bags
-            else if (net > 0 && kg > 0) {
-                bags = net / kg;
-            }
-
-            // TC-17: Kg cleared → clear Net too
-            if (kg === 0 && bags === 0) {
-                net = 0;
-            }
+            if (bags > 0)            net = bags * kg;
+            else if (net > 0 && kg > 0)  bags = net / kg;
+            if (kg === 0 && bags === 0)  net = 0;
         }
-
         else if (changedField === 'net-kg') {
-            // TC-17: Net cleared
-            if (net === 0) {
-                $amt.val('0.00');
-                calculateTotals();
-                return;
-            }
-
-            // lastTyped set on INPUT of bags/kg tells us what user manually typed
+            if (net === 0) { $amt.val('0.00'); calculateTotals(); return; }
             const lastTyped = row.data('lastTyped') || '';
-            if (lastTyped === 'bags' && bags > 0 && kg > 0) {
-                // TC-02: User typed Bags → derive Kg
-                // TC-06: Both filled, lastTyped=bags → Kg = net/bags
-                kg = net / bags;
-            }
-            else if (lastTyped === 'kg' && kg > 0) {
-                // TC-03: User typed Kg → derive Bags
-                bags = net / kg;
-            }
+            if (lastTyped === 'bags' && bags > 0 && kg > 0)      kg   = net / bags;
+            else if (lastTyped === 'kg' && kg > 0)                bags = net / kg;
             else {
-                // Fallback when no lastTyped (fresh row)
                 if (bags > 0 && kg === 0)      kg   = net / bags;
                 else if (kg > 0 && bags === 0) bags = net / kg;
-                else if (bags > 0 && kg > 0)   kg   = net / bags; // bags anchor
+                else if (bags > 0 && kg > 0)   kg   = net / bags;
             }
         }
+        // changedField === 'rate' → amount only, no bags/kg/net change
 
-        else if (changedField === 'rate') {
-            // Rate change → just recalc amount, no bags/kg/net change
-        }
-
-        /* ── TC-11 / safety: no negative, NaN, Infinity ── */
         if (!isFinite(bags) || isNaN(bags) || bags < 0) bags = 0;
         if (!isFinite(kg)   || isNaN(kg)   || kg   < 0) kg   = 0;
         if (!isFinite(net)  || isNaN(net)  || net  < 0) net  = 0;
 
-        /* ── TC-18: precision — use up to 4 decimal places ── */
         const fmtNum = n => n > 0 ? parseFloat(n.toFixed(4)) : '';
-
-        // Update only non-active fields (TC-14: don't rewrite what user is typing)
         if (changedField !== 'bags')   $bags.val(fmtNum(bags));
         if (changedField !== 'kg')     $kg.val(fmtNum(kg));
         if (changedField !== 'net-kg') $net.val(fmtNum(net));
 
-        /* ── Amount ── */
         const amount = (net > 0 && rate > 0) ? net * rate : 0;
         $amt.val(amount > 0 ? amount.toFixed(2) : '0.00');
 
@@ -750,7 +719,7 @@ $(document).ready(function () {
     function calculateTotals() {
         let totalNetKg = 0, totalAmount = 0;
         $('.net-kg').each(function () { totalNetKg += parseFloat($(this).val()) || 0; });
-        $('.amount').each(function () { totalAmount += parseFloat($(this).val()) || 0; });
+        $('.amount').each(function ()  { totalAmount += parseFloat($(this).val()) || 0; });
         const discountPct    = parseFloat($('#discount').val()) || 0;
         const discountAmount = (totalAmount * discountPct) / 100;
         const finalAmount    = totalAmount - discountAmount;
@@ -762,48 +731,37 @@ $(document).ready(function () {
     }
 
     /* ════════════════════════════════════════════════════════
-       EVENT BINDING FOR CALCULATION FIELDS
+       EVENT BINDING
     ════════════════════════════════════════════════════════ */
-
-    // TC-14: on focus clear zero
     $(document).on('focus', '.bags, .kg, .net-kg, .rate, #discount', function () {
         if ($(this).val() == '0') $(this).val('');
     });
 
-    // TC-15: blur → restore 0 if empty
     $(document).on('blur', '.bags, .kg, .net-kg, .rate, #discount', function () {
         const val = parseFloat($(this).val());
         if (isNaN(val) || $(this).val().trim() === '') $(this).val('0');
     });
 
-    // Track which of bags/kg the user MANUALLY typed — used by changedNet logic
-    // Set on INPUT (not focus) so auto-calculated values don't overwrite it
     $(document).on('focusout', '.bags, .kg', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
-        if ($(this).hasClass('bags'))                         row.data('lastTyped', 'bags');
+        if ($(this).hasClass('bags'))                                    row.data('lastTyped', 'bags');
         else if ($(this).hasClass('kg') && !$(this).hasClass('net-kg')) row.data('lastTyped', 'kg');
     });
 
-    // TC-14 / TC-15: main input handler — debounced for TC-15 stability
     let calcTimer = null;
     $(document).on('focusout', '.bags, .kg, .net-kg, .rate', function () {
         const row = $(this).closest('.order-row-card');
         if (!row.length) return;
-
         const changedField = ['bags','kg','net-kg'].find(c => $(this).hasClass(c)) || 'rate';
-
         clearTimeout(calcTimer);
-        calcTimer = setTimeout(() => {
-            recalcRow(row, changedField);
-        }, 80);
+        calcTimer = setTimeout(() => { recalcRow(row, changedField); }, 80);
     });
 
-    // Discount change → recalc totals only
     $('#discount').on('input', function () { calculateTotals(); });
 
     /* ════════════════════════════════════════════════════════
-       ROW COUNT BADGE
+       ROW COUNT
     ════════════════════════════════════════════════════════ */
     function updateRowCount() {
         const n = $('#purchaseBody .order-row-card').length;
@@ -882,7 +840,7 @@ $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip('dispose').tooltip();
 
         $(`#row_${rowCount} .garden-select`).select2({ placeholder: 'Select Garden', width: '100%', allowClear: true });
-        $(`#row_${rowCount} .grade-select`).select2({ placeholder: 'Select Grade', width: '100%', allowClear: true });
+        $(`#row_${rowCount} .grade-select`).select2({ placeholder: 'Select Grade',  width: '100%', allowClear: true });
 
         if (lastSelectedGarden) {
             $(`#row_${rowCount} .garden-select`).val(lastSelectedGarden).trigger('change');
@@ -890,14 +848,7 @@ $(document).ready(function () {
     }
 
     /* ADD ROW */
-    $('#addRowBtn').on('click', function () {
-        const $firstGarden = $('.garden-select').first();
-        // if ($firstGarden.length > 0 && !$firstGarden.val()) {
-        //     Toast.fire({ icon: 'warning', title: 'Please select a garden in the first row before adding new rows.' });
-        //     return;
-        // }
-        addNewRow();
-    });
+    $('#addRowBtn').on('click', function () { addNewRow(); });
 
     /* REMOVE ROW */
     $(document).on('click', '.remove-row', function () {
@@ -1006,7 +957,9 @@ $(document).ready(function () {
     });
     function loadstate(id = 0) {
         $('#state').html('<option value="">Select State</option>');
-        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        const url = id == 0
+            ? "{{ route('state.search', session('user')['country_id']) }}"
+            : "{{ route('state.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
                 if (r.status == 200 && r.state) $.each(r.state, (k,v) => $('#state').append(`<option value="${v.id}">${v.state_name}</option>`));
@@ -1020,7 +973,9 @@ $(document).ready(function () {
     $('#state').on('change', function () { loadershow(); loadcity($(this).val()); });
     function loadcity(id = 0) {
         $('#city').html('<option value="">Select City</option>');
-        const url = id == 0 ? "{{ route('city.search', session('user')['state_id']) }}" : "{{ route('city.search','__id__') }}".replace('__id__', id);
+        const url = id == 0
+            ? "{{ route('city.search', session('user')['state_id']) }}"
+            : "{{ route('city.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
                 if (r.status == 200 && r.city) $.each(r.city, (k,v) => $('#city').append(`<option value="${v.id}">${v.city_name}</option>`));
@@ -1054,7 +1009,9 @@ $(document).ready(function () {
     $('#p_country').on('change', function () { loadershow(); loadPartyState($(this).val()); });
     function loadPartyState(id = 0) {
         $('#p_state').html('<option value="">Select State</option>');
-        const url = id == 0 ? "{{ route('state.search', session('user')['country_id']) }}" : "{{ route('state.search','__id__') }}".replace('__id__', id);
+        const url = id == 0
+            ? "{{ route('state.search', session('user')['country_id']) }}"
+            : "{{ route('state.search','__id__') }}".replace('__id__', id);
         $.ajax({ type: 'GET', url, data: { token: "{{ session()->get('api_token') }}" },
             success: function (r) {
                 if (r.status == 200 && r.state) $.each(r.state, (k,v) => $('#p_state').append(`<option value="${v.id}">${v.state_name}</option>`));
@@ -1086,7 +1043,11 @@ $(document).ready(function () {
     ════════════════════════════════════════════════════════ */
     async function fetchGardens(selectId = null) {
         try {
-            const r = await ajaxRequest('GET', "{{ route('garden.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
+            const r = await ajaxRequest('GET', "{{ route('garden.index') }}", {
+                user_id: "{{ session()->get('user_id') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                token: "{{ session()->get('api_token') }}"
+            });
             gardens = '<option value="" selected disabled>Select Garden</option>';
             if (r.data && r.data.length) r.data.forEach(g => { gardens += `<option value="${g.id}">${g.garden_name}</option>`; });
             gardens += `<option value="add_new">+ Add New Garden</option>`;
@@ -1108,7 +1069,11 @@ $(document).ready(function () {
     ════════════════════════════════════════════════════════ */
     async function fetchGrade() {
         try {
-            const r = await ajaxRequest('GET', "{{ route('grade.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
+            const r = await ajaxRequest('GET', "{{ route('grade.index') }}", {
+                user_id: "{{ session()->get('user_id') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                token: "{{ session()->get('api_token') }}"
+            });
             grades = '<option value="" selected disabled>Select Grade</option>';
             if (r.data && r.data.length) r.data.forEach(g => { grades += `<option value="${g.id}">${g.grade}</option>`; });
             $('.grade-select').select2({ placeholder: 'Select Grade', width: '100%', allowClear: true });
@@ -1121,7 +1086,11 @@ $(document).ready(function () {
     ════════════════════════════════════════════════════════ */
     async function buyer_party(party_id = null) {
         try {
-            const r = await ajaxRequest('GET', "{{ route('buyer.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
+            const r = await ajaxRequest('GET', "{{ route('buyer.index') }}", {
+                user_id: "{{ session()->get('user_id') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                token: "{{ session()->get('api_token') }}"
+            });
             const $sel = $('#buyer_party');
             $sel.empty().append('<option value="" selected disabled>Select Buyer</option><option value="add_new" data-type="Buyer">+ Add New Buyer</option>');
             if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
@@ -1133,7 +1102,11 @@ $(document).ready(function () {
 
     async function transport(party_id = null) {
         try {
-            const r = await ajaxRequest('GET', "{{ route('transport.index') }}", { user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}" });
+            const r = await ajaxRequest('GET', "{{ route('transport.index') }}", {
+                user_id: "{{ session()->get('user_id') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                token: "{{ session()->get('api_token') }}"
+            });
             const $sel = $('#transport');
             $sel.empty().append('<option value="" selected disabled>Select Transport</option><option value="add_new" data-type="Transport">+ Add New Transport</option>');
             if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
@@ -1142,9 +1115,11 @@ $(document).ready(function () {
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
+
     $(document).on('focus', '.select2-selection', function () {
         $(this).closest('.select2-container').prev('select').select2('open');
     });
+
     /* ════════════════════════════════════════════════════════
        INIT
     ════════════════════════════════════════════════════════ */
@@ -1199,7 +1174,7 @@ $(document).ready(function () {
             transport:      $('#transport').val(),
             credit_days:    $('#credit_days').val(),
             discount:       $('#discount').val(),
-            order_date:      $('#order_date').val(),
+            order_date:     $('#order_date').val(),
             totalNetKg:     $('#totalNetKg').text(),
             totalAmount:    $('#totalAmount').text(),
             discountAmount: $('#discountAmount').text(),
