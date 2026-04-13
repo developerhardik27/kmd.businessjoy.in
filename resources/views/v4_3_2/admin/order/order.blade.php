@@ -424,6 +424,7 @@
             <th>Invoice Status</th>
             <th>Total Net Kg</th>
             <th>Order Pdf</th>
+            <th>Rate </th>
             <th>Final Amount</th>
             <th>Credit Days</th>
             <th>Action</th>
@@ -667,6 +668,11 @@ $('document').ready(function () {
                         return btns;
                     }
                 },
+                { data: 'rate',   name: 'rate',   orderable: true,  searchable: true,  defaultContent: '-' , render: (data) => {
+                        if (!data) return '-';
+                        let s = data.length > 20 ? data.substring(0, 20) + '...' : data;
+                        return `<span data-toggle="tooltip" data-original-title="${data}">${s}</span>`;
+                    },},
                 { data: 'final_amount',   name: 'final_amount',   orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'credit_days',    name: 'credit_days',    orderable: true,  searchable: true,  defaultContent: '-' },
                 {

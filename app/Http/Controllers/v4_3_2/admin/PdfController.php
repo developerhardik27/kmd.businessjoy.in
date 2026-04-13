@@ -1829,6 +1829,396 @@ class PdfController extends commonController
 }
    }
 
+   // public function leger(Request $request)
+   // {
+   //    $userId = $request->user_id;
+
+   //    // Subquery for brokerbill_no aggregation
+   //    $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases')
+   //       ->select(
+   //             'invoice_id',
+   //             DB::raw("GROUP_CONCAT(DISTINCT garden_id ORDER BY garden_id SEPARATOR ',') as garden_ids"),
+   //             DB::raw("GROUP_CONCAT(DISTINCT brokerbill_no ORDER BY id SEPARATOR ',') as brokerbill_no")
+   //       )
+   //       ->groupBy('invoice_id');
+
+   //    $invoices = $this->invoiceModel
+   //       ::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+   //       ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+   //       ->leftJoinSub($gardenSub, 'broker_totals', function ($join) {
+   //             $join->on('broker_totals.invoice_id', '=', 'invoices.id');
+   //       })
+   //       ->select(
+   //             'invoices.*',
+   //             DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
+   //             DB::raw("CONCAT_WS(' ', partys.name) as customer"),
+   //             'companymasters.company_name as garden_company_name',
+   //             'broker_totals.brokerbill_no'
+   //       )
+   //       ->where('invoices.is_deleted', 0);
+
+   //    $filters = [
+   //       'filter_company'        => 'invoices.company_details_id',
+   //       'filter_buyer'          => 'invoices.customer_id',
+   //       'filter_payment_status' => 'invoices.status',
+   //    ];
+
+   //    foreach ($filters as $requestKey => $column) {
+   //       $value = $request->$requestKey;
+
+   //       if (isset($value)) {
+   //             if (
+   //                $requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' ||
+   //                $requestKey == 'filter_bags_from'   || $requestKey == 'filter_bags_to'
+   //             ) {
+   //                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+   //                $invoices->where($column, $operator, $value);
+   //             } elseif (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+   //                $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+   //                $invoices->whereDate($column, $operator, $value);
+   //             } else {
+   //                $invoices->where($column, $value);
+   //             }
+   //       }
+   //    }
+
+   //    // Commission Bill Status filter
+   //    // 1 → has brokerbill_no (not null)  |  0 → no brokerbill_no (null)
+   //    if (isset($request->filter_commission_bill_status) && $request->filter_commission_bill_status !== '') {
+   //       if ($request->filter_commission_bill_status == 1) {
+   //             $invoices->whereNotNull('broker_totals.brokerbill_no');
+   //       } else {
+   //             $invoices->whereNull('broker_totals.brokerbill_no');
+   //       }
+   //    }
+
+   //    $invoices = $invoices->orderBy('invoices.inv_date', 'desc')->get();
+
+   //    // ✅ ALWAYS guard empty data first
+   //    if ($invoices->isEmpty()) {
+   //       Log::info("Ledger: No invoices found for user_id: " . $userId);
+
+   //       $grouped = collect(); // prevent null structure
+
+   //    } else {
+
+   //       $payments = $this->paymentdetailsModel
+   //          ::whereIn('inv_id', $invoices->pluck('id'))
+   //          ->where('is_deleted', 0)
+   //          ->orderBy('datetime', 'asc')
+   //          ->get()
+   //          ->groupBy('inv_id');
+
+   //       $invoices->transform(function ($invoice) use ($payments) {
+   //          $invoice->payment_details = $payments[$invoice->id] ?? collect();
+   //          return $invoice;
+   //       });
+
+   //       // ✅ SAFE GROUPING (NO NULL CUSTOMER NAME)
+   //       $grouped = $invoices->groupBy('customer_id')
+   //          ->map(function ($customerInvoices) {
+
+   //                $first = $customerInvoices->first();
+
+   //                return [
+   //                   'customer_id'   => $first->customer_id ?? 0,
+
+   //                   // 🔥 IMPORTANT FIX HERE
+   //                   'customer_name' => $first->customer ?? $first->customer_name ?? 'Unknown Buyer',
+
+   //                   'companies'     => $customerInvoices->groupBy('company_details_id')
+   //                      ->map(function ($companyInvoices) {
+
+   //                            $firstCompany = $companyInvoices->first();
+                              
+   //                            return [
+   //                               'company_id'   => $firstCompany->company_details_id ?? 0,
+   //                               'company_name' => $firstCompany->garden_company_name ?? 'Unknown Company',
+   //                               'invoices'     => $companyInvoices->values()
+   //                            ];
+   //                      })->values()
+   //                ];
+   //          })->values();
+   //    }
+   //    Log::info($grouped);
+   //    if ($grouped->isEmpty()) {
+   //       return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+   //    }
+
+   //    if (($request->type ?? 'pdf') === 'pdf') {
+   //       $options = [
+   //             'isPhpEnabled'        => true,
+   //             'isHtml5ParserEnabled' => true,
+   //             'isRemoteEnabled'     => true,
+   //       ];
+   //       $pdf = PDF::setOptions($options)
+   //             ->loadView($this->version . '.admin.PDF.ledger', ["ledger" => $grouped])
+   //             ->setPaper('a4', 'portrait');
+
+   //       return $pdf->stream('LEDGER' . date('Y-m-d_H-i-s') . '.pdf');
+   //    }
+
+   //    if ($request->type === 'excel') {
+   //       $filename = 'Ledger-' . date('Y-m-d') . '.xls';
+
+   //       $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
+   //       $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
+   //       $html .= '<head><meta charset="UTF-8">';
+   //       $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
+   //       $html .= '<x:ExcelWorksheet><x:Name>Ledger</x:Name>';
+   //       $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
+   //       $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+   //       $html .= '<style>
+   //             body  { font-family: Arial, sans-serif; font-size: 11px; }
+   //             table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
+
+   //             /* ── Top header ── */
+   //             .company-name  { font-size: 16px; font-weight: bold; }
+   //             .company-sub   { font-size: 10px; color: #444444; }
+   //             .date-cell     { text-align: right; font-size: 11px; vertical-align: top; }
+   //             .page-title    {
+   //                font-size: 15px; font-weight: bold; text-align: center;
+   //                background-color: #f0f0f0; border: 1px solid #cccccc;
+   //                padding: 8px; letter-spacing: 2px; text-transform: uppercase;
+   //             }
+
+   //             /* ── Customer block ── */
+   //             .customer-header td {
+   //                background-color: #eeeeee;
+   //                border: 1px solid #999999;
+   //                padding: 6px 10px;
+   //                font-weight: bold;
+   //                font-size: 13px;
+   //             }
+
+   //             /* ── Company block ── */
+   //             .company-header td {
+   //                background-color: #f9f9f9;
+   //                border: 1px solid #999999;
+   //                padding: 5px 10px;
+   //                font-weight: bold;
+   //                font-size: 12px;
+   //             }
+
+   //             /* ── Invoice meta row ── */
+   //             .invoice-meta td {
+   //                background-color: #f9f9f9;
+   //                border: 1px solid #cccccc;
+   //                padding: 5px 10px;
+   //                font-size: 11px;
+   //             }
+   //             .due-pending { color: #d32f2f; font-weight: bold; }
+   //             .due-paid    { color: #2e7d32; font-weight: bold; }
+
+   //             /* ── Detail column headers ── */
+   //             .col-th {
+   //                background-color: #ffffff;
+   //                border-bottom: 1px solid #999999;
+   //                border-top: 1px solid #cccccc;
+   //                border-left: 1px solid #cccccc;
+   //                border-right: 1px solid #cccccc;
+   //                padding: 6px 8px;
+   //                font-weight: bold;
+   //                font-size: 10px;
+   //                text-transform: uppercase;
+   //             }
+   //             .col-th-right {
+   //                background-color: #ffffff;
+   //                border-bottom: 1px solid #999999;
+   //                border-top: 1px solid #cccccc;
+   //                border-left: 1px solid #cccccc;
+   //                border-right: 1px solid #cccccc;
+   //                padding: 6px 8px;
+   //                font-weight: bold;
+   //                font-size: 10px;
+   //                text-transform: uppercase;
+   //                text-align: right;
+   //             }
+
+   //             /* ── Data rows ── */
+   //             .data-td {
+   //                border: 1px solid #eeeeee;
+   //                padding: 6px 8px;
+   //                vertical-align: top;
+   //                font-size: 11px;
+   //             }
+   //             .data-td-right {
+   //                border: 1px solid #eeeeee;
+   //                padding: 6px 8px;
+   //                text-align: right;
+   //                vertical-align: top;
+   //                font-size: 11px;
+   //                font-weight: bold;
+   //             }
+   //             .debit-cell  { color: #d32f2f; font-weight: bold; text-align: right;
+   //                            border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
+   //             .credit-cell { color: #2e7d32; font-weight: bold; text-align: right;
+   //                            border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
+
+   //             /* ── All payments completed ── */
+   //             .paid-row td {
+   //                text-align: center;
+   //                color: #2ecc71;
+   //                font-weight: bold;
+   //                border: 1px solid #eeeeee;
+   //                padding: 5px;
+   //                font-size:11px;
+   //             }
+
+   //             /* ── No payments ── */
+   //             .no-payment-row td {
+   //                text-align: center;
+   //                color: #e74c3c;
+   //                font-weight: bold;
+   //                border: 1px solid #eeeeee;
+   //                padding: 5px;
+   //                font-size: 11px;
+   //             }
+
+   //             /* ── Gap ── */
+   //             .gap-row td { border: none; padding: 8px; background: #ffffff; }
+   //       </style></head><body>';
+
+   //       /* ════════════════════════════════
+   //          PAGE HEADER
+   //       ════════════════════════════════ */
+   //       $html .= '<table>';
+   //       $html .= '<tr>
+   //             <td class="date-cell" text-align="center" colspan="5">Date: ' . date('d-m-Y') . '</td>
+   //       </tr>';
+   //       $html .= '</table>';
+
+   //       /* ── Title ── */
+   //       $html .= '<table style="margin-top:10px; margin-bottom:14px;">
+   //             <tr><td class="page-title" colspan="5">Ledger</td></tr>
+   //       </table>';
+
+   //       /* ════════════════════════════════
+   //          CUSTOMER BLOCKS
+   //       ════════════════════════════════ */
+   //       foreach ($grouped as $customer) {
+
+   //             /* ── Customer header ── */
+   //             $html .= '<table style="margin-bottom:2px;">
+   //                <tr class="customer-header">
+   //                   <td colspan="5">Buyer: ' . htmlspecialchars($customer['customer_name'] ?? 'N/A') . '</td>
+   //                </tr>
+   //             </table>';
+
+   //             foreach ($customer['companies'] as $company) {
+
+   //                /* ── Company header ── */
+   //                $html .= '<table style="margin-bottom:2px;">
+   //                   <tr class="company-header">
+   //                         <td colspan="5">Company: ' . htmlspecialchars($company['company_name'] ?? 'N/A') . '</td>
+   //                   </tr>
+   //                </table>';
+
+   //                foreach ($company['invoices'] as $invoice) {
+
+   //                   /* ── Calculate due ── */
+   //                   $due = $invoice['grand_total'] ?? 0;
+   //                   foreach ($invoice['payment_details'] ?? [] as $pmt) {
+   //                         $due -= $pmt['paid_amount'] ?? 0;
+   //                   }
+   //                   $dueClass       = $due > 0 ? 'due-pending' : 'due-paid';
+   //                   $dueFormatted   = function_exists('formatINR') ? formatINR($due)                         : number_format($due, 2);
+   //                   $grandFormatted = function_exists('formatINR') ? formatINR($invoice['grand_total'] ?? 0) : number_format($invoice['grand_total'] ?? 0, 2);
+
+   //                   /* ── Invoice meta row ── */
+   //                   $html .= '<table style="margin-bottom:0;">
+   //                         <tr class="invoice-meta">
+   //                            <td width="33%" colspan="2"><b>Invoice No:</b> ' . htmlspecialchars($invoice['inv_no'] ?? '-') . '</td>
+   //                            <td width="33%" colspan="1"><b>Commision Bill Status:</b> ' . ($invoice['brokerbill_no'] ? 'Generated' : 'Pending') . '</td>
+   //                            <td width="34%" style="text-align:center;"><b>Date:</b> ' . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
+   //                            <td width="33%" colspan="1" style="text-align:right;">
+   //                               <b>Due:</b> <span class="' . $dueClass . '">' . $dueFormatted . '</span>
+   //                            </td>
+   //                         </tr>
+   //                   </table>';
+
+   //                   /* ── Column headers ── */
+   //                   $html .= '<table style="margin-bottom:0;">
+   //                         <tr>
+   //                            <th class="col-th"       width="12%">Date</th>
+   //                            <th class="col-th"       width="43%">Details / Remarks</th>
+   //                            <th class="col-th-right" width="15%">Debit</th>
+   //                            <th class="col-th-right" width="15%">Credit</th>
+   //                            <th class="col-th-right" width="15%">Balance</th>
+   //                         </tr>';
+
+   //                   /* ── Invoice balance row ── */
+   //                   $html .= '<tr>
+   //                         <td class="data-td">'       . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
+   //                         <td class="data-td">Invoice Balance</td>
+   //                         <td class="debit-cell">'    . $grandFormatted . '</td>
+   //                         <td class="data-td-right">0.00</td>
+   //                         <td class="data-td-right">' . $grandFormatted . '</td>
+   //                   </tr>';
+
+   //                   /* ── Payment rows ── */
+   //                   $payments = $invoice['payment_details'] ?? [];
+
+   //                   if (count($payments) > 0) {
+   //                         foreach ($payments as $payment) {
+   //                            $paidDate   = isset($payment['datetime'])
+   //                               ? \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y')
+   //                               : '-';
+   //                            $paidAmt    = function_exists('formatINR')
+   //                               ? formatINR($payment['paid_amount'] ?? 0)
+   //                               : number_format($payment['paid_amount'] ?? 0, 2);
+   //                            $pendingAmt = function_exists('formatINR')
+   //                               ? formatINR($payment['pending_amount'] ?? 0)
+   //                               : number_format($payment['pending_amount'] ?? 0, 2);
+
+   //                            $html .= '<tr>
+   //                               <td class="data-td">' . $paidDate . '</td>
+   //                               <td class="data-td">
+   //                                     Payment Received (' . htmlspecialchars($payment['paid_type'] ?? 'N/A') . ')<br>
+   //                                     <small>Ref: ' . htmlspecialchars($payment['receipt_number'] ?? '-') . ' | By: ' . htmlspecialchars($payment['paid_by'] ?? '-') . '</small>
+   //                               </td>
+   //                               <td class="data-td-right">0.00</td>
+   //                               <td class="credit-cell">' . $paidAmt . '</td>
+   //                               <td class="data-td-right">' . $pendingAmt . '</td>
+   //                            </tr>';
+
+   //                            /* ── All payments completed ── */
+   //                            if (($payment['pending_amount'] ?? 1) == 0) {
+   //                               $html .= '<tr class="paid-row">
+   //                                     <td colspan="5">All payments completed</td>
+   //                               </tr>';
+   //                            }
+   //                         }
+   //                   } else {
+   //                         /* ── No payments ── */
+   //                         $html .= '<tr class="no-payment-row">
+   //                            <td colspan="5">No payment transactions found for this invoice.</td>
+   //                         </tr>';
+   //                   }
+
+   //                   $html .= '</table>';
+
+   //                   /* ── Small gap between invoices ── */
+   //                   $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+   //                }
+   //             }
+
+   //             /* ── Gap between customers ── */
+   //             $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+   //       }
+
+   //       $html .= '</body></html>';
+
+   //       return response($html, 200, [
+   //             'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+   //             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+   //             'Pragma'              => 'no-cache',
+   //             'Expires'             => '0',
+   //             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+   //       ]);
+   //    }
+   // }
+
    public function leger(Request $request)
    {
       $userId = $request->user_id;
@@ -1843,19 +2233,73 @@ class PdfController extends commonController
          ->groupBy('invoice_id');
 
       $invoices = $this->invoiceModel
-         ::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+         ::leftJoin('partys as customer_party', 'invoices.customer_id', '=', 'customer_party.id')
+         ->leftJoin('partys as transport_party', 'invoices.transport_id', '=', 'transport_party.id')
          ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
          ->leftJoinSub($gardenSub, 'broker_totals', function ($join) {
                $join->on('broker_totals.invoice_id', '=', 'invoices.id');
          })
+           ->leftJoin('mng_col','mng_col.invoice_id','=','invoices.id')
          ->select(
                'invoices.*',
                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
-               DB::raw("CONCAT_WS(' ', partys.name) as customer"),
+               DB::raw("CONCAT_WS(' ', customer_party.name) as customer"),
+               DB::raw("CONCAT_WS(' ', transport_party.name) as transport"),
                'companymasters.company_name as garden_company_name',
-               'broker_totals.brokerbill_no'
+               'broker_totals.brokerbill_no',
+               DB::raw("SUM(mng_col.No_Of_Pkags) as total_packages"),
+               DB::raw("SUM(mng_col.Net_Weight_Kgs) as total_kgs")
          )
-         ->where('invoices.is_deleted', 0);
+         ->where('invoices.is_deleted', 0)
+         ->groupBy(
+               'invoices.id',
+               'customer_party.name',
+               'transport_party.name',
+               'companymasters.company_name',
+               'broker_totals.brokerbill_no',
+               'invoices.inv_date',
+               'invoices.inv_no',
+               'invoices.consignment_number',
+               'invoices.consignment_date',
+               'invoices.transport_id',
+               'invoices.sample_ids',
+               'invoices.HSN',
+               'invoices.Description',
+               'invoices.notes',
+               'invoices.total',
+               'invoices.customer_id',
+               'invoices.sgst',
+               'invoices.cgst',
+               'invoices.igst',
+               'invoices.gst',
+               'invoices.grand_total',
+               'invoices.currency_id',
+               'invoices.payment_type',
+               'invoices.status',
+               'invoices.account_id',
+               'invoices.template_version',
+               'invoices.company_id',
+               'invoices.company_details_id',
+               'invoices.show_col',
+               'invoices.gstsettings',
+               'invoices.inv_number_type',
+               'invoices.overdue_date',
+               'invoices.t_and_c_id',
+               'invoices.last_increment_number',
+               'invoices.increment_type',
+               'invoices.pattern_type',
+               'invoices.created_by',
+               'invoices.updated_by',
+               'invoices.created_by',
+               'invoices.created_at',
+               'invoices.updated_at',
+               'invoices.is_active',
+               'invoices.is_deleted',
+               'invoices.is_editable',
+               'invoices.commission',
+               'invoices.third_party_invoice',
+             
+         );
 
       $filters = [
          'filter_company'        => 'invoices.company_details_id',
@@ -1940,6 +2384,7 @@ class PdfController extends commonController
                   ];
             })->values();
       }
+      // dd($grouped);
       Log::info($grouped);
       if ($grouped->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
@@ -1959,266 +2404,104 @@ class PdfController extends commonController
       }
 
       if ($request->type === 'excel') {
+
          $filename = 'Ledger-' . date('Y-m-d') . '.xls';
 
-         $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
-         $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
-         $html .= '<head><meta charset="UTF-8">';
-         $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
-         $html .= '<x:ExcelWorksheet><x:Name>Ledger</x:Name>';
-         $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
-         $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-         $html .= '<style>
-               body  { font-family: Arial, sans-serif; font-size: 11px; }
-               table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
-
-               /* ── Top header ── */
-               .company-name  { font-size: 16px; font-weight: bold; }
-               .company-sub   { font-size: 10px; color: #444444; }
-               .date-cell     { text-align: right; font-size: 11px; vertical-align: top; }
-               .page-title    {
-                  font-size: 15px; font-weight: bold; text-align: center;
-                  background-color: #f0f0f0; border: 1px solid #cccccc;
-                  padding: 8px; letter-spacing: 2px; text-transform: uppercase;
-               }
-
-               /* ── Customer block ── */
-               .customer-header td {
-                  background-color: #eeeeee;
-                  border: 1px solid #999999;
-                  padding: 6px 10px;
-                  font-weight: bold;
-                  font-size: 13px;
-               }
-
-               /* ── Company block ── */
-               .company-header td {
-                  background-color: #f9f9f9;
-                  border: 1px solid #999999;
-                  padding: 5px 10px;
-                  font-weight: bold;
-                  font-size: 12px;
-               }
-
-               /* ── Invoice meta row ── */
-               .invoice-meta td {
-                  background-color: #f9f9f9;
-                  border: 1px solid #cccccc;
-                  padding: 5px 10px;
-                  font-size: 11px;
-               }
-               .due-pending { color: #d32f2f; font-weight: bold; }
-               .due-paid    { color: #2e7d32; font-weight: bold; }
-
-               /* ── Detail column headers ── */
-               .col-th {
-                  background-color: #ffffff;
-                  border-bottom: 1px solid #999999;
-                  border-top: 1px solid #cccccc;
-                  border-left: 1px solid #cccccc;
-                  border-right: 1px solid #cccccc;
-                  padding: 6px 8px;
-                  font-weight: bold;
-                  font-size: 10px;
-                  text-transform: uppercase;
-               }
-               .col-th-right {
-                  background-color: #ffffff;
-                  border-bottom: 1px solid #999999;
-                  border-top: 1px solid #cccccc;
-                  border-left: 1px solid #cccccc;
-                  border-right: 1px solid #cccccc;
-                  padding: 6px 8px;
-                  font-weight: bold;
-                  font-size: 10px;
-                  text-transform: uppercase;
-                  text-align: right;
-               }
-
-               /* ── Data rows ── */
-               .data-td {
-                  border: 1px solid #eeeeee;
-                  padding: 6px 8px;
-                  vertical-align: top;
-                  font-size: 11px;
-               }
-               .data-td-right {
-                  border: 1px solid #eeeeee;
-                  padding: 6px 8px;
-                  text-align: right;
-                  vertical-align: top;
-                  font-size: 11px;
-                  font-weight: bold;
-               }
-               .debit-cell  { color: #d32f2f; font-weight: bold; text-align: right;
-                              border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
-               .credit-cell { color: #2e7d32; font-weight: bold; text-align: right;
-                              border: 1px solid #eeeeee; padding: 6px 8px; font-size: 11px; }
-
-               /* ── All payments completed ── */
-               .paid-row td {
-                  text-align: center;
-                  color: #2ecc71;
-                  font-weight: bold;
-                  border: 1px solid #eeeeee;
-                  padding: 5px;
-                  font-size:11px;
-               }
-
-               /* ── No payments ── */
-               .no-payment-row td {
-                  text-align: center;
-                  color: #e74c3c;
-                  font-weight: bold;
-                  border: 1px solid #eeeeee;
-                  padding: 5px;
-                  font-size: 11px;
-               }
-
-               /* ── Gap ── */
-               .gap-row td { border: none; padding: 8px; background: #ffffff; }
-         </style></head><body>';
-
-         /* ════════════════════════════════
-            PAGE HEADER
-         ════════════════════════════════ */
-         $html .= '<table>';
-         $html .= '<tr>
-               <td class="date-cell" text-align="center" colspan="5">Date: ' . date('d-m-Y') . '</td>
+         $html  = '<table border="1" cellspacing="0" cellpadding="5">';
+        $html .= '<tr>
+            <th colspan="17" style="font-size:30px; font-weight:bold; text-align:center;">
+               LEDGER - Date: '.date('d-m-Y').'
+            </th>
          </tr>';
-         $html .= '</table>';
+         // Header Row
+         $html .= '<tr>
+            <th>Sl No.</th>
+            <th>Seller</th>
+            <th>Party</th>
+            <th>Invoice No</th>
+            <th>Inv Dt</th>
+            <th>Prompt</th>
+            <th>Pkgs</th>
+            <th>Kgs</th>
+            <th>CD%</th>
+            <th>Taxable Amt</th>
+            <th>Net Amt</th>
+            <th>Transport</th>
+            <th>C/N No</th>
+            <th>C/N Dt</th>
+            <th>Paid Amt </th>
+            <th>Pending Amt </th>   
+            <th>Commision Bill Status </th>
+         </tr>';
 
-         /* ── Title ── */
-         $html .= '<table style="margin-top:10px; margin-bottom:14px;">
-               <tr><td class="page-title" colspan="5">Ledger</td></tr>
-         </table>';
-
-         /* ════════════════════════════════
-            CUSTOMER BLOCKS
-         ════════════════════════════════ */
+         $sr = 1;
+         
          foreach ($grouped as $customer) {
-
-               /* ── Customer header ── */
-               $html .= '<table style="margin-bottom:2px;">
-                  <tr class="customer-header">
-                     <td colspan="5">Buyer: ' . htmlspecialchars($customer['customer_name'] ?? 'N/A') . '</td>
-                  </tr>
-               </table>';
-
-               foreach ($customer['companies'] as $company) {
-
-                  /* ── Company header ── */
-                  $html .= '<table style="margin-bottom:2px;">
-                     <tr class="company-header">
-                           <td colspan="5">Company: ' . htmlspecialchars($company['company_name'] ?? 'N/A') . '</td>
-                     </tr>
-                  </table>';
-
+            foreach ($customer['companies'] as $company) {
                   foreach ($company['invoices'] as $invoice) {
-
-                     /* ── Calculate due ── */
-                     $due = $invoice['grand_total'] ?? 0;
-                     foreach ($invoice['payment_details'] ?? [] as $pmt) {
-                           $due -= $pmt['paid_amount'] ?? 0;
+                     $paid = 0;
+                     foreach ($invoice['payment_details'] ?? [] as $p) {
+                        $paid += $p['paid_amount'] ?? 0;
                      }
-                     $dueClass       = $due > 0 ? 'due-pending' : 'due-paid';
-                     $dueFormatted   = function_exists('formatINR') ? formatINR($due)                         : number_format($due, 2);
-                     $grandFormatted = function_exists('formatINR') ? formatINR($invoice['grand_total'] ?? 0) : number_format($invoice['grand_total'] ?? 0, 2);
 
-                     /* ── Invoice meta row ── */
-                     $html .= '<table style="margin-bottom:0;">
-                           <tr class="invoice-meta">
-                              <td width="33%" colspan="2"><b>Invoice No:</b> ' . htmlspecialchars($invoice['inv_no'] ?? '-') . '</td>
-                              <td width="33%" colspan="1"><b>Commision Bill Status:</b> ' . ($invoice['brokerbill_no'] ? 'Generated' : 'Pending') . '</td>
-                              <td width="34%" style="text-align:center;"><b>Date:</b> ' . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
-                              <td width="33%" colspan="1" style="text-align:right;">
-                                 <b>Due:</b> <span class="' . $dueClass . '">' . $dueFormatted . '</span>
-                              </td>
-                           </tr>
-                     </table>';
-
-                     /* ── Column headers ── */
-                     $html .= '<table style="margin-bottom:0;">
-                           <tr>
-                              <th class="col-th"       width="12%">Date</th>
-                              <th class="col-th"       width="43%">Details / Remarks</th>
-                              <th class="col-th-right" width="15%">Debit</th>
-                              <th class="col-th-right" width="15%">Credit</th>
-                              <th class="col-th-right" width="15%">Balance</th>
-                           </tr>';
-
-                     /* ── Invoice balance row ── */
+                     $total   = $invoice['grand_total'] ?? 0;
+                     $pending = $total - $paid;
                      $html .= '<tr>
-                           <td class="data-td">'       . htmlspecialchars($invoice['inv_date_formatted'] ?? '-') . '</td>
-                           <td class="data-td">Invoice Balance</td>
-                           <td class="debit-cell">'    . $grandFormatted . '</td>
-                           <td class="data-td-right">0.00</td>
-                           <td class="data-td-right">' . $grandFormatted . '</td>
+                        <td>'.$sr++.'</td>
+
+                        <td>'.htmlspecialchars($company['company_name'] ?? '-').'</td>
+
+                        <td>'.htmlspecialchars($customer['customer_name'] ?? '-').'</td>
+
+                        <td>'.htmlspecialchars($invoice['inv_no'] ?? '-').'</td>
+
+                        <td>'.htmlspecialchars($invoice['inv_date_formatted'] ?? '-').'</td>
+
+                        <td>-</td>
+
+                        <td>'.($invoice['total_packages'] ?? 0).'</td>
+
+                        <td>'.($invoice['total_kgs'] ?? 0).'</td>
+
+                        <td>'.($invoice['cd_percent'] ?? '-').'</td>
+
+                        <td>'.(function_exists('formatINR') 
+                              ? formatINR($invoice['total'] ?? 0) 
+                              : number_format($invoice['total'] ?? 0, 2)).'</td>
+
+                        <td>'.(function_exists('formatINR') 
+                              ? formatINR($invoice['grand_total'] ?? 0) 
+                              : number_format($invoice['grand_total'] ?? 0, 2)).'</td>
+
+                        <td>'.htmlspecialchars($invoice['transport'] ?? '-').'</td>
+
+                        <td>'.htmlspecialchars($invoice['consignment_number'] ?? '-').'</td>
+
+                        <td>'.(
+                           !empty($invoice['consignment_date']) 
+                           ? \Carbon\Carbon::parse($invoice['consignment_date'])->format('d-m-Y') 
+                           : '-'
+                        ).'</td>
+                        <td>'.(function_exists('formatINR') 
+                              ? formatINR($paid) 
+                              : number_format($paid, 2)).'</td>
+                        <td>'.(function_exists('formatINR') 
+                              ? formatINR($pending) 
+                              : number_format($pending, 2)).'</td>
+                        <td>'.htmlspecialchars($invoice['brokerbill_no'] ? 'Genrated': 'Pending').'</td>
                      </tr>';
-
-                     /* ── Payment rows ── */
-                     $payments = $invoice['payment_details'] ?? [];
-
-                     if (count($payments) > 0) {
-                           foreach ($payments as $payment) {
-                              $paidDate   = isset($payment['datetime'])
-                                 ? \Carbon\Carbon::parse($payment['datetime'])->format('d-m-Y')
-                                 : '-';
-                              $paidAmt    = function_exists('formatINR')
-                                 ? formatINR($payment['paid_amount'] ?? 0)
-                                 : number_format($payment['paid_amount'] ?? 0, 2);
-                              $pendingAmt = function_exists('formatINR')
-                                 ? formatINR($payment['pending_amount'] ?? 0)
-                                 : number_format($payment['pending_amount'] ?? 0, 2);
-
-                              $html .= '<tr>
-                                 <td class="data-td">' . $paidDate . '</td>
-                                 <td class="data-td">
-                                       Payment Received (' . htmlspecialchars($payment['paid_type'] ?? 'N/A') . ')<br>
-                                       <small>Ref: ' . htmlspecialchars($payment['receipt_number'] ?? '-') . ' | By: ' . htmlspecialchars($payment['paid_by'] ?? '-') . '</small>
-                                 </td>
-                                 <td class="data-td-right">0.00</td>
-                                 <td class="credit-cell">' . $paidAmt . '</td>
-                                 <td class="data-td-right">' . $pendingAmt . '</td>
-                              </tr>';
-
-                              /* ── All payments completed ── */
-                              if (($payment['pending_amount'] ?? 1) == 0) {
-                                 $html .= '<tr class="paid-row">
-                                       <td colspan="5">All payments completed</td>
-                                 </tr>';
-                              }
-                           }
-                     } else {
-                           /* ── No payments ── */
-                           $html .= '<tr class="no-payment-row">
-                              <td colspan="5">No payment transactions found for this invoice.</td>
-                           </tr>';
-                     }
-
-                     $html .= '</table>';
-
-                     /* ── Small gap between invoices ── */
-                     $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
                   }
-               }
-
-               /* ── Gap between customers ── */
-               $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
+            }
          }
 
-         $html .= '</body></html>';
+         $html .= '</table>';
 
          return response($html, 200, [
-               'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
-               'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-               'Pragma'              => 'no-cache',
-               'Expires'             => '0',
-               'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"'
          ]);
       }
    }
-
    public function orderpdf($id)
    {
       $order = $this->orderModel::find($id);

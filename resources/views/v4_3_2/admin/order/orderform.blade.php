@@ -289,6 +289,54 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
         width: 100%;
     }
 }
+/* Base button */
+.btn-f {
+    border: 1px solid #ccc;
+    background: #f8f9fa;
+    color: #333;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+/* Hover */
+.btn-f:hover {
+    background: #e9ecef;
+}
+
+/* Focus (when clicked or tabbed) */
+.btn-f:focus {
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    border-color: #007bff;
+}
+
+/* Active (when pressed) */
+.btn-f:active {
+    transform: scale(0.97);
+}
+
+/* Primary button */
+.btn-f-primary {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.btn-f-primary:focus {
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.4);
+}
+
+/* Secondary button */
+.btn-f-secondary {
+    background: #6c757d;
+    color: #fff;
+    border-color: #6c757d;
+}
+
+.btn-f-secondary:focus {
+    box-shadow: 0 0 0 3px rgba(108,117,125,0.4);
+}
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection
@@ -463,21 +511,21 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     {{-- ── 1. Line Items ── --}}
    <div class="d-flex justify-content-between align-items-center flex-wrap order-date">
     
-    <!-- LEFT SIDE TITLE -->
-    <div>
-        <h6 style="margin:0;font-weight:700;color:#1a1d2e;">
-           
-        </h6>
-    </div>
+        <!-- LEFT SIDE TITLE -->
+        <div>
+            <h6 style="margin:0;font-weight:700;color:#1a1d2e;">
+            
+            </h6>
+        </div>
 
-    <!-- RIGHT SIDE DATE -->
-    <div style="min-width:220px;">
-        <label class="f-label">Order Date <span class="req">*</span></label>
-        <input type="date" class="f-ctrl" name="order_date" id="order_date">
-        <span class="f-err" id="error-order_date"></span>
-    </div>
+        <!-- RIGHT SIDE DATE -->
+        <div style="min-width:220px;">
+            <label class="f-label">Order Date <span class="req">*</span></label>
+            <input type="date" class="f-ctrl" name="order_date" id="order_date">
+            <span class="f-err" id="error-order_date"></span>
+        </div>
 
-</div>
+    </div>
     <div class="li-wrap" style="margin-bottom: 0; border-bottom: none;">
         <div class="li-list" id="purchaseBody">
             <div id="li-empty" class="li-empty">
@@ -571,16 +619,23 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 
     {{-- ── 5. Footer Buttons ── --}}
     <div class="inv-footer">
-        <button id="cancelbtn" type="button" class="btn-f btn-f-cancel">
-            <i class="ri-close-line"></i> Cancel
-        </button>
-        <button type="reset" class="btn-f btn-f-reset">
-            <i class="ri-refresh-line"></i> Reset
-        </button>
-        <button type="submit" class="btn-f btn-f-primary">
-            <i class="ri-save-line"></i> Save Order
-        </button>
-    </div>
+    <button type="submit" name="save_type" value="continue" class="btn-f btn-f-secondary">
+        <i class="ri-save-3-line"></i> Save & Continue
+    </button>
+
+    <!-- ✅ Save Order -->
+    <button type="submit" name="save_type" value="redirect" class="btn-f btn-f-primary">
+        <i class="ri-save-line"></i> Save Order
+    </button>
+
+    <button id="cancelbtn" type="button" class="btn-f btn-f-cancel">
+        <i class="ri-close-line"></i> Cancel
+    </button>
+
+    <button type="reset" class="btn-f btn-f-reset">
+        <i class="ri-refresh-line"></i> Reset
+    </button>
+</div>
 </form>
 @endsection
 
@@ -623,12 +678,8 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     // ✅ Save ONLY FIRST TIME (very important)
     $dateField.addEventListener('change', function () {
         const alreadySaved = localStorage.getItem('order_default_date');
-
-        if (!alreadySaved && this.value) {
-            // 👉 Save only once per day
             localStorage.setItem('order_default_date', this.value);
             localStorage.setItem('order_default_day', today);
-        }
     });
 
 })();
@@ -1175,6 +1226,11 @@ $(document).ready(function () {
     /* ════════════════════════════════════════════════════════
        SUBMIT
     ════════════════════════════════════════════════════════ */
+    let saveType = 'redirect'; // default
+
+    $('#orderform button[type="submit"]').click(function () {
+        saveType = $(this).val();
+    });
     $('#orderform').submit(function (e) {
         e.preventDefault();
         $('.row-f-err').text('');
@@ -1212,6 +1268,7 @@ $(document).ready(function () {
             totalAmount:    $('#totalAmount').text(),
             discountAmount: $('#discountAmount').text(),
             finalAmount:    $('#finalAmount').text(),
+            save_type: saveType, 
             rows
         };
 
@@ -1221,7 +1278,14 @@ $(document).ready(function () {
             success: function (r) {
                 if (r.status == 200) {
                     Toast.fire({ icon: 'success', title: r.message });
-                    window.location.href = "{{ route('admin.order') }}";
+                      if (saveType === 'continue') {
+                        loaderhide();
+                        window.location.href = "{{route('admin.orderform')}}";
+
+                    } else {
+                        // ✅ Redirect (Save Order)
+                        window.location.href = "{{ route('admin.order') }}";
+                    }
                 } else { Toast.fire({ icon: 'error', title: r.message }); loaderhide(); }
             },
             error: function (xhr) {

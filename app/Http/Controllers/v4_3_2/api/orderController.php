@@ -166,7 +166,12 @@ class orderController extends commonController
                         ->unique()
                         ->values()
                         ->implode(', '),
-
+                    'rate'    =>$details 
+                    ->filter(fn($item) => !empty($item->grade_name))
+                        ->pluck('rate')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
                     'details' => $details->map(function ($item) {
                         return [
                             'garden_name'  => $item->garden_name,
