@@ -619,14 +619,6 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 
     {{-- ── 5. Footer Buttons ── --}}
     <div class="inv-footer">
-    <button type="submit" name="save_type" value="continue" class="btn-f btn-f-secondary">
-        <i class="ri-save-3-line"></i> Save & Continue
-    </button>
-
-    <!-- ✅ Save Order -->
-    <button type="submit" name="save_type" value="redirect" class="btn-f btn-f-primary">
-        <i class="ri-save-line"></i> Save Order
-    </button>
 
     <button id="cancelbtn" type="button" class="btn-f btn-f-cancel">
         <i class="ri-close-line"></i> Cancel
@@ -634,6 +626,14 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 
     <button type="reset" class="btn-f btn-f-reset">
         <i class="ri-refresh-line"></i> Reset
+    </button>
+    <button type="submit" name="save_type" value="continue" class="btn-f btn-f-secondary">
+        <i class="ri-save-3-line"></i> Save & Continue
+    </button>
+
+    <!-- ✅ Save Order -->
+    <button type="submit" name="save_type" value="redirect" class="btn-f btn-f-primary">
+        <i class="ri-save-line"></i> Save Order
     </button>
 </div>
 </form>
