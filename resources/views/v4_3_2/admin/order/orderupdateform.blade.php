@@ -249,14 +249,40 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     .order-header-bar [class*="col-sm"] {
         width: 50% !important; max-width: 50% !important; flex: 0 0 50% !important;
     }
-    .order-header-bar [class*="col-sm"]:last-child {
+    /* .order-header-bar [class*="col-sm"]:last-child {
         width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important;
-    }
+    } */
     .order-field-grid { grid-template-columns: 1fr; gap: 6px; }
     .order-field-grid .amount-cell { grid-column: unset; }
     .order-card-head { padding: 5px 10px; }
     .order-card-body { padding: 8px 10px; }
     .btn-f { flex: 0 0 100%; }
+}
+.order-date {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    top:-5px;
+}
+#orderupdateform
+{
+    margin-top: -60px;
+}
+@media (max-width: 768px) {
+    .order-date {
+        flex-direction: column;
+        align-items: stretch;
+        position: unset;
+    }
+    #orderupdateform
+    {
+        margin-top: unset;
+    }
+    .order-date > div {
+        width: 100%;
+    }
 }
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
@@ -270,16 +296,23 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="token"      value="{{ session('api_token') }}">
     <input type="hidden" name="user_id"    value="{{ session('user_id') }}">
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
-    <div class="order-header-bar">
-        <div class="row align-items-end" style="margin:0 -6px;">
-            <div class="col-sm-12 mb-0" style="padding:0 6px;">
-                <label class="f-label">Order Date <span class="req">*</span></label>
-                <input type="date" class="f-ctrl" name="order_date" id="order_date"
-                       value="{{ date('Y-m-d') }}">
-                <span class="f-err" id="error-order_date"></span>
-            </div>
-        </div>
+   <div class="d-flex justify-content-between align-items-center flex-wrap order-date">
+    
+    <!-- LEFT SIDE TITLE -->
+    <div>
+        <h6 style="margin:0;font-weight:700;color:#1a1d2e;">
+           
+        </h6>
     </div>
+
+    <!-- RIGHT SIDE DATE -->
+    <div style="min-width:220px;">
+        <label class="f-label">Order Date <span class="req">*</span></label>
+        <input type="date" class="f-ctrl" name="order_date" id="order_date">
+        <span class="f-err" id="error-order_date"></span>
+    </div>
+
+</div>
     {{-- ── 1. Line Items ── --}}
     <div class="li-wrap" style="margin-bottom: 0; border-bottom: none;">
         <div class="li-list" id="purchaseBody">
