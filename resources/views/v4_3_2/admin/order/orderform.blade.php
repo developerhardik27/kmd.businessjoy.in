@@ -941,7 +941,12 @@ $(document).ready(function () {
 
         $(`#row_${rowCount} .garden-select`).select2({ placeholder: 'Select Garden', width: '100%', allowClear: true });
         $(`#row_${rowCount} .grade-select`).select2({ placeholder: 'Select Grade',  width: '100%', allowClear: true });
-
+        
+        if (rowCount === 1) {
+            setTimeout(() => {
+                $(`#row_${rowCount} .garden-select`).select2('open');
+            }, 100);
+        }
         if (lastSelectedGarden) {
             $(`#row_${rowCount} .garden-select`).val(lastSelectedGarden).trigger('change');
         }
