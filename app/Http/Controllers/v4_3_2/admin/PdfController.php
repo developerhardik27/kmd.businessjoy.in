@@ -997,10 +997,14 @@ class PdfController extends commonController
    public function orderreport(Request $request)
    {
       
-    $order = $this->orderModel::join('partys as buyer', 'buyer.id', 'orders.buyer_party')
+    $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('broker_purchases', function ($join) {
+                $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
             ->leftJoin('grades', 'grades.id', 'order_details.grade')
             ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
@@ -1070,7 +1074,8 @@ class PdfController extends commonController
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade_name',
                 'companymasters.id as company_id',
-                'companymasters.company_name as company_name'
+                'companymasters.company_name as company_name',
+                'broker_purchases.id as broker_purchase_id',
             )
             ->get()
             ->groupBy('order_id')
@@ -1086,7 +1091,15 @@ class PdfController extends commonController
                 } else {
                     $invoiceStatus = 'Invoices Created';
                 }
+               $sampleIds = $details->pluck('broker_purchase_id');
 
+                if ($sampleIds->every(fn($id) => empty($id))) {
+                    $sampleStatus = 'Pending';
+                } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                    $sampleStatus = 'Half Sample';
+                } else {
+                    $sampleStatus = 'Sample Created';
+                }
                 return [
                     'id'             => $orderId,
                     'buyer_name'     => $first->buyer_name,
@@ -1097,7 +1110,7 @@ class PdfController extends commonController
                     'final_amount'   => $first->finalAmount,
                     'order_date'     => $first->order_date,
                     'invoice_status' => $invoiceStatus, // Invoice status included
-
+                    'sample_status'  => $sampleStatus, // Sample status included
                     'company_names' => $details
                         ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->values()
@@ -1138,6 +1151,11 @@ class PdfController extends commonController
             $status = $request->filter_invoice_status;
             $orderData = $orderData->filter(fn($order) => $order['invoice_status'] === $status)->values();
         }
+         // Apply sample_status filter AFTER grouping
+        if (!empty($request->filter_sample_status) && $request->filter_sample_status !== '') {
+            $status = $request->filter_sample_status;
+            $orderData = $orderData->filter(fn($order) => $order['sample_status'] === $status)->values();
+        }
 
       if ($orderData->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
@@ -1163,221 +1181,64 @@ class PdfController extends commonController
 
       /* ───────── EXCEL ───────── */
 
-      if ($request->type === 'excel') {
+     if ($request->type === 'excel') {
 
-         $filename = 'Sauda-Register-' . date('Y-m-d') . '.xls';
+         $filename = 'Order-Report-' . date('Y-m-d') . '.xls';
 
-         // ── Get company info from first order ──
-         $firstOrder    = $orderData->first();
-         $companyName   = $firstOrder['company_names']  ?? 'KMD TEA AND AGRO';
-         $todayDate     = date('d-m-Y');
-
-         $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
-         $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
-         $html .= '<head><meta charset="UTF-8">';
-         $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
-         $html .= '<x:ExcelWorksheet><x:Name>Sauda Register</x:Name>';
-         $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
-         $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-         $html .= '<style>
-            body  { font-family: Arial, sans-serif; font-size: 11px; }
-            table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
-
-            /* ── Top header ── */
-            .company-header {
-                  font-size: 16px;
-                  font-weight: bold;
-            }
-            .company-sub {
-                  font-size: 10px;
-                  color: #444444;
-            }
-            .page-title {
-                  font-size: 15px;
-                  font-weight: bold;
-                  text-align: center;
-                  background-color: #f0f0f0;
-                  border: 1px solid #cccccc;
-                  padding: 8px;
-                  letter-spacing: 2px;
-            }
-            .date-cell {
-                  text-align: right;
-                  font-size: 11px;
-                  vertical-align: top;
-            }
-            .spacer { height: 10px; }
-
-            /* ── Order block ── */
-            .order-block { margin-bottom: 16px; }
-
-            .order-title-row td {
-                  background-color: #f7f7f7;
-                  border: 1px solid #cccccc;
-                  padding: 6px 10px;
-                  font-weight: bold;
-                  font-size: 12px;
-            }
-            .order-id-cell {
-                  text-align: right;
-                  font-weight: bold;
-                  font-size: 12px;
-            }
-
-            .order-info-row td {
-                  border-left: 1px solid #cccccc;
-                  border-right: 1px solid #cccccc;
-                  padding: 4px 10px;
-                  font-size: 10.5px;
-                  background-color: #fbfbfb;
-            }
-
-            /* ── Detail table header ── */
-            .detail-th {
-                  background-color: #253566;
-                  color: #ffffff;
-                  font-weight: bold;
-                  border: 1px solid #cccccc;
-                  padding: 5px 8px;
-                  text-align: center;
-                  font-size: 10px;
-                  white-space: nowrap;
-                  letter-spacing: 0.5px;
-            }
-
-            /* ── Detail rows ── */
-            .detail-td {
-                  border: 1px solid #dddddd;
-                  padding: 4px 8px;
-                  vertical-align: middle;
-                  font-size: 11px;
-            }
-            .detail-td-num {
-                  border: 1px solid #dddddd;
-                  padding: 4px 8px;
-                  text-align: right;
-                  vertical-align: middle;
-                  font-size: 11px;
-            }
-            .row-even td { background-color: #f5f8ff; }
-            .row-odd  td { background-color: #ffffff; }
-
-            /* ── Final amount ── */
-            .final-row td {
-                  border: 1px solid #cccccc;
-                  padding: 5px 10px;
-                  text-align: right;
-                  font-weight: bold;
-                  font-size: 12px;
-                  background-color: #f0f4ff;
-            }
-
-            /* ── Spacer row ── */
-            .gap-row td {
-                  border: none;
-                  padding: 6px;
-                  background-color: #ffffff;
-            }
-         </style></head><body>';
-
-         /* ════════════════════════════════
-            TOP HEADER TABLE
-         ════════════════════════════════ */
-         $html .= '<table>';
+         $html  = '<table border="1" cellpadding="5" cellspacing="0">';
          $html .= '<tr>
-            <td class="date-cell" colspan="11">Date: ' . $todayDate . '</td>
+                  <th colspan="15" style="font-size:30px; font-weight:bold; text-align:center;">
+                     SAUDA REGISTER - Date: '.date('d-m-Y').'
+                  </th>
+               </tr>';
+         // Header Row
+         $html .= '<tr style="background-color:#f0f0f0; font-weight:bold;">
+            <th>ID</th>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Buyer</th>
+            <th>Transport</th>
+            <th>Company</th>
+            <th>Garden</th>
+            <th>Grade</th>
+            <th>Invoice No</th>
+            <th>Bags</th>
+            <th>KG</th>
+            <th>Net KG</th>
+            <th>Rate</th>
+            <th>Discount</th>
+            <th>Amount</th>
          </tr>';
-         $html .= '</table>';
+         $srNo = 1;
+         // Data Rows
+         foreach ($orderData as $order) {
+            foreach ($order['details'] as $detail) {
 
-         /* ── SAUDA REGISTER Title ── */
-         $html .= '<table style="margin-top:11px; margin-bottom:14px;">
-            <tr><td class="page-title" colspan="10">SAUDA REGISTER</td></tr>
-         </table>';
-
-         /* ════════════════════════════════
-            ORDER BLOCKS
-         ════════════════════════════════ */
-         foreach ($orderData as $index => $order) {
-
-            $details     = $order['details'];
-            $detailCount = count($details);
-
-            $html .= '<table style="margin-bottom:16px; border: 1px solid #cccccc;">';
-
-            /* ── Order title row: Buyer Name | Order Id ── */
-            $html .= '<tr class="order-title-row">
-                  <td colspan="9">Buyer Name #' . htmlspecialchars($order['buyer_name'] ?? '-') . '</td>
-                  <td colspan="2" class="order-id-cell">Order Id #' . htmlspecialchars($order['id'] ?? '-') . '</td>
-            </tr>';
-
-            /* ── Order info row ── */
-            $html .= '<tr class="order-info-row">
-                  <td colspan="11">
-                     <b>Credit Days:</b> ' . htmlspecialchars($order['credit_days']    ?? '-') . ' &nbsp;|&nbsp;
-                     <b>Discount:</b> '    . htmlspecialchars($order['discount']        ?? '-') . ' &nbsp;|&nbsp;
-                     <b>Transport Name:</b> ' . htmlspecialchars($order['transport_name'] ?? '-') . ' &nbsp;|&nbsp;
-                     <b>Total Net KG:</b> ' . htmlspecialchars($order['totalNetKg']    ?? '-') . ' &nbsp;|&nbsp;
-                     <b>Order Date:</b> '  . htmlspecialchars($order['order_date']     ?? '-') . '
-                  </td>
-            </tr>';
-
-            /* ── Invoice Status row ── */
-            $html .= '<tr class="order-info-row">
-                  <td colspan="11">
-                     <b>Invoice Status:</b> ' . htmlspecialchars($order['invoice_status'] ?? '-') . '
-                  </td>
-            </tr>';
-
-            /* ── Detail table header ── */
-            $html .= '<tr>
-                  <th class="detail-th">COMPANY NAME</th>
-                  <th class="detail-th">GARDEN NAME</th>
-                  <th class="detail-th">GRADE NAME</th>
-                  <th class="detail-th">INVOICE NO</th>
-                  <th class="detail-th">BAGS</th>
-                  <th class="detail-th">KG</th>
-                  <th class="detail-th">NET KG</th>
-                  <th class="detail-th">RATE</th>
-                  <th class="detail-th">DISCOUNT</th>
-                  <th class="detail-th" colspan="2">AMOUNT</th>
-            </tr>';
-
-            /* ── Detail rows ── */
-            foreach ($details as $i => $detail) {
-                  $rowClass = ($i % 2 === 0) ? 'row-odd' : 'row-even';
-                  $html .= "<tr class=\"{$rowClass}\">";
-                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['company_name'] ?? '-') . '</td>';
-                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['garden_name']  ?? '-') . '</td>';
-                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['grade_name']   ?? '-') . '</td>';
-                  $html .= '<td class="detail-td">'     . htmlspecialchars($detail['invoice_no']   ?? '-') . '</td>';
-                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['bags']         ?? '-') . '</td>';
-                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['kg']           ?? '-') . '</td>';
-                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['net_kg']       ?? '-') . '</td>';
-                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['rate']         ?? '-') . '</td>';
-                  $html .= '<td class="detail-td-num">' . htmlspecialchars($detail['discount']     ?? '0') . '</td>';
-                  $html .= '<td class="detail-td-num" colspan="2">' . htmlspecialchars($detail['amount'] ?? '-') . '</td>';
-                  $html .= '</tr>';
+                  $html .= '<tr>
+                     <td>' .  $srNo++ . '</td>
+                     <td>' . $order['id'] . '</td>
+                     <td>' . $order['order_date'] . '</td>
+                     <td>' . $order['buyer_name'] . '</td>
+                     <td>' . $order['transport_name'] . '</td>
+                     <td>' . ($detail['company_name'] ?? '-') . '</td>
+                     <td>' . ($detail['garden_name'] ?? '-') . '</td>
+                     <td>' . ($detail['grade_name'] ?? '-') . '</td>
+                     <td>' . ($detail['invoice_no'] ?? '-') . '</td>
+                     <td>' . ($detail['bags'] ?? 0) . '</td>
+                     <td>' . ($detail['kg'] ?? 0) . '</td>
+                     <td>' . ($detail['net_kg'] ?? 0) . '</td>
+                     <td>' . ($detail['rate'] ?? 0) . '</td>
+                     <td>' . ($order['discount'] ?? 0) . '</td>
+                     <td>' . ($detail['amount'] ?? 0) . '</td>
+                  </tr>';
             }
-
-            /* ── Final Amount row ── */
-            $html .= '<tr class="final-row">
-                  <td colspan="11">Final Amount &nbsp;&nbsp; ' . htmlspecialchars($order['final_amount'] ?? '0') . '</td>
-            </tr>';
-
-            $html .= '</table>';
-
-            /* ── Gap between orders ── */
-            $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
          }
 
-         $html .= '</body></html>';
+         $html .= '</table>';
 
          return response($html, 200, [
-            'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Type'        => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma'              => 'no-cache',
-            'Expires'             => '0',
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
          ]);
       }
    }
@@ -1386,19 +1247,13 @@ class PdfController extends commonController
    {
       $list = $this->brokerbillinvoiceModel
          ::leftJoin('broker_bill_payment_details', function ($join) {
-            $join->on('broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
-               ->where('broker_bill_payment_details.is_deleted', 0);
+               $join->on('broker_bill_payment_details.inv_id', '=', 'broker_bill_invoice.id')
+                  ->where('broker_bill_payment_details.is_deleted', 0);
          })
-         ->leftJoin('company_garden', 'company_garden.company_id', '=', 'broker_bill_invoice.garden_company_id')
-         ->leftJoin('broker_purchases', function ($join) {
-            $join->on('broker_purchases.brokerbill_no', '=', 'broker_bill_invoice.id')
-               ->where('broker_purchases.is_deleted', 0);
-         })
-         ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
          ->leftJoin('companymasters', 'companymasters.id', '=', 'broker_bill_invoice.garden_company_id')
          ->where('broker_bill_invoice.is_deleted', 0);
 
-      // ── Standard column filters (garden excluded — it lives in broker_purchases) ──
+      // ── Standard column filters ──
       $filters = [
          'filter_payment_status' => 'broker_bill_invoice.status',
          'filter_company'        => 'broker_bill_invoice.garden_company_id',
@@ -1409,126 +1264,150 @@ class PdfController extends commonController
       foreach ($filters as $requestKey => $column) {
          $value = $request->$requestKey;
 
-         if (isset($value) && $value !== '') {
-            if ($requestKey == 'filter_date_from' || $requestKey == 'filter_date_to') {
-               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
-               $list->where($column, $operator, $value);
-            } elseif (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
-               $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
-               $list->whereDate($column, $operator, $value);
-            } else {
-               if (is_array($value)) {
-                  $list->whereIn($column, $value);
-               } else {
-                  $list->where($column, $value);
-               }
-            }
+         if (!isset($value) || $value === '') {
+               continue;
+         }
+
+         $isDate = in_array($requestKey, ['filter_date_from', 'filter_date_to']);
+
+         if ($isDate) {
+               $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
+               $list->whereDate($column, $operator, $value); // fix: was using `where` for dates
+         } elseif (is_array($value)) {
+               $list->whereIn($column, $value);
+         } else {
+               $list->where($column, $value);
          }
       }
 
-      // ── Garden filter — garden_id is in broker_purchases, not broker_bill_invoice ──
-      // Subquery: find all broker_bill_invoice.id values that have a matching
-      // broker_purchases row for the selected garden_id(s) via brokerbill_no.
-      if (!empty($request->filter_garden) && $request->filter_garden !== '') {
-         $gardenIds = (array) $request->filter_garden; // handles single value or array
+      // ── Garden filter ──
+      if (!empty($request->filter_garden)) {
+         $gardenIds = (array) $request->filter_garden;
 
          $list->whereIn('broker_bill_invoice.id', function ($query) use ($gardenIds) {
-            $query->select('brokerbill_no')
-               ->from('broker_purchases')
-               ->whereIn('garden_id', $gardenIds)
-               ->where('is_deleted', 0)
-               ->whereNotNull('brokerbill_no');
+               $query->select('brokerbill_no')
+                  ->from('broker_purchases')
+                  ->whereIn('garden_id', $gardenIds)
+                  ->where('is_deleted', 0)
+                  ->whereNotNull('brokerbill_no');
          });
       }
-      if (!empty($request->filter_buyer) && $request->filter_buyer !== '') {
+
+      // ── Buyer filter ──
+      if (!empty($request->filter_buyer)) {
          $buyerIds = (array) $request->filter_buyer;
 
          $list->whereIn('broker_bill_invoice.id', function ($query) use ($buyerIds) {
-            $query->select('bp.brokerbill_no')
-               ->from('broker_purchases as bp')
-               ->leftJoin('order_details as od', 'od.id', '=', 'bp.order_detail_id')
-               ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
-               ->whereIn('o.buyer_party', $buyerIds)
-               ->where('bp.is_deleted', 0)
-               ->whereNotNull('bp.brokerbill_no');
+               $query->select('bp.brokerbill_no')
+                  ->from('broker_purchases as bp')
+                  ->leftJoin('order_details as od', 'od.id', '=', 'bp.order_detail_id')
+                  ->leftJoin('orders as o', 'o.id', '=', 'od.order_id')
+                  ->whereIn('o.buyer_party', $buyerIds)
+                  ->where('bp.is_deleted', 0)
+                  ->whereNotNull('bp.brokerbill_no');
          });
       }
       $list = $list
          ->select(
-            'broker_bill_invoice.id as invoice_id',
-            'broker_bill_invoice.invoice_no',
-            'broker_bill_invoice.invoice_date',
-            'broker_bill_invoice.totalamount',
-            'broker_bill_invoice.igst',
-            'broker_bill_invoice.cgst',
-            'broker_bill_invoice.sgst',
-            'broker_bill_invoice.grand_total',
-            'broker_bill_invoice.status',
-            'broker_bill_invoice.from_date',
-            'broker_bill_invoice.to_date',
-            'gardens.garden_name as garden_name',
-            'broker_bill_payment_details.receipt_number',
-            'broker_bill_payment_details.transaction_id',
-            'broker_bill_payment_details.datetime',
-            'broker_bill_payment_details.paid_by',
-            'broker_bill_payment_details.paid_type',
-            'broker_bill_payment_details.paid_amount',
-            'broker_bill_payment_details.pending_amount',
-            'companymasters.company_name',
-            DB::raw("(SELECT GROUP_CONCAT(DISTINCT invoice_no ORDER BY id SEPARATOR ', ')
-                      FROM broker_purchases
-                      WHERE brokerbill_no = broker_bill_invoice.id) as lot_no"),
-            DB::raw("(SELECT GROUP_CONCAT(DISTINCT g.garden_name ORDER BY bp.id SEPARATOR ', ')
-                      FROM broker_purchases bp
-                      LEFT JOIN gardens g ON g.id = bp.garden_id
-                      WHERE bp.brokerbill_no = broker_bill_invoice.id) as garden_names"),
-            DB::raw("(SELECT ROUND(SUM(net_kg), 2)
-                      FROM broker_purchases
-                      WHERE brokerbill_no = broker_bill_invoice.id) as net_kg"),
-            DB::raw("(SELECT GROUP_CONCAT(DISTINCT brokerage ORDER BY id SEPARATOR ', ')
-                      FROM broker_purchases
-                      WHERE brokerbill_no = broker_bill_invoice.id) as brokerage"),
-            DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
-                     FROM broker_purchases bp
-                     LEFT JOIN order_details od ON od.id = bp.order_detail_id
-                     LEFT JOIN orders o ON o.id = od.order_id
-                     LEFT JOIN partys p ON p.id = o.buyer_party
-                     WHERE bp.brokerbill_no = broker_bill_invoice.id
-                     AND bp.is_deleted = 0
-                  ) as buyer_names"),
-            DB::raw("(SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
-                     FROM broker_purchases bp
-                     LEFT JOIN order_details od ON od.id = bp.order_detail_id
-                     LEFT JOIN orders o ON o.id = od.order_id
-                     LEFT JOIN partys p ON p.id = o.buyer_party
-                     WHERE bp.brokerbill_no = broker_bill_invoice.id
-                     AND bp.is_deleted = 0
-                  ) as buyer_names"),
+               'broker_bill_invoice.id as invoice_id',
+               'broker_bill_invoice.invoice_no',
+               'broker_bill_invoice.invoice_date',
+               'broker_bill_invoice.totalamount',
+               'broker_bill_invoice.igst',
+               'broker_bill_invoice.cgst',
+               'broker_bill_invoice.sgst',
+               'broker_bill_invoice.grand_total',
+               'broker_bill_invoice.status',
+               'broker_bill_invoice.from_date',
+               'broker_bill_invoice.to_date',
+               'broker_bill_payment_details.receipt_number',
+               'broker_bill_payment_details.transaction_id',
+               'broker_bill_payment_details.datetime',
+               'broker_bill_payment_details.paid_by',
+               'broker_bill_payment_details.paid_type',
+               'broker_bill_payment_details.paid_amount',
+               'broker_bill_payment_details.pending_amount',
+               'companymasters.company_name',
+
+               // Lot numbers from broker_purchases
+               DB::raw("(
+                  SELECT GROUP_CONCAT(DISTINCT invoice_no ORDER BY id SEPARATOR ', ')
+                  FROM broker_purchases
+                  WHERE brokerbill_no = broker_bill_invoice.id
+                  AND is_deleted = 0
+               ) as lot_no"),
+
+               // Garden names from broker_purchases
+               DB::raw("(
+                  SELECT GROUP_CONCAT(DISTINCT g.garden_name ORDER BY bp.id SEPARATOR ', ')
+                  FROM broker_purchases bp
+                  LEFT JOIN gardens g ON g.id = bp.garden_id
+                  WHERE bp.brokerbill_no = broker_bill_invoice.id
+                  AND bp.is_deleted = 0
+               ) as garden_names"),
+
+               // Net KG
+               DB::raw("(
+                  SELECT ROUND(SUM(net_kg), 2)
+                  FROM broker_purchases
+                  WHERE brokerbill_no = broker_bill_invoice.id
+                  AND is_deleted = 0
+               ) as net_kg"),
+
+               // Brokerage
+               DB::raw("(
+                  SELECT GROUP_CONCAT(DISTINCT brokerage ORDER BY id SEPARATOR ', ')
+                  FROM broker_purchases
+                  WHERE brokerbill_no = broker_bill_invoice.id
+                  AND is_deleted = 0
+               ) as brokerage"),
+
+               // Buyer names — fix: removed duplicate subquery
+               DB::raw("(
+                  SELECT GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ', ')
+                  FROM broker_purchases bp
+                  LEFT JOIN order_details od ON od.id = bp.order_detail_id
+                  LEFT JOIN orders o ON o.id = od.order_id
+                  LEFT JOIN partys p ON p.id = o.buyer_party
+                  WHERE bp.brokerbill_no = broker_bill_invoice.id
+                  AND bp.is_deleted = 0
+               ) as buyer_names"),
+
+               // Buyer IDs — fix: was used in map() but never selected
+               DB::raw("(
+                  SELECT GROUP_CONCAT(DISTINCT o.buyer_party ORDER BY o.buyer_party SEPARATOR ', ')
+                  FROM broker_purchases bp
+                  LEFT JOIN order_details od ON od.id = bp.order_detail_id
+                  LEFT JOIN orders o ON o.id = od.order_id
+                  WHERE bp.brokerbill_no = broker_bill_invoice.id
+                  AND bp.is_deleted = 0
+               ) as buyer_ids"),
          )
          ->get()
          ->groupBy('invoice_id')
          ->map(function ($rows, $invoiceId) {
-            $first = $rows->first();
-            return [
-               'id'           => $invoiceId,
-               'invoice_no'   => $first->invoice_no,
-               'invoice_date' => $first->invoice_date,
-               'totalamount'  => $first->totalamount,
-               'igst'         => $first->igst,
-               'cgst'         => $first->cgst,
-               'sgst'         => $first->sgst,
-               'grand_total'  => $first->grand_total,
-               'status'       => $first->status,
-               'from_date'    => $first->from_date,
-               'to_date'      => $first->to_date,
-               'garden_name'  => $first->garden_names,
-               'company_name' => $first->company_name,
-               'net_kg'       => $first->net_kg,
-               'brokerage'    => $first->brokerage,
-               'buyer_names' => $first->buyer_names,
-               'buyer_ids'   => $first->buyer_ids,
-               'details'      => $rows->map(function ($item) {
-                  return [
+               $first = $rows->first();
+
+               return [
+                  'id'           => $invoiceId,
+                  'invoice_no'   => $first->invoice_no,
+                  'invoice_date' => $first->invoice_date,
+                  'totalamount'  => $first->totalamount,
+                  'igst'         => $first->igst,
+                  'cgst'         => $first->cgst,
+                  'sgst'         => $first->sgst,
+                  'grand_total'  => $first->grand_total,
+                  'status'       => $first->status,
+                  'from_date'    => $first->from_date,
+                  'to_date'      => $first->to_date,
+                  'lot_no'       => $first->lot_no,       // fix: was selected but never returned
+                  'garden_name'  => $first->garden_names,
+                  'company_name' => $first->company_name,
+                  'net_kg'       => $first->net_kg,
+                  'brokerage'    => $first->brokerage,
+                  'buyer_names'  => $first->buyer_names,
+                  'buyer_ids'    => $first->buyer_ids,    // fix: now properly selected above
+                  'details'      => $rows->map(fn($item) => [
                      'receipt_number' => $item->receipt_number,
                      'transaction_id' => $item->transaction_id,
                      'datetime'       => $item->datetime,
@@ -1536,297 +1415,138 @@ class PdfController extends commonController
                      'paid_type'      => $item->paid_type,
                      'paid_amount'    => $item->paid_amount,
                      'pending_amount' => $item->pending_amount,
-                  ];
-               })->toArray(),
-            ];
+                  ])->toArray(),
+               ];
          })
          ->values();
       // dd($list);
       if ($list->isEmpty()) {
-         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
-      }
-      if (($request->type ?? 'pdf') === 'pdf') {
-      $options = [
-         'isPhpEnabled' => true,
-         'isHtml5ParserEnabled' => true,
-         'isRemoteEnabled' => true,
-      ];
-
-      $gardenNames = $list->pluck('garden_name')->unique()->values();
-
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.outstanding', ["list" => $list, 'gardenNames' => $gardenNames])->setPaper('a4', 'portrait');
-
-      if ($gardenNames->count() === 1) {
-         $name = $gardenNames[0];
-      } else {
-         $name = $gardenNames->implode('-');
+         return $this->successresponse(500, 'message', 'Not generate PDF — data is empty!');
       }
 
-      //return view($this->version . '.admin.PDF.outstanding', ["list" => $list]);
-      // return $pdf->download($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      // return $pdf->stream($name . '-Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
-      return $pdf->stream('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
+      $type = $request->type ?? 'pdf';
+
+      // ── PDF Export ──
+      if ($type === 'pdf') {
+         $options = [
+               'isPhpEnabled'       => true,
+               'isHtml5ParserEnabled' => true,
+               'isRemoteEnabled'    => true,
+         ];
+
+         $gardenNames = $list->pluck('garden_name')->unique()->values();
+
+         $pdf = PDF::setOptions($options)
+               ->loadView($this->version . '.admin.PDF.outstanding', [
+                  'list'        => $list,
+                  'gardenNames' => $gardenNames,
+               ])
+               ->setPaper('a4', 'portrait');
+
+         $name = $gardenNames->count() === 1
+               ? $gardenNames[0]
+               : $gardenNames->implode('-');
+
+         return $pdf->stream('Garden_Outstanding_' . date('Y-m-d_H-i-s') . '.pdf');
       }
-     if ($request->type === 'excel') {
-    $filename = 'Outstanding-Report-' . date('Y-m-d') . '.xls';
 
-    $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"';
-    $html .= ' xmlns:x="urn:schemas-microsoft-com:office:excel">';
-    $html .= '<head><meta charset="UTF-8">';
-    $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
-    $html .= '<x:ExcelWorksheet><x:Name>Outstanding Report</x:Name>';
-    $html .= '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
-    $html .= '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-    $html .= '<style>
-        body  { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 0; }
+      // ── Excel Export ──
+      if ($type === 'excel') {
+         $filename = 'Outstanding-Report-' . date('Y-m-d') . '.xls';
 
-        /* ── Page header ── */
-        .company-name { font-size: 16px; font-weight: bold; color: #000; }
-        .company-sub  { font-size: 10px; color: #444; line-height: 1.6; }
-        .date-cell    { text-align: right; font-size: 11px; vertical-align: top; }
+         $html  = '<table border="1" cellpadding="5" cellspacing="0">';
+         $html .= '<tr>
+               <th colspan="15" style="font-size:30px; font-weight:bold; text-align:center;">
+                  Outstanding - Date: ' . date('d-m-Y') . '
+               </th>
+         </tr>';
 
-        /* ── Report title ── */
-        .page-title {
-            font-size: 15px; font-weight: bold; text-align: center;
-            text-transform: uppercase; background-color: #f9f9f9;
-            border-top: 1px solid #eeeeee; border-bottom: 1px solid #eeeeee;
-            padding: 10px; letter-spacing: 1px;
-        }
+         $html .= '<tr style="background:#f0f0f0; font-weight:bold;">
+               <th>#</th>
+               <th>Invoice No</th>
+               <th>Invoice Date</th>
+               <th>Company</th>
+               <th>Garden</th>
+               <th>Buyer</th>
+               <th>Net KG</th>
+               <th>Brokerage (%)</th>
+               <th>Payment Date</th>
+               <th>Receipt No</th>
+               <th>Transaction ID</th>
+               <th>Paid By</th>
+               <th>Type</th>
+               <th>Paid Amt</th>
+               <th>Balance</th>
+         </tr>';
 
-        /* ── Invoice box header row 1 (Company | Gardens) ── */
-        .inv-header-1 td {
-            background-color: #f4f7f9;
-            border: 1px solid #999999;
-            padding: 7px 10px;
-            font-weight: bold;
-            font-size: 12px;
-        }
+         $srNo = 1;
 
-        /* ── Invoice box header row 2 (Invoice # | Buyers) ── */
-        .inv-header-2 td {
-            background-color: #f4f7f9;
-            border: 1px solid #999999;
-            border-top: none;
-            padding: 6px 10px;
-            font-weight: bold;
-            font-size: 12px;
-        }
+         foreach ($list as $invoice) {
+               $grandTotal = $invoice['grand_total'] ?? 0;
 
-        /* ── Invoice meta ── */
-        .inv-meta td {
-            background-color: #ffffff;
-            border-left: 1px solid #e0e0e0;
-            border-right: 1px solid #e0e0e0;
-            border-bottom: 1px solid #eeeeee;
-            padding: 5px 10px;
-            font-size: 10px;
-            color: #666666;
-        }
+               // fix: calculate $due once per invoice, not per payment row
+               $totalPaid = collect($invoice['details'] ?? [])
+                  ->sum('paid_amount');
 
-        /* ── Column headers ── */
-        .col-th {
-            background-color: #fcfcfc;
-            color: #555555;
-            font-weight: bold;
-            font-size: 9px;
-            text-transform: uppercase;
-            border-bottom: 1px solid #444444;
-            border-top: 1px solid #e0e0e0;
-            border-left: 1px solid #e0e0e0;
-            border-right: 1px solid #e0e0e0;
-            padding: 7px 5px;
-            text-align: left;
-        }
-        .col-th-right {
-            background-color: #fcfcfc;
-            color: #555555;
-            font-weight: bold;
-            font-size: 9px;
-            text-transform: uppercase;
-            border-bottom: 1px solid #444444;
-            border-top: 1px solid #e0e0e0;
-            border-left: 1px solid #e0e0e0;
-            border-right: 1px solid #e0e0e0;
-            padding: 7px 5px;
-            text-align: right;
-        }
+               $due = $grandTotal - $totalPaid;
 
-        /* ── Data rows ── */
-        .data-td {
-            border: 1px solid #eeeeee;
-            padding: 7px 5px;
-            vertical-align: top;
-            font-size: 11px;
-        }
-        .data-td-right {
-            border: 1px solid #eeeeee;
-            padding: 7px 5px;
-            text-align: right;
-            vertical-align: top;
-            font-size: 11px;
-        }
+               $payments = array_values(array_filter(
+                  $invoice['details'] ?? [],
+                  fn($d) => !empty($d['receipt_number'])
+               ));
 
-        /* ── No payments ── */
-        .no-payment-row td {
-            text-align: center;
-            border: 1px solid #eeeeee;
-            padding: 7px 5px;
-            color: #999999;
-            font-size: 11px;
-        }
+               $baseRow = [
+                  $invoice['invoice_no']   ?? '-',
+                  $invoice['invoice_date'] ?? '-',
+                  $invoice['company_name'] ?? '-',
+                  $invoice['garden_name']  ?? '-',
+                  $invoice['buyer_names']  ?? '-',
+                  $invoice['net_kg']       ?? 0,
+                  ($invoice['brokerage']   ?? 0) . '%',
+               ];
 
-        /* ── Total outstanding row ── */
-        .total-row td {
-            border: 1px solid #e0e0e0;
-            padding: 7px 5px;
-            font-size: 12px;
-            font-weight: bold;
-            background-color: #fafafa;
-        }
-        .due-pending { color: #d9534f; font-weight: bold; }
-        .due-paid    { color: #2e7d32; font-weight: bold; }
+               if (empty($payments)) {
+                  $html .= '<tr>
+                     <td>' . $srNo++ . '</td>
+                     <td>' . implode('</td><td>', $baseRow) . '</td>
+                     <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                     <td>0</td>
+                     <td>' . $due . '</td>
+                  </tr>';
+               } else {
+                  foreach ($payments as $detail) {
+                     $paymentDate = '-';
 
-        /* ── Gap between invoice blocks ── */
-        .gap-row td { border: none; padding: 10px; background: #ffffff; }
+                     if (!empty($detail['datetime'])) {
+                           try {
+                              $paymentDate = \Carbon\Carbon::parse($detail['datetime'])->format('d-m-Y');
+                           } catch (\Exception $e) {
+                              $paymentDate = '-';
+                           }
+                     }
 
-        /* ── Footer ── */
-        .footer-td { font-size: 10px; color: #999999; border-top: 1px solid #eeeeee; padding-top: 6px; }
-    </style></head><body>';
+                     $html .= '<tr>
+                           <td>' . $srNo++ . '</td>
+                           <td>' . implode('</td><td>', $baseRow) . '</td>
+                           <td>' . $paymentDate . '</td>
+                           <td>' . ($detail['receipt_number'] ?? '-') . '</td>
+                           <td>' . ($detail['transaction_id']  ?? '-') . '</td>
+                           <td>' . ($detail['paid_by']         ?? '-') . '</td>
+                           <td>' . ($detail['paid_type']       ?? '-') . '</td>
+                           <td>' . ($detail['paid_amount']     ?? 0)   . '</td>
+                           <td>' . ($detail['pending_amount']  ?? $due). '</td>
+                     </tr>';
+                  }
+               }
+         }
 
-    /* ════════════════════════════════
-       PAGE HEADER
-    ════════════════════════════════ */
-    $html .= '<table>
-        <tr>
-            <td class="date-cell" colspan="7" text-align="center">Date: ' . date('d-m-Y') . '</td>
-        </tr>
-    </table>';
+         $html .= '</table>';
 
-    /* ── Report Title ── */
-    $html .= '<table style="margin-top:12px; margin-bottom:16px;">
-        <tr><td class="page-title" colspan="7">Outstanding Report</td></tr>
-    </table>';
-
-    /* ════════════════════════════════
-       INVOICE BLOCKS
-    ════════════════════════════════ */
-    foreach ($list as $invoice) {
-
-        /* ── Calculate totals ── */
-        $totalPaid = 0;
-        foreach ($invoice['details'] ?? [] as $pmt) {
-            $totalPaid += $pmt['paid_amount'] ?? 0;
-        }
-        $due          = ($invoice['grand_total'] ?? 0) - $totalPaid;
-        $dueClass     = $due == 0 ? 'due-paid' : 'due-pending';
-        $dueFormatted = function_exists('formatINR') ? formatINR($due)                        : number_format($due, 2);
-        $grandFmt     = function_exists('formatINR') ? formatINR($invoice['grand_total'] ?? 0) : number_format($invoice['grand_total'] ?? 0, 2);
-
-        /* ── Invoice date ── */
-        $invDate = '-';
-        if (!empty($invoice['invoice_date'])) {
-            try { $invDate = \Carbon\Carbon::parse($invoice['invoice_date'])->format('d-m-Y'); } catch (\Exception $e) {}
-        }
-
-        /* ── Header row 1: Company | Gardens ── */
-        $html .= '<table style="margin-bottom:0;">
-            <tr class="inv-header-1">
-                <td width="50%" colspan="2">Company: ' . htmlspecialchars($invoice['company_name'] ?? '-') . '</td>
-                <td width="50%" style="text-align:right;" colspan="5">Gardens: ' . htmlspecialchars($invoice['garden_name'] ?? '-') . '</td>
-            </tr>
-        </table>';
-
-        /* ── Header row 2: Invoice # | Buyers ── */
-        $html .= '<table style="margin-bottom:0;">
-            <tr class="inv-header-2">
-                <td width="50%" colspan="2">Invoice #' . htmlspecialchars($invoice['invoice_no'] ?? '-') . '</td>
-                <td width="50%" style="text-align:right;" colspan="5">Buyers: ' . htmlspecialchars($invoice['buyer_names'] ?? '-') . '</td>
-            </tr>
-        </table>';
-
-        /* ── Meta row ── */
-        $html .= '<table style="margin-bottom:0;">
-            <tr class="inv-meta">
-                <td colspan="7">
-                    <b>Date:</b> ' . $invDate . ' &nbsp;|&nbsp;
-                    <b>IGST:</b> '      . htmlspecialchars($invoice['igst']      ?? '0.00') . ' &nbsp;|&nbsp;
-                    <b>CGST:</b> '      . htmlspecialchars($invoice['cgst']      ?? '0.00') . ' &nbsp;|&nbsp;
-                    <b>SGST:</b> '      . htmlspecialchars($invoice['sgst']      ?? '0.00') . ' &nbsp;|&nbsp;
-                    <b>Status:</b> '    . strtoupper(htmlspecialchars($invoice['status']    ?? '-')) . ' &nbsp;|&nbsp;
-                    <b>Net Kg:</b> '    . htmlspecialchars($invoice['net_kg']    ?? '0.00') . ' &nbsp;|&nbsp;
-                    <b>Brokerage:</b> ' . htmlspecialchars($invoice['brokerage'] ?? '0.00') . ' &nbsp;|&nbsp;
-                    <b>Total Amount:</b> ' . $grandFmt . '
-                </td>
-            </tr>
-        </table>';
-
-        /* ── Payment table ── */
-        $html .= '<table style="margin-bottom:0;">
-            <tr>
-                <th class="col-th"       width="13%">Payment Date</th>
-                <th class="col-th"       width="13%">Receipt No.</th>
-                <th class="col-th"       width="18%">Transaction ID</th>
-                <th class="col-th"       width="14%">Paid By</th>
-                <th class="col-th"       width="10%">Type</th>
-                <th class="col-th"       width="12%">Paid Amt</th>
-                <th class="col-th-right" width="12%">Balance</th>
-            </tr>';
-
-        /* ── Filter valid payments (has receipt_number) ── */
-        $payments = array_values(array_filter(
-            $invoice['details'] ?? [],
-            fn($d) => !empty($d['receipt_number'])
-        ));
-
-        if (count($payments) === 0) {
-            $html .= '<tr class="no-payment-row">
-                <td colspan="7">No payments available</td>
-            </tr>';
-        } else {
-            foreach ($payments as $detail) {
-                $pmtDate = '-';
-                if (!empty($detail['datetime'])) {
-                    try { $pmtDate = \Carbon\Carbon::parse($detail['datetime'])->format('d-m-Y'); } catch (\Exception $e) {}
-                }
-                $paidFmt    = function_exists('formatINR') ? formatINR($detail['paid_amount']    ?? 0) : number_format($detail['paid_amount']    ?? 0, 2);
-                $pendingFmt = function_exists('formatINR') ? formatINR($detail['pending_amount'] ?? 0) : number_format($detail['pending_amount'] ?? 0, 2);
-
-                $html .= '<tr>
-                    <td class="data-td">'       . $pmtDate . '</td>
-                    <td class="data-td">'       . htmlspecialchars($detail['receipt_number'] ?? '-') . '</td>
-                    <td class="data-td"><small>' . htmlspecialchars($detail['transaction_id'] ?? '-') . '</small></td>
-                    <td class="data-td">'       . htmlspecialchars($detail['paid_by']         ?? '-') . '</td>
-                    <td class="data-td">'       . htmlspecialchars($detail['paid_type']       ?? '-') . '</td>
-                    <td class="data-td">'       . $paidFmt    . '</td>
-                    <td class="data-td-right">' . $pendingFmt . '</td>
-                </tr>';
-            }
-        }
-
-        /* ── Total Outstanding row ── */
-        $html .= '<tr class="total-row">
-            <td colspan="6" style="text-align:right;"><b>Total Outstanding</b></td>
-            <td style="text-align:right; border:1px solid #e0e0e0; padding:7px 5px; font-weight:bold;">
-                <span class="' . $dueClass . '">' . $dueFormatted . '</span>
-            </td>
-        </tr>';
-
-        $html .= '</table>';
-
-        /* ── Gap between blocks ── */
-        $html .= '<table><tr class="gap-row"><td>&nbsp;</td></tr></table>';
-    }
-    $html .= '</body></html>';
-
-    return response($html, 200, [
-        'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
-        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        'Pragma'              => 'no-cache',
-        'Expires'             => '0',
-        'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-    ]);
-}
+         return response($html, 200, [
+               'Content-Type'        => 'application/vnd.ms-excel',
+               'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+         ]);
+      }
    }
 
    // public function leger(Request $request)
@@ -2296,9 +2016,6 @@ class PdfController extends commonController
                'invoices.is_active',
                'invoices.is_deleted',
                'invoices.is_editable',
-               'invoices.commission',
-               'invoices.third_party_invoice',
-             
          );
 
       $filters = [
@@ -2505,6 +2222,10 @@ class PdfController extends commonController
    public function orderpdf($id)
    {
       $order = $this->orderModel::find($id);
+      if (!$order) {
+         session()->flash('custom_error_message', 'Order not found');
+         abort('404');
+      }
       $order_details = $this->order_detailModel::where('order_details.order_id', $id)
          ->leftJoin('gardens', 'gardens.id', '=', 'order_details.garden_id')
          ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
@@ -2563,4 +2284,236 @@ class PdfController extends commonController
       // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream('Order Pdf:-' . $id .'Order Date:-'. $order['order']->order_date.'.pdf');
    }
+
+   public function samplereport(Request $request)
+   {
+      // dd($request->all());
+      $brokerpurchase = $this->brokerpurchaseModel
+            ::leftJoin('grades', 'grades.id', '=', 'broker_purchases.grade')
+            ->leftJoin('gardens', 'gardens.id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'broker_purchases.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->leftJoin('order_details', function ($join) {
+                $join->on('order_details.garden_id', '=', 'broker_purchases.garden_id')
+                    ->on('order_details.id', '=', 'broker_purchases.order_detail_id');
+            })
+            ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+            ->leftJoin('partys as buyer', 'buyer.id', '=', 'orders.buyer_party')
+            ->leftJoin('partys as transporter', 'transporter.id', '=', 'orders.transport')
+            ->where('broker_purchases.source', 'purchase')
+            ->where('broker_purchases.is_deleted', 0);
+        $filters = [
+            'filter_company'      => 'companymasters.id',
+            'filter_buyer'        => 'orders.buyer_party',
+            'filter_garden'       => 'broker_purchases.garden_id',
+            'filter_grade'        => 'broker_purchases.grade',
+            'filter_net_kg_from'  => 'broker_purchases.net_kg',
+            'filter_net_kg_to'    => 'broker_purchases.net_kg',
+            'filter_bags_from'    => 'broker_purchases.bags',
+            'filter_bags_to'      => 'broker_purchases.bags',
+            'filter_from_date'    => 'broker_purchases.created_at',
+            'filter_to_date'      => 'broker_purchases.created_at',
+        ];
+
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+
+            if (isset($value)) {
+                if ($requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' || $requestKey == 'filter_bags_from' || $requestKey == 'filter_bags_to') {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $brokerpurchase->where($column, $operator, $value);
+                } else if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $brokerpurchase->whereDate($column, $operator, $value);
+                } else {
+
+                    $brokerpurchase->whereIn($column, $value);
+                }
+            }
+        }
+
+        $brokerpurchase = $brokerpurchase
+            ->select(
+
+                'broker_purchases.*',
+                'grades.grade as grade_name',
+                'gardens.garden_name as garden_name',
+                'companymasters.company_name',
+                'companymasters.id as company_id',
+                'orders.id as order_id',
+                'orders.buyer_party',
+                'orders.transport',
+                'buyer.name as buyer_name',
+                'transporter.name as transport_name'
+            )
+            ->get();
+       if ($brokerpurchase->isEmpty()) {
+         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+      }
+      if (($request->type ?? 'pdf') === 'pdf') {
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+      // dd($brokerpurchase);
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.samplereport', ["brokerpurchase" => $brokerpurchase])->setPaper('a4', 'portrait');
+      //return view($this->version . '.admin.PDF.orderpdf', ["order" => $order]);
+      // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('Sample Report.pdf');
+      }
+      if($request->type ?? 'excel' === 'excel')
+      {
+         $filename = 'Sample-Report-' . date('Y-m-d') . '.xls';
+
+         $html  = '<table border="1" cellpadding="5" cellspacing="0">';
+         $html .= '<tr>
+                  <th colspan="9" style="font-size:30px; font-weight:bold; text-align:center;">
+                     Sample - Date: '.date('d-m-Y').'
+                  </th>
+               </tr>';
+         // Header Row
+         $html .= '<tr style="background-color:#f0f0f0; font-weight:bold;">
+            <th>ID</th>
+            <th>Company</th>
+            <th>Buyer</th>
+            <th>Transport</th>
+            <th>Garden</th>
+            <th>Invoice No</th>
+            <th>Grade</th>
+            <th>Bags</th>
+            <th>Net KG</th>
+         </tr>';
+         $srNo = 1;
+         // Data Rows
+         foreach ($brokerpurchase as $brokerpurchase) {
+           
+
+                  $html .= '<tr>
+                     <td>' .  $srNo++ . '</td>
+                     <td>' . $brokerpurchase['company_name'] . '</td>
+                     <td>' . $brokerpurchase['buyer_name'] . '</td>
+                     <td>' . $brokerpurchase['transport_name'] . '</td>
+                     <td>' . $brokerpurchase['garden_name'] . '</td>
+                     <td>' . $brokerpurchase['invoice_no'] . '</td>
+                     <td>' . $brokerpurchase['grade_name'] . '</td>
+                     <td>' . $brokerpurchase['bags'] . '</td>
+                     <td>' . $brokerpurchase['net_kg'] . '</td>
+                  </tr>';
+            
+         }
+
+         $html .= '</table>';
+
+         return response($html, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+         ]);
+      }
+   }
+  public function samplepurchase(Request $request, $id)
+{
+    // 1. Get broker purchase
+    $brokerPurchase = $this->brokerpurchaseModel::find($id);
+
+    if (!$brokerPurchase) {
+         session()->flash('custom_error_message', 'Sample Purchase not found');
+         abort('404');
+    }
+
+    // 2. Get order_id from order_detail
+    $orderDetail = $this->order_detailModel::find($brokerPurchase->order_detail_id);
+
+    if (!$orderDetail) {
+        session()->flash('custom_error_message', 'Order detail not found');
+        abort('404');
+    }
+
+    $orderId = $orderDetail->order_id;
+
+    // 3. ALL order details of this order
+    $orderDetailIds = $this->order_detailModel::where('order_id', $orderId)
+        ->pluck('id')
+        ->values();
+
+    // 4. SAMPLE order details ONLY for this order
+    $sampleOrderDetailIds = $this->brokerpurchaseModel::whereIn('order_detail_id', $orderDetailIds)->where('source','purchase')
+        ->pluck('order_detail_id')
+        ->unique()
+        ->values();
+
+    // 5. NOT IN SAMPLE
+    $notInSample = $orderDetailIds->diff($sampleOrderDetailIds)->values();
+
+    $orderDetailIdsArray = $orderDetailIds->toArray();
+    $sampleOrderDetailIdsArray = $sampleOrderDetailIds->toArray();
+     
+    // return response()->json([
+    //     'order_detail_ids' => $orderDetailIdsArray,
+    //     'sample_order_detail_ids' => $sampleOrderDetailIds,
+    //     'not_in_sample' => $notInSample
+    // ]);
+      $order = $this->orderModel::find($orderId);
+       if (!$order) {
+         return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
+      }
+      $order_details = $this->order_detailModel::whereIn('order_details.id', $sampleOrderDetailIds)
+         ->leftJoin('gardens', 'gardens.id', '=', 'order_details.garden_id')
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->leftJoin('grades', 'grades.id', '=', 'order_details.grade')
+         ->select(
+            'order_details.*',
+            'gardens.garden_name',
+            'grades.grade as grade_name',
+            'companymasters.id as company_id',
+            'companymasters.company_name'
+         )
+         ->orderBy('order_details.id', 'desc')
+         ->get();
+      $buyer_details = $this->partyModel::where('partys.id', $order->buyer_party)
+         ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+         ->leftJoin($this->masterdbname . '.state',   'partys.state_id',   '=', $this->masterdbname . '.state.id')
+         ->leftJoin($this->masterdbname . '.city',    'partys.city_id',    '=', $this->masterdbname . '.city.id')
+         ->select(
+            'partys.*',
+            $this->masterdbname . '.country.country_name as country_name',
+            $this->masterdbname . '.state.state_name as state_name',
+            $this->masterdbname . '.city.city_name as city_name'
+         )
+         ->first();
+
+      if ($order->transport) {
+         $transport_details = $this->partyModel::where('partys.id', $order->transport)
+            ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state',   'partys.state_id',   '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city',    'partys.city_id',    '=', $this->masterdbname . '.city.id')
+            ->select(
+               'partys.*',
+               $this->masterdbname . '.country.country_name as country_name',
+               $this->masterdbname . '.state.state_name as state_name',
+               $this->masterdbname . '.city.city_name as city_name'
+            )
+            ->first();
+      } else {
+         $transport_details = null;
+      }
+      $order = [
+         'order' => $order,
+         'order_details' => $order_details,
+         'buyer_details' => $buyer_details,
+         'transport_details' => $transport_details
+      ];
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+      // dd($order);
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.PDF.samplepdf', ["order" => $order])->setPaper('a4', 'portrait');
+      //return view($this->version . '.admin.PDF.orderpdf', ["order" => $order]);
+      // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
+      return $pdf->stream('Sample Purchase Pdf:-' . $id.'.pdf');
+}
 }

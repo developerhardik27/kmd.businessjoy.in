@@ -283,7 +283,14 @@
         </button>
     @endif
 </div>
-
+<div class="action-bar">
+    <button class="btn btn-primary" id="pdfBtn">
+        <i class="ri-file-chart-line"></i> Generate Report
+    </button>
+    <button class="btn btn-success" id="excelBtn">
+        <i class="ri-file-excel-2-line"></i> Export Excel
+    </button>
+</div>
 <table id="data" class="table display table-bordered table-striped w-100">
     <thead>
         <tr>
@@ -495,6 +502,7 @@ $('document').ready(function () {
         loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
+            pageLength: 25,
             destroy: true, responsive: true, processing: true, serverSide: true,
             ajax: {
                 type: 'GET', url: "{{ route('brokerpurchase.index') }}",
@@ -514,8 +522,13 @@ $('document').ready(function () {
                     d.filter_to_date     = $('#filter_to_date').val();
                 },
                 dataSrc: function (json) {
-                    if (json.message) Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
-                    global_response = json;
+                     $('#pdfBtn').removeClass('d-none');
+                    $('#excelBtn').removeClass('d-none');
+                    if (json.message) {
+                        Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
+                        $('#pdfBtn').addClass('d-none');
+                        $('#excelBtn').addClass('d-none');
+                    }global_response = json;
                     return json.data;
                 },
                 complete: () => loaderhide(),
@@ -560,6 +573,11 @@ $('document').ready(function () {
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                 <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
                                     <i class="ri-delete-bin-fill"></i></button></span>`;
+                        @endif
+                        @if (session('user_permissions.teamodule.brokerpurchase.view') == '1')
+                            let sampleurl = `{{ route('admin.samplepurchase', '__id__') }}`.replace('__id__', data);
+                            btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Download Sample Purchase Pdf">
+                                <a href="${sampleurl}"><button class="btn btn-success btn-rounded btn-sm my-0"><i class="ri-download-line"></i></button></a></span>`;
                         @endif
                         if (row.invoice_id) {
                             @if (session('user_permissions.invoicemodule.invoice.view') == '1')
@@ -615,7 +633,40 @@ $('document').ready(function () {
             }
         });
     });
+    function exportReport(type) {
+        let params = table.ajax.params();
+        params.filter_net_kg_from = $('#filter_net_kg_from').val();
+        params.filter_net_kg_to   = $('#filter_net_kg_to').val();
+        params.filter_bags_from   = $('#filter_bags_from').val();
+        params.filter_bags_to     = $('#filter_bags_to').val();
+        params.filter_company     = $('#filter_company').val();
+        params.filter_buyer       = $('#filter_buyer').val();
+        params.filter_garden      = $('#filter_garden').val();
+        params.filter_grade       = $('#filter_grade').val();
+        params.filter_from_date   = $('#filter_from_date').val();
+        params.filter_to_date     = $('#filter_to_date').val();
+        params.type               = type;   // <-- key addition
 
+        let url = "{{ route('brokerpurchase.samplereport') }}" + '?' + $.param(params);
+
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('brokerpurchase.samplereport') }}",
+            data: params,
+            success: function () {
+                if (type === 'pdf') {
+                    window.open(url, '_blank');   // stream in new tab
+                } else {
+                    window.location.href = url;   // direct download for excel
+                }
+                loaderhide();
+            },
+            error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
+        });
+    }
+    $('#pdfBtn').on('click',   function () { exportReport('pdf');   });
+    $('#excelBtn').on('click', function () { exportReport('excel'); });
     /* ── Delete ── */
     $(document).on('click', '.del-btn', function () {
         var deleteid = $(this).data('id');

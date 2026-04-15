@@ -46,6 +46,10 @@ class orderController extends commonController
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('broker_purchases', function ($join) {
+                $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
             ->leftJoin('grades', 'grades.id', 'order_details.grade')
             ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
@@ -115,7 +119,8 @@ class orderController extends commonController
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade_name',
                 'companymasters.id as company_id',
-                'companymasters.company_name as company_name'
+                'companymasters.company_name as company_name',
+                'broker_purchases.id as broker_purchase_id',
             )
             ->get()
             ->groupBy('order_id')
@@ -131,7 +136,15 @@ class orderController extends commonController
                 } else {
                     $invoiceStatus = 'Invoices Created';
                 }
+                $sampleIds = $details->pluck('broker_purchase_id');
 
+                if ($sampleIds->every(fn($id) => empty($id))) {
+                    $sampleStatus = 'Pending';
+                } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                    $sampleStatus = 'Half Sample';
+                } else {
+                    $sampleStatus = 'Sample Created';
+                }
                 return [
                     'id'             => $orderId,
                     'buyer_name'     => $first->buyer_name,
@@ -142,7 +155,7 @@ class orderController extends commonController
                     'final_amount'   => $first->finalAmount,
                     'order_date'     => $first->order_date,
                     'invoice_status' => $invoiceStatus, // Invoice status included
-
+                    'sample_status'  => $sampleStatus, // Sample status included
                     'company_names' => $details
                         ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->values()
@@ -193,6 +206,12 @@ class orderController extends commonController
         if (!empty($request->filter_invoice_status) && $request->filter_invoice_status !== '') {
             $status = $request->filter_invoice_status;
             $orderData = $orderData->filter(fn($order) => $order['invoice_status'] === $status)->values();
+        }
+
+        // Apply sample_status filter AFTER grouping
+        if (!empty($request->filter_sample_status) && $request->filter_sample_status !== '') {
+            $status = $request->filter_sample_status;
+            $orderData = $orderData->filter(fn($order) => $order['sample_status'] === $status)->values();
         }
 
         // Return via DataTables

@@ -40,6 +40,7 @@
                     <table class="table table-bordered" id="invoice-details-table">
                         <thead>
                             <tr>
+                                <th>Buyer name</th>
                                 <th>Invoice No</th>
                                 <th>Grade</th>
                                 <th>No of Bags</th>
@@ -211,8 +212,15 @@
                         if (response.status === 200 && response.data.length > 0) {
                             $.each(response.data, function(index, item) {
                                 console.log(item);
+                                $buyername = item.buyer_name;
+                                $color = 'black';
+                                if (!$buyername) {
+                                    $buyername = 'Order Not Select Buyer';
+                                    $color = 'red';
+                                }
                                 $('#invoice-details-table tbody').append(`
                         <tr>
+                            <td style="color: ${$color};">${$buyername}</td>
                             <td>${item.invoice_no}</td>
                             <td>${item.grade_name}</td>
                             <td>${item.bags}</td>
@@ -221,13 +229,13 @@
                         </tr>
                     `);
                                 $('#brokerpurchaseform').append(`
+                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][order_detail_id]" value="${item.order_detail_id}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][invoice_no]" value="${item.invoice_no}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][grade_name]" value="${item.grade_name}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][garde]" value="${item.grade_id}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][bags]" value="${item.bags}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][net_kg]" value="${item.net_kg}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][rate]" value="${item.rate}">
-                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][order_detail_id]" value="${item.order_id}">
                         `);
                             });
                         } else {

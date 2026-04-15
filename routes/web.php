@@ -441,10 +441,12 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 // generate consignor copy pdf 
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
                 Route::get('/generatebrokragebillpdf/{id}', 'generatebrokragebillpdf')->name('brokragbill.generatebrokragebillpdf')->middleware('checkPermission:invoicemodule,invoice,view');
-                Route::get('/orderreport', 'orderreport')->name('brokragbill.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
-                Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,teadashboard,show');
-                Route::get('/ledger', 'leger')->name('invoice.leger')->middleware('checkPermission:teamodule,teadashboard,show');
-                Route::get('/orderpdf/{id}', 'orderpdf')->name('admin.orderpdf')->middleware('checkPermission:teamodule,teadashboard,show');
+                Route::get('/orderreport', 'orderreport')->name('order.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
+                Route::get('/samplereport', 'samplereport')->name('brokerpurchase.samplereport')->middleware('checkPermission:teamodule,brokerpurchase,show');
+                Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,brokeragebill,show');
+                Route::get('/ledger', 'leger')->name('invoice.leger')->middleware('checkPermission:invoicemodule,invoice,show');
+                Route::get('/orderpdf/{id}', 'orderpdf')->name('admin.orderpdf')->middleware('checkPermission:teamodule,order,show');
+                Route::get('/samplepurchase/{id}', 'samplepurchase')->name('admin.samplepurchase')->middleware('checkPermission:teamodule,brokerpurchase,show');
             });
 
             Route::controller(AmazonController::class)->group(function () {

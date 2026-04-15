@@ -539,6 +539,7 @@ $('document').ready(function () {
         loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
+            pageLength: 25,
             destroy: true, responsive: true, processing: true, serverSide: true,
             ajax: {
                 type: 'GET', url: "{{ route('brokeragebill.brokeragebillpdflist') }}",

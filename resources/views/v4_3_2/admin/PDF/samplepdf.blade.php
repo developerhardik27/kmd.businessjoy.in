@@ -12,7 +12,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ config('app.name') }} - Order Pdf</title>
+    <title>{{ config('app.name') }} - Sample Purchase Pdf</title>
     <link rel="stylesheet" href="{{ public_path('admin/css/bootstrap.min.css') }}">
     <style>
         @page {
@@ -162,7 +162,7 @@
                 <table cellspacing=0 cellpadding=0 width="100%" class="border">
                     <tbody>
                         <tr>
-                            <td colspan="3" class="text-center bgblue">Order Pdf</td>
+                            <td colspan="3" class="text-center bgblue">Sample Purchase Pdf</td>
                         </tr>
                         <tr class="blank-row">
                             <td colspan="3"></td>
@@ -170,7 +170,7 @@
                         <tr>
                             {{-- Buyer --}}
                             <td style="width:50%;padding:0;vertical-align:top">
-                                @if (isset($buyer_details))
+                             @if (isset($buyer_details))
                                 <table width="100%">
                                     <tr class="bgblue">
                                         <th class="font-weight-bold bgblue" style="padding-left:10px">Buyer Details</th>
@@ -225,7 +225,7 @@
                                         </tr>
                                     @endif
                                 </table>
-                                @endif
+                            @endif
                             </td>
 
                             <td style="width:10%;"></td>
@@ -330,9 +330,16 @@
                         @php
                             $srno = 0;
                             $minRows = 10;
+                            $subtotal = 0;
                         @endphp
-
+                        @php
+                        $subtotal = collect($order_detias)->sum(fn($row) => $row['amount'] ?? 0);
+                        $discount = $order['discount'] ?? 0;
+                        $discountAmount = ($subtotal * $discount) / 100;
+                        $finalAmount = $subtotal - $discountAmount;
+                    @endphp
                         @foreach ($order_detias as $row)
+                           
                             @php $srno++; @endphp
                             <tr>
                                 <td style="text-align:center;width:4%;">{{ $srno }}</td>
@@ -373,17 +380,18 @@
                         <tr style="font-size:15px;text-align:right;">
                             <td colspan="7" class="text-right left removeborder">Subtotal</td>
                             <td style="width:12%;text-align:right;" class="removeborder">
-                                {{ number_format((float) ($order['totalAmount'] ?? 0), 2) }}
+                                {{ number_format((float) ($subtotal ?? 0), 2) }}
                             </td>
                         </tr>
 
                         @if (!empty($order['discount']) && $order['discount'] > 0)
+                            
                             <tr style="font-size:15px;text-align:right;">
                                 <td colspan="7" class="text-right left removeborder">
                                     Discount ({{ $order['discount'] }}%)
                                 </td>
                                 <td style="width:12%;text-align:right;" class="removeborder">
-                                    - {{ number_format((float) ($order['discountAmount'] ?? 0), 2) }}
+                                    - {{ number_format((float) ($discountAmount ?? 0), 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -391,7 +399,7 @@
                         <tr style="font-size:15px;text-align:right;">
                             <td colspan="7" class="text-right left removeborder"><b>Total</b></td>
                             <td style="width:12%;text-align:right;" class="removeborder">
-                                <b>{{ number_format((float) ($order['finalAmount'] ?? 0), 2) }}</b>
+                                <b>{{ number_format((float) ($finalAmount ?? 0), 2) }}</b>
                             </td>
                         </tr>
 

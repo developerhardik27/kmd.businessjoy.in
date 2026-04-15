@@ -284,6 +284,22 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
         width: 100%;
     }
 }
+.btn-add-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-add-row:focus {
+    outline: none; /* remove default */
+    border: 1px solid #4c6fff; /* nice blue border */
+    box-shadow: 0 0 0 2px rgba(0, 10, 52, 0.2); /* soft glow */
+    border:1px solid black;
+}
+
+/* Optional: active click */
+.btn-add-row:active {
+    transform: scale(0.97);
+}
 </style>
 <link rel="stylesheet" href="{{ asset('admin/css/select2.min.css') }}">
 @endsection

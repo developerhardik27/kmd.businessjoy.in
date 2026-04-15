@@ -88,6 +88,7 @@
                     language: {
                         lengthMenu: '_MENU_ &nbsp;Entries per page'
                     },
+                    pageLength: 25,
                     destroy: true, // allows re-initialization
                     responsive: true,
                     processing: true,

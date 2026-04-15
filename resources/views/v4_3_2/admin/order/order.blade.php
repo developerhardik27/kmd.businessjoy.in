@@ -327,6 +327,15 @@
             </div>
 
             <div class="filter-field">
+                <label>Sample Status</label>
+                <select name="filter_sample_status" class="filter form-control select2" id="filter_sample_status">
+                    <option value="">select  Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Half Sample">Half Sample</option>
+                    <option value="Sample Created">Sample Created</option>
+                </select>
+            </div>
+            <div class="filter-field">
                 <label>Buyer</label>
                 <select name="filter_buyer" class="filter form-control select2" id="filter_buyer">
                     <option value="">Select Buyer</option>
@@ -348,18 +357,7 @@
                 <select name="filter_grade" class="filter form-control select2" id="filter_grade" multiple></select>
             </div>
 
-            <div class="filter-field range-field">
-                <label>Order Date From <span class="m-2"></span> Order Date To</label>
-                <div class="range-group">
-                    <div class="range-item">
-                        <input type="date" class="form-control filter" id="filter_date_from" name="filter_date_from" placeholder="From">
-                    </div>
-                    <span class="range-sep">—</span>
-                    <div class="range-item">
-                        <input type="date" class="form-control filter" id="filter_date_to" name="filter_date_to" placeholder="To">
-                    </div>
-                </div>
-            </div>
+            
 
             <div class="filter-field range-field">
                 <label>Amount From <span class="m-3"></span> Amount To</label>
@@ -386,7 +384,18 @@
                     </div>
                 </div>
             </div>
-
+            <div class="filter-field range-field">
+                <label>Order Date From <span class="m-2"></span> Order Date To</label>
+                <div class="range-group">
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_date_from" name="filter_date_from" placeholder="From">
+                    </div>
+                    <span class="range-sep">—</span>
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_date_to" name="filter_date_to" placeholder="To">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="filter-actions-fixed">
@@ -422,6 +431,7 @@
             <th>Invoice/Lot No</th>
             <th>Grades</th>
             <th>Invoice Status</th>
+            <th>Sample Status</th>
             <th>Total Net Kg</th>
             <th>Order Pdf</th>
             <th>Rate </th>
@@ -474,7 +484,7 @@ $('document').ready(function () {
             var fd = JSON.parse(sessionStorage.getItem('filterData'));
             if (fd) {
                 $.each(fd, function (k, v) { if (v != ' ') $('#' + k).val(v); });
-                $('#filter_company,#filter_transport,#filter_buyer,#filter_garden,#filter_grade,#filter_invoice_status').trigger('change');
+                $('#filter_company,#filter_transport,#filter_buyer,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('filterData');
                 loaderhide();
@@ -504,6 +514,7 @@ $('document').ready(function () {
 
             // Invoice Status
             initSelect2('#filter_invoice_status', 'Select Invoice Status');
+            initSelect2('#filter_sample_status', 'Select Sample Status');
 
             // Transport
             if (transportRes.status == 200 && transportRes.data.length) {
@@ -548,6 +559,7 @@ $('document').ready(function () {
         loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
+            pageLength: 25,
             destroy: true,
             responsive: true,
             processing: true,
@@ -571,6 +583,7 @@ $('document').ready(function () {
                     d.filter_grade             = $('#filter_grade').val();
                     d.filter_company           = $('#filter_company').val();
                     d.filter_invoice_status    = $('#filter_invoice_status').val();
+                    d.filter_sample_status     = $('#filter_sample_status').val();
                 },
                 dataSrc: function (json) {
                     $('#pdfBtn').removeClass('d-none');
@@ -653,6 +666,7 @@ $('document').ready(function () {
                 },
                 { data: 'grades',         name: 'grades',         orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'invoice_status', name: 'invoice_status', orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'sample_status',  name: 'sample_status',  orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'totalNetKg',     name: 'totalNetKg',     orderable: true,  searchable: true,  defaultContent: '-' },
                 {
                     data: 'id', name: 'id', orderable: false, searchable: false,
@@ -740,6 +754,7 @@ $('document').ready(function () {
         params.filter_garden            = $('#filter_garden').val();
         params.filter_company           = $('#filter_company').val();
         params.filter_invoice_status    = $('#filter_invoice_status').val();
+        params.filter_sample_status    = $('#filter_sample_status').val();
         params.filter_grade             = $('#filter_grade').val();
         params.filter_credit_days_from  = $('#filter_credit_days_from').val();
         params.filter_credit_days_to    = $('#filter_credit_days_to').val();
@@ -749,12 +764,12 @@ $('document').ready(function () {
         params.filter_date_to           = $('#filter_date_to').val();
         params.type                     = type;   // <-- key addition
 
-        let url = "{{ route('brokragbill.orderreport') }}" + '?' + $.param(params);
+        let url = "{{ route('order.orderreport') }}" + '?' + $.param(params);
 
         loadershow();
         $.ajax({
             type: 'GET',
-            url: "{{ route('brokragbill.orderreport') }}",
+            url: "{{ route('order.orderreport') }}",
             data: params,
             success: function () {
                 if (type === 'pdf') {
@@ -845,6 +860,7 @@ $('document').ready(function () {
         $('#filter_transport').val(null).trigger('change');
         $('#filter_company').val(null).trigger('change');
         $('#filter_invoice_status').val(null).trigger('change');
+        $('#filter_sample_status').val(null).trigger('change');
         $('#filter_buyer').val(null).trigger('change');
         $('#filter_garden').val(null).trigger('change');
         $('#filter_grade').val(null).trigger('change');
