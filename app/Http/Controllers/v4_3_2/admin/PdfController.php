@@ -1069,7 +1069,7 @@ class PdfController extends commonController
                 'buyer.name as buyer_name',
                 'transport.name as transport_name',
                 'orders.*',
-                DB::raw("DATE_FORMAT(orders.created_at, '%d-%m-%Y') as order_date"),
+                DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
                 'order_details.*',
                 'gardens.garden_name as garden_name',
                 'grades.grade as grade_name',
