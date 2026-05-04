@@ -553,7 +553,21 @@ class brokeragebillController extends commonController
             $fyEnd   = $today->format('y');
         }
         $financialYear = $fyStart . '-' . $fyEnd;
+        $lastBill = $this->brokerbillinvoiceModel
+            ::where('is_deleted', 0)       
+            ->whereNotNull('invoice_no')
+            ->orderByDesc('id')
+            ->first();
 
+        $nextSeq = 1;   
+
+        if ($lastBill && !empty($lastBill->invoice_no)) {
+            $parts   = explode('/', $lastBill->invoice_no); // "KMD/2026/5" → ["KMD","2026","5"]
+            $lastSeq = (int) end($parts);                   // → 5
+            $nextSeq = $lastSeq + 1;                        // → 6
+        }
+
+         
         // ── Create the brokerbillinvoice record ──────────────────────────────────────
         $billRecord = $this->brokerbillinvoiceModel::create([
             'garden_id'          => 0,
@@ -570,10 +584,10 @@ class brokeragebillController extends commonController
             'from_date'          => Carbon::yesterday()->format('Y-m-d'),
             'to_date'            => Carbon::tomorrow()->format('Y-m-d'),
         ]);
-
+        $invoiceNo = 'KMD/' . $today->year . '/' . $nextSeq;
         // Set invoice_no after we have the ID
         $this->brokerbillinvoiceModel::where('id', $billRecord->id)->update([
-            'invoice_no' => "KMD/{$financialYear}/{$billRecord->id}",
+            'invoice_no' => $invoiceNo,
         ]);
 
         $brokrage_per = $request->brokerage;
