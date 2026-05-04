@@ -562,7 +562,7 @@ class brokeragebillController extends commonController
         $nextSeq = 1;   
 
         if ($lastBill && !empty($lastBill->invoice_no)) {
-            $parts   = explode('/', $lastBill->invoice_no); // "KMD/2026/5" → ["KMD","2026","5"]
+            $parts   = explode('/', $lastBill->invoice_no); // "KMD/26-27/5" → ["KMD","26-27","5"]
             $lastSeq = (int) end($parts);                   // → 5
             $nextSeq = $lastSeq + 1;                        // → 6
         }
@@ -584,7 +584,7 @@ class brokeragebillController extends commonController
             'from_date'          => Carbon::yesterday()->format('Y-m-d'),
             'to_date'            => Carbon::tomorrow()->format('Y-m-d'),
         ]);
-        $invoiceNo = 'KMD/' . $today->year . '/' . $nextSeq;
+        $invoiceNo = 'KMD/' . $financialYear . '/' . $nextSeq;
         // Set invoice_no after we have the ID
         $this->brokerbillinvoiceModel::where('id', $billRecord->id)->update([
             'invoice_no' => $invoiceNo,
