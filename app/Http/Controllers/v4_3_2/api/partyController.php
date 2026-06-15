@@ -87,6 +87,28 @@ class partyController extends commonController
             ])
             ->make(true);
     }
+    public function referenceindex()
+    {
+        if ($this->rp['teamodule']['party']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+        $party = $this->partyModel::where("is_deleted", 0)
+            ->where('party_type', 'Reference')
+            ->get();
+        if ($party->isEmpty()) {
+            return DataTables::of($party)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+        return DataTables::of($party)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
     public function transportindex()
     {
         if ($this->rp['teamodule']['party']['view'] != 1) {
@@ -199,6 +221,40 @@ class partyController extends commonController
         }
         return $this->successresponse(200, 'party', $party);
     }
+
+    /**
+     * Update party email only
+     */
+    public function updateEmail(Request $request, $id)
+    {
+        if ($this->rp['teamodule']['party']['edit'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        $find_data = $this->partyModel::find($id);
+        if (!$find_data) {
+            return $this->successresponse(500,'message','Party Not Found!');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        $update = $this->partyModel::where('id', $id)->update([
+            'email' => $request->email,
+        ]);
+
+        if ($update) {
+            return $this->successresponse(200, 'message', 'Email updated successfully');
+        } else {
+            return $this->successresponse(500, 'message', 'Failed to update email');
+        }
+    }
+
     public function partyupdate(Request $request, $id)
     {
         if ($this->rp['teamodule']['party']['edit'] != 1) {
@@ -211,7 +267,7 @@ class partyController extends commonController
             }
         }
         if (!$find_data) {
-            return response()->json(['status' => 'error', 'message' => 'party not found'], 404);
+            return $this->successresponse(500, 'message', 'Party Not Found!');
         }
         $data = $request->all();
         $validator = Validator::make($data, [

@@ -34,7 +34,7 @@ class orderController extends commonController
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->brokerPurchaseModel = $this->getmodel('broker_purchase');
     }
-   public function index(Request $request)
+    public function index(Request $request)
     {
         // Check user permissions
         if ($this->rp['teamodule']['order']['view'] != 1) {
@@ -44,6 +44,7 @@ class orderController extends commonController
         // Base query
         $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
             ->leftJoin('partys as transport', 'transport.id', 'orders.transport')
+            ->leftJoin('partys as reference', 'reference.id', 'orders.reference')
             ->join('order_details', 'order_details.order_id', 'orders.id')
             ->join('gardens', 'gardens.id', 'order_details.garden_id')
             ->leftJoin('broker_purchases', function ($join) {
@@ -55,46 +56,81 @@ class orderController extends commonController
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('orders.is_deleted', 0);
 
+        // -------------------------------------------------------
+        // Blank filters — show records where column is NULL/empty
+        // -------------------------------------------------------
+        if (($request->filter_buyer ?? null) === 'blank_buyer') {
+            $order->where(function ($q) {
+                $q->whereNull('orders.buyer_party')
+                ->orWhere('orders.buyer_party', '');
+            });
+        }
+
+        if (($request->filter_company ?? null) === 'blank_company') {
+            $order->where(function ($q) {
+                $q->whereNull('company_garden.company_id')
+                ->orWhere('company_garden.company_id', '');
+            });
+        }
+
+        // -------------------------------------------------------
         // Filters mapping
+        // -------------------------------------------------------
         $filters = [
-            'filter_transport'         => 'orders.transport',
-            'filter_buyer'             => 'orders.buyer_party',
-            'filter_garden'            => 'order_details.garden_id',
-            'filter_grade'             => 'order_details.grade',
-            'filter_credit_days_from'  => 'orders.credit_days',
-            'filter_credit_days_to'    => 'orders.credit_days',
-            'filter_final_amount_from' => 'orders.finalAmount',
-            'filter_final_amount_to'   => 'orders.finalAmount',
-            'filter_date_from'         => 'orders.created_at',
-            'filter_date_to'           => 'orders.created_at',
+            'filter_transport'                   => 'orders.transport',
+            'filter_buyer'                        => 'orders.buyer_party',
+            'filter_reference'                    => 'orders.reference',
+            'filter_expected_dispatch_date_from'  => 'orders.expected_dispatch_date',
+            'filter_expected_dispatch_date_to'    => 'orders.expected_dispatch_date',
+            'filter_dispatch_status'              => 'orders.dispatch_status',
+            'filter_garden'                       => 'order_details.garden_id',
+            'filter_grade'                        => 'order_details.grade',
+            'filter_credit_days_from'             => 'orders.credit_days',
+            'filter_credit_days_to'               => 'orders.credit_days',
+            'filter_final_amount_from'            => 'orders.finalAmount',
+            'filter_final_amount_to'              => 'orders.finalAmount',
+            'filter_date_from'                    => 'orders.created_at',
+            'filter_date_to'                      => 'orders.created_at',
         ];
 
-        // Apply filters (except invoice status, which is handled later)
+        // Apply filters
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;
 
-            if ($value !== null && $value !== '') {
-                if (in_array($requestKey, [
-                    'filter_credit_days_from',
-                    'filter_credit_days_to',
-                    'filter_final_amount_from',
-                    'filter_final_amount_to',
-                ])) {
-                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
-                    $order->where($column, $operator, $value);
+            // Skip: null, empty string, 0/"0", or blank_* sentinel values
+            if ($value === null || $value === '' || $value == 0 || str_starts_with((string) $value, 'blank_')) {
+                continue;
+            }
 
-                } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
-                    $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
-                    $order->whereDate($column, $operator, $value);
+            if (in_array($requestKey, [
+                'filter_credit_days_from',
+                'filter_credit_days_to',
+                'filter_final_amount_from',
+                'filter_final_amount_to',
+                'filter_expected_dispatch_date_from',
+                'filter_expected_dispatch_date_to',
+            ])) {
+                $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
+                $order->where($column, $operator, $value);
 
-                } else {
-                    $order->whereIn($column, (array) $value);
-                }
+            } elseif (in_array($requestKey, ['filter_date_from', 'filter_date_to'])) {
+                $operator = str_contains($requestKey, 'from') ? '>=' : '<=';
+                $order->whereDate($column, $operator, $value);
+
+            } else {
+                $order->whereIn($column, (array) $value);
             }
         }
 
-        // Company filter
-        if (!empty($request->filter_company) && $request->filter_company !== '') {
+        // -------------------------------------------------------
+        // Company filter (normal — non-blank)
+        // -------------------------------------------------------
+        if (
+            !empty($request->filter_company) &&
+            $request->filter_company !== '' &&
+            $request->filter_company != 0 &&
+            $request->filter_company !== 'blank_company'
+        ) {
             $companyIds = (array) $request->filter_company;
 
             $order->whereExists(function ($query) use ($companyIds) {
@@ -107,12 +143,15 @@ class orderController extends commonController
             });
         }
 
-        // Fetch data
+        // -------------------------------------------------------
+        // Fetch & group data
+        // -------------------------------------------------------
         $orderData = $order
             ->select(
                 'orders.id as order_id',
                 'buyer.name as buyer_name',
                 'transport.name as transport_name',
+                'reference.name as reference_name',
                 'orders.*',
                 DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
                 'order_details.*',
@@ -121,6 +160,7 @@ class orderController extends commonController
                 'companymasters.id as company_id',
                 'companymasters.company_name as company_name',
                 'broker_purchases.id as broker_purchase_id',
+                'broker_purchases.source as broker_purchase_source',
             )
             ->get()
             ->groupBy('order_id')
@@ -136,56 +176,65 @@ class orderController extends commonController
                 } else {
                     $invoiceStatus = 'Invoices Created';
                 }
-                $sampleIds = $details->pluck('broker_purchase_id');
 
-                if ($sampleIds->every(fn($id) => empty($id))) {
-                    $sampleStatus = 'Pending';
-                } elseif ($sampleIds->contains(fn($id) => empty($id))) {
-                    $sampleStatus = 'Half Sample';
-                } else {
-                    $sampleStatus = 'Sample Created';
-                }
+                // Determine sample status
+                $sampleIds = $details->pluck('broker_purchase_id');
+                $sampleSources = $details->pluck('broker_purchase_source');
+                    if($sampleSources->contains('invoice')){
+                        $sampleStatus = 'Pending';
+                    }
+                    else{
+                        if ($sampleIds->every(fn($id) => empty($id))) {
+                            $sampleStatus = 'Pending';
+                        } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                            $sampleStatus = 'Half Sample';
+                        } else {
+                            $sampleStatus = 'Sample Created';
+                        }
+                    }
                 return [
-                    'id'             => $orderId,
-                    'buyer_name'     => $first->buyer_name,
-                    'transport_name' => $first->transport_name,
-                    'discount'       => $first->discount,
-                    'totalNetKg'     => $first->totalNetKg,
-                    'credit_days'    => $first->credit_days,
-                    'final_amount'   => $first->finalAmount,
-                    'order_date'     => $first->order_date,
-                    'invoice_status' => $invoiceStatus, // Invoice status included
-                    'sample_status'  => $sampleStatus, // Sample status included
-                    'company_names' => $details
-                        ->map(fn($item) => $item->company_name ?? '  -  ')
+                    'id'                     => $orderId,
+                    'buyer_name'             => $first->buyer_name,
+                    'transport_name'         => $first->transport_name,
+                    'reference_name'         => $first->reference_name,
+                    'expected_dispatch_date' => $first->expected_dispatch_date,
+                    'dispatch_status'        => $first->dispatch_status,
+                    'discount'               => $first->discount,
+                    'totalNetKg'             => $first->totalNetKg,
+                    'credit_days'            => $first->credit_days,
+                    'final_amount'           => $first->finalAmount,
+                    'order_date'             => $first->order_date,
+                    'invoice_status'         => $invoiceStatus,
+                    'sample_status'          => $sampleStatus,
+                    'company_names'          => $details
+                        ->map(fn($item) => $item->company_name ?? '-')
+                        ->unique()
                         ->values()
                         ->implode(', '),
-
-                    'garden_names'   => $details
+                    'garden_names'           => $details
                         ->filter(fn($item) => !empty($item->garden_name))
                         ->pluck('garden_name', 'garden_id')
                         ->values()
                         ->implode(', '),
-
-                    'invoice_nos'    => $details
+                    'invoice_nos'            => $details
                         ->filter(fn($item) => !empty($item->invoice_no))
                         ->pluck('invoice_no')
                         ->unique()
                         ->values()
                         ->implode(', '),
-                    'grades'         => $details
+                    'grades'                 => $details
                         ->filter(fn($item) => !empty($item->grade_name))
                         ->pluck('grade_name')
                         ->unique()
                         ->values()
                         ->implode(', '),
-                    'rate'    =>$details 
-                    ->filter(fn($item) => !empty($item->grade_name))
+                    'rate'                   => $details
+                        ->filter(fn($item) => !empty($item->grade_name))
                         ->pluck('rate')
                         ->unique()
                         ->values()
                         ->implode(', '),
-                    'details' => $details->map(function ($item) {
+                    'details'                => $details->map(function ($item) {
                         return [
                             'garden_name'  => $item->garden_name,
                             'grade_name'   => $item->grade_name,
@@ -202,19 +251,22 @@ class orderController extends commonController
             })
             ->values();
 
-        // Apply invoice_status filter AFTER grouping
+        // -------------------------------------------------------
+        // Post-group filters (invoice_status, sample_status)
+        // -------------------------------------------------------
         if (!empty($request->filter_invoice_status) && $request->filter_invoice_status !== '') {
-            $status = $request->filter_invoice_status;
+            $status    = $request->filter_invoice_status;
             $orderData = $orderData->filter(fn($order) => $order['invoice_status'] === $status)->values();
         }
 
-        // Apply sample_status filter AFTER grouping
         if (!empty($request->filter_sample_status) && $request->filter_sample_status !== '') {
-            $status = $request->filter_sample_status;
+            $status    = $request->filter_sample_status;
             $orderData = $orderData->filter(fn($order) => $order['sample_status'] === $status)->values();
         }
 
+        // -------------------------------------------------------
         // Return via DataTables
+        // -------------------------------------------------------
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([
@@ -307,6 +359,8 @@ class orderController extends commonController
         $create = $this->orderModel::create([
             'buyer_party' => $request->buyer_party,
             'transport' => $request->transport,
+            'reference' => $request->reference,
+            'expected_dispatch_date' => $request->expected_dispatch_date,
             'credit_days' => $request->credit_days,
             'discount' => $request->discount ?? 0,
             'order_date' => $request->order_date,
@@ -448,6 +502,8 @@ class orderController extends commonController
         $order->update([
             'buyer_party'    => $request->buyer_party,
             'transport'      => $request->transport,
+            'reference'      => $request->reference,
+            'expected_dispatch_date' => $request->expected_dispatch_date,
             'credit_days'    => $request->credit_days,
             'discount'       => $request->discount ?? 0,
             'totalNetKg'     => $request->totalNetKg,
@@ -597,5 +653,756 @@ class orderController extends commonController
                 ->get();
         }
         return response()->json($data);
+    }
+
+    public function getGardensByOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Check if order exists
+        $orderExists = $this->orderModel::where('id', $request->order_id)->exists();
+        if (!$orderExists) {
+            return $this->errorresponse(404, 'Order not found');
+        }
+
+        $gardens = $this->order_detailModel::where('order_id', $request->order_id)
+            ->leftJoin('gardens', 'gardens.id', 'order_details.garden_id')
+            ->select('order_details.garden_id', 'gardens.garden_name')
+            ->distinct()
+            ->get();
+
+        $data = [];
+        foreach ($gardens as $garden) {
+            if ($garden->garden_id) {
+                $data[] = [
+                    'garden_id' => $garden->garden_id,
+                    'garden_name' => $garden->garden_name ?? 'Unknown Garden'
+                ];
+            }
+        }
+
+        if (empty($data)) {
+            return $this->errorresponse(404, 'No gardens found for this order. The order may not have any order details or garden IDs.');
+        }
+
+        return $this->successresponse(200, 'Gardens retrieved successfully', $data);
+    }
+
+    public function getOrderDetailsForInvoice(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer',
+            'filter_company_id' => 'nullable|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Check if order exists
+        $order = $this->orderModel::where('id', $request->order_id)->first();
+        if (!$order) {
+            return $this->errorresponse(404, 'Order not found');
+        }
+
+        // Get order details with garden and company information
+        $query = $this->order_detailModel::where('order_id', $request->order_id)
+            ->leftJoin('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('company_garden', 'company_garden.garden_id', 'gardens.id')
+            ->leftJoin('companymasters', 'companymasters.id', 'company_garden.company_id')
+            ->select(
+                'order_details.id as order_detail_id',
+                'order_details.garden_id',
+                'order_details.invoice_no',
+                'companymasters.id as company_id',
+                'companymasters.company_name'
+            )
+            ->where('order_details.invoice_id', '=', null)
+            ->where('order_details.is_deleted', 0);
+
+        // Filter by filter_company_id if provided (this is for filtering, not authentication)
+        if ($request->has('filter_company_id') && !empty($request->filter_company_id)) {
+            $query->where('companymasters.id', $request->filter_company_id);
+        }
+
+        $orderDetails = $query->get();
+
+        if ($orderDetails->isEmpty()) {
+            return $this->errorresponse(404, 'No order details found for this order');
+        }
+
+        // If filter_company_id is provided, return filtered data directly
+        if ($request->has('filter_company_id') && !empty($request->filter_company_id)) {
+            // Check if buyer_id exists
+            if (empty($order->buyer_party)) {
+                return $this->errorresponse(400, 'Buyer party is required. Please select a buyer for this order before creating an invoice.');
+            }
+
+            $gardenIds = $orderDetails->pluck('garden_id')->unique()->filter()->values();
+            $invoiceNos = $orderDetails->pluck('invoice_no')->unique()->filter()->values();
+            $orderDetailIds = $orderDetails->pluck('order_detail_id')->values();
+
+            // Check if company has valid data
+            if ($gardenIds->isEmpty() && $invoiceNos->isEmpty()) {
+                return $this->errorresponse(404, 'No valid order details found for the selected company.');
+            }
+
+            return $this->successresponse(200, 'Order details retrieved successfully', [
+                'has_multiple_companies' => false,
+                'company_id' => $request->filter_company_id,
+                'buyer_id' => $order->buyer_party,
+                'garden_ids' => $gardenIds,
+                'invoice_nos' => $invoiceNos,
+                'order_detail_ids' => $orderDetailIds
+            ]);
+        }
+
+        // Get unique companies from order details
+        $companies = $orderDetails->pluck('company_id')->unique()->filter()->values();
+        if ($companies->isEmpty()) {
+            return $this->errorresponse(400, 'The selected garden is not assigned to any company. Please assign a company to the garden first.');
+        }
+        // If only one company, return data directly
+        if ($companies->count() === 1) {
+            $companyId = $companies->first();
+            $companyDetails = $orderDetails->where('company_id', $companyId);
+
+            $gardenIds = $companyDetails->pluck('garden_id')->unique()->filter()->values();
+            $invoiceNos = $companyDetails->pluck('invoice_no')->unique()->filter()->values();
+            $orderDetailIds = $companyDetails->pluck('order_detail_id')->values();
+            if($order->buyer_party == null){
+                return $this->errorresponse(400, 'Buyer party is required. Please select a buyer for this order before creating an invoice.');
+            }
+            return $this->successresponse(200, 'Order details retrieved successfully', [
+                'has_multiple_companies' => false,
+                'company_id' => $companyId,
+                'buyer_id' => $order->buyer_party,
+                'garden_ids' => $gardenIds,
+                'invoice_nos' => $invoiceNos,
+                'order_detail_ids' => $orderDetailIds
+            ]);
+        }
+
+        // Multiple companies - return company options
+        $companyOptions = [];
+        foreach ($companies as $companyId) {
+            $companyDetails = $orderDetails->where('company_id', $companyId)->first();
+            $companyOptions[] = [
+                'company_id' => $companyId,
+                'company_name' => $companyDetails->company_name ?? 'Unknown Company'
+            ];
+        }
+
+        return $this->successresponse(200, 'Multiple companies found', [
+            'has_multiple_companies' => true,
+            'companies' => $companyOptions,
+            'buyer_id' => $order->buyer_party
+        ]);
+    }
+
+    public function expectedDispatchReportData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filter_expected_dispatch_date_from' => 'nullable|date',
+            'filter_expected_dispatch_date_to' => 'nullable|date',
+            'filter_dispatch_status' => 'nullable|in:Pending,Completed',
+            'filter_company' => 'nullable|integer',
+            'filter_garden' => 'nullable|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Base query - matching order list pattern
+        $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+            ->leftJoin('partys as reference', 'reference.id', 'orders.reference')
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('broker_purchases', function ($join) {
+                $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
+            ->leftJoin('grades', 'grades.id', 'order_details.grade')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
+
+        // Apply filters
+        if ($request->filter_expected_dispatch_date_from) {
+            $order->where('orders.expected_dispatch_date', '>=', $request->filter_expected_dispatch_date_from);
+        }
+        if ($request->filter_expected_dispatch_date_to) {
+            $order->where('orders.expected_dispatch_date', '<=', $request->filter_expected_dispatch_date_to);
+        }
+        if ($request->filter_dispatch_status) {
+            $order->where('orders.dispatch_status', $request->filter_dispatch_status);
+        }
+        if ($request->filter_garden) {
+            $order->where('order_details.garden_id', $request->filter_garden);
+        }
+
+        // Company filter using whereExists
+        if (!empty($request->filter_company) && $request->filter_company !== '') {
+            $companyIds = (array) $request->filter_company;
+            $order->whereExists(function ($query) use ($companyIds) {
+                $query->select(DB::raw(1))
+                    ->from('order_details as od_sub')
+                    ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+                    ->whereColumn('od_sub.order_id', 'orders.id')
+                    ->whereIn('cg_sub.company_id', $companyIds)
+                    ->limit(1);
+            });
+        }
+
+        // Fetch data
+        $orderData = $order
+            ->select(
+                'orders.id as order_id',
+                'buyer.name as buyer_name',
+                'reference.name as reference_name',
+                'orders.*',
+                DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
+                'order_details.*',
+                'gardens.garden_name as garden_name',
+                'grades.grade as grade_name',
+                'companymasters.id as company_id',
+                'companymasters.id as company_master_id',
+                'companymasters.company_name as company_name',
+                'companymasters.email as company_email',
+                'broker_purchases.id as broker_purchase_id',
+                'broker_purchases.source as broker_purchase_source',
+            )
+            ->get()
+            ->groupBy('order_id')
+            ->map(function ($details, $orderId) {
+                $first = $details->first();
+
+                // Determine invoice status
+                $invoiceIds = $details->pluck('invoice_id');
+                if ($invoiceIds->every(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Pending';
+                } elseif ($invoiceIds->contains(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Half Invoice';
+                } else {
+                    $invoiceStatus = 'Invoices Created';
+                }
+
+                // Determine sample status
+                $sampleIds = $details->pluck('broker_purchase_id');
+                $sampleSources = $details->pluck('broker_purchase_source');
+                    if($sampleSources->contains('invoice')){
+                        $sampleStatus = 'Pending';
+                    }
+                    else{
+                        if ($sampleIds->every(fn($id) => empty($id))) {
+                            $sampleStatus = 'Pending';
+                        } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                            $sampleStatus = 'Half Sample';
+                        } else {
+                            $sampleStatus = 'Sample Created';
+                        }
+                    }
+
+                return [
+                    'id' => $orderId,
+                    'order_date' => $first->order_date,
+                    'buyer_name' => $first->buyer_name,
+                    'reference_name' => $first->reference_name,
+                    'company_names' => $details
+                        ->map(fn($item) => $item->company_name ?? '  -  ')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'garden_names' => $details
+                        ->filter(fn($item) => !empty($item->garden_name))
+                        ->pluck('garden_name', 'garden_id')
+                        ->values()
+                        ->implode(', '),
+                    'invoice_nos' => $details
+                        ->filter(fn($item) => !empty($item->invoice_no))
+                        ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'grades' => $details
+                        ->filter(fn($item) => !empty($item->grade_name))
+                        ->pluck('grade_name')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'invoice_status' => $invoiceStatus,
+                    'sample_status' => $sampleStatus,
+                    'net_kg' => $details->sum('net_kg'),
+                    'rate' => $first->rate,
+                    'amount' => $details->sum('amount'),
+                    'credit_days' => $first->credit_days,
+                    'dispatch_status' => $first->dispatch_status,
+                    'expected_dispatch_date' => $first->expected_dispatch_date ? date('d-m-Y', strtotime($first->expected_dispatch_date)) : '',
+                ];
+            })
+            ->values();
+
+        // Return via DataTables
+        if ($orderData->isEmpty()) {
+            return DataTables::of($orderData)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($orderData)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+
+    public function updateDispatchStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'dispatch_status' => 'required|in:Pending,Completed',
+            'expected_dispatch_date' => 'required_if:dispatch_status,Completed|date|nullable'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        $order = $this->orderModel::where('id', $request->order_id)
+            ->where('is_deleted', 0)
+            ->first();
+
+        if (!$order) {
+            return $this->errorresponse(404, 'Order not found');
+        }
+
+        $updateData = [
+            'dispatch_status' => $request->dispatch_status,
+            'updated_by' => $this->userId
+        ];
+
+        // Only update expected_dispatch_date if status is Completed
+        if ($request->dispatch_status === 'Completed') {
+            $updateData['expected_dispatch_date'] = $request->expected_dispatch_date;
+        }
+
+        $order->update($updateData);
+
+        return $this->successresponse(200,'message', 'Dispatch status updated successfully');
+    }
+
+    public function pendingInvoiceReportData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filter_order_date_from' => 'nullable|date',
+            'filter_order_date_to' => 'nullable|date',
+            'filter_invoice_status' => 'nullable|in:Pending,Half Invoice,Invoices Created',
+            'filter_company' => 'nullable|integer',
+            'filter_buyer' => 'nullable|integer',
+            'filter_sample_date_from' => 'nullable|date',
+            'filter_sample_date_to' => 'nullable|date'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Base query - matching order list pattern
+        $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+            ->leftJoin('partys as reference', 'reference.id', 'orders.reference')
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('broker_purchases', function ($join) {
+                $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
+            ->leftJoin('grades', 'grades.id', 'order_details.grade')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
+
+        // Apply filters
+        if ($request->filter_order_date_from) {
+            $order->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+        }
+        if ($request->filter_order_date_to) {
+            $order->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+        }
+        if ($request->filter_buyer) {
+            $order->where('orders.buyer_party', $request->filter_buyer);
+        }
+        if ($request->filter_sample_date_from) {
+            $order->where('broker_purchases.sample_purchase_date', '>=', $request->filter_sample_date_from);
+        }
+        if ($request->filter_sample_date_to) {
+            $order->where('broker_purchases.sample_purchase_date', '<=', $request->filter_sample_date_to);
+        }
+
+        // Company filter using whereExists
+        if (!empty($request->filter_company) && $request->filter_company !== '') {
+            $companyIds = (array) $request->filter_company;
+            $order->whereExists(function ($query) use ($companyIds) {
+                $query->select(DB::raw(1))
+                    ->from('order_details as od_sub')
+                    ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+                    ->whereColumn('od_sub.order_id', 'orders.id')
+                    ->whereIn('cg_sub.company_id', $companyIds)
+                    ->limit(1);
+            });
+        }
+
+        // Fetch data
+        $orderData = $order
+            ->select(
+                'orders.id as order_id',
+                'buyer.name as buyer_name',
+                'reference.name as reference_name',
+                'orders.*',
+                DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
+                'order_details.*',
+                'gardens.garden_name as garden_name',
+                'grades.grade as grade_name',
+                'companymasters.id as company_id',
+                'companymasters.company_name as company_name',
+                'broker_purchases.id as broker_purchase_id',
+                'broker_purchases.source as broker_purchase_source',
+            )
+            ->get()
+            ->groupBy('order_id')
+            ->map(function ($details, $orderId) use ($request) {
+                $first = $details->first();
+
+                // Determine invoice status based on broker_purchase_id
+                $invoiceIds = $details->pluck('invoice_id');
+                if ($invoiceIds->every(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Pending';
+                } elseif ($invoiceIds->contains(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Half Invoice';
+                } else {
+                    $invoiceStatus = 'Invoices Created';
+                }
+
+                // Apply invoice status filter if provided
+                if ($request->filter_invoice_status && $invoiceStatus !== $request->filter_invoice_status) {
+                    return null; // Skip this order if it doesn't match the filter
+                }
+
+                // Determine sample status
+                $sampleIds = $details->pluck('broker_purchase_id');
+                $sampleSources = $details->pluck('broker_purchase_source');
+                    if($sampleSources->contains('invoice')){
+                        $sampleStatus = 'Pending';
+                    }
+                    else{
+                        if ($sampleIds->every(fn($id) => empty($id))) {
+                            $sampleStatus = 'Pending';
+                        } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                            $sampleStatus = 'Half Sample';
+                        } else {
+                            $sampleStatus = 'Sample Created';
+                        }
+                    }
+
+                return [
+                    'id' => $orderId,
+                    'order_date' => $first->order_date,
+                    'buyer_name' => $first->buyer_name,
+                    'reference_name' => $first->reference_name,
+                    'company_names' => $details
+                        ->map(fn($item) => $item->company_name ?? '  -  ')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'garden_names' => $details
+                        ->filter(fn($item) => !empty($item->garden_name))
+                        ->pluck('garden_name', 'garden_id')
+                        ->values()
+                        ->implode(', '),
+                    'invoice_nos' => $details
+                        ->filter(fn($item) => !empty($item->invoice_no))
+                        ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'grades' => $details
+                        ->filter(fn($item) => !empty($item->grade_name))
+                        ->pluck('grade_name')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'invoice_status' => $invoiceStatus,
+                    'sample_status' => $sampleStatus,
+                    'net_kg' => $details->sum('net_kg'),
+                    'rate' => $first->rate,
+                    'amount' => $details->sum('amount'),
+                    'credit_days' => $first->credit_days,
+                    'dispatch_status' => $first->dispatch_status,
+                    'expected_dispatch_date' => $first->expected_dispatch_date ? date('d-m-Y', strtotime($first->expected_dispatch_date)) : '',
+                ];
+            })
+            ->filter() // Remove null values from invoice status filter
+            ->values();
+
+        // Return via DataTables
+        if ($orderData->isEmpty()) {
+            return DataTables::of($orderData)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($orderData)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+
+    public function pendingSamplePurchaseReportData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filter_order_date_from' => 'nullable|date',
+            'filter_order_date_to' => 'nullable|date',
+            'filter_sample_status' => 'nullable|in:Pending,Half Sample,Sample Created',
+            'filter_company' => 'nullable|integer',
+            'filter_buyer' => 'nullable|integer',
+            'filter_sample_date_from' => 'nullable|date',
+            'filter_sample_date_to' => 'nullable|date'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Base query - matching order list pattern
+        $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+            ->leftJoin('partys as reference', 'reference.id', 'orders.reference')
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('broker_purchases', function ($join) {
+                $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+                    ->where('broker_purchases.is_deleted', 0);
+            })
+            ->leftJoin('grades', 'grades.id', 'order_details.grade')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
+
+        // Apply filters
+        if ($request->filter_order_date_from) {
+            $order->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+        }
+        if ($request->filter_order_date_to) {
+            $order->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+        }
+        if ($request->filter_buyer) {
+            $order->where('orders.buyer_party', $request->filter_buyer);
+        }
+        if ($request->filter_sample_date_from) {
+            $order->where('broker_purchases.sample_purchase_date', '>=', $request->filter_sample_date_from);
+        }
+        if ($request->filter_sample_date_to) {
+            $order->where('broker_purchases.sample_purchase_date', '<=', $request->filter_sample_date_to);
+        }
+
+        // Company filter using whereExists
+        if (!empty($request->filter_company) && $request->filter_company !== '') {
+            $companyIds = (array) $request->filter_company;
+            $order->whereExists(function ($query) use ($companyIds) {
+                $query->select(DB::raw(1))
+                    ->from('order_details as od_sub')
+                    ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+                    ->whereColumn('od_sub.order_id', 'orders.id')
+                    ->whereIn('cg_sub.company_id', $companyIds)
+                    ->limit(1);
+            });
+        }
+
+        // Fetch data
+        $orderData = $order
+            ->select(
+                'orders.id as order_id',
+                'buyer.name as buyer_name',
+                'reference.name as reference_name',
+                'orders.*',
+                DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
+                'order_details.*',
+                'gardens.garden_name as garden_name',
+                'grades.grade as grade_name',
+                'companymasters.id as company_id',
+                'companymasters.company_name as company_name',
+                'broker_purchases.id as broker_purchase_id',
+                'broker_purchases.source as broker_purchase_source',
+            )
+            ->get()
+            ->groupBy('order_id')
+            ->map(function ($details, $orderId) use ($request) {
+                $first = $details->first();
+
+                // Determine invoice status based on broker_purchase_id
+                $brokerPurchaseIds = $details->pluck('broker_purchase_id');
+                if ($brokerPurchaseIds->every(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Pending';
+                } elseif ($brokerPurchaseIds->contains(fn($id) => empty($id))) {
+                    $invoiceStatus = 'Half Invoice';
+                } else {
+                    $invoiceStatus = 'Invoices Created';
+                }
+
+                // Determine sample status
+                $sampleIds = $details->pluck('broker_purchase_id');
+                $sampleSources = $details->pluck('broker_purchase_source');
+                    if($sampleSources->contains('invoice')){
+                        $sampleStatus = 'Pending';
+                    }
+                    else{
+                        if ($sampleIds->every(fn($id) => empty($id))) {
+                            $sampleStatus = 'Pending';
+                        } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                            $sampleStatus = 'Half Sample';
+                        } else {
+                            $sampleStatus = 'Sample Created';
+                        }
+                    }
+
+                // Apply sample status filter if provided
+                if ($request->filter_sample_status && $sampleStatus !== $request->filter_sample_status) {
+                    return null; // Skip this order if it doesn't match the filter
+                }
+
+                return [
+                    'id' => $orderId,
+                    'order_date' => $first->order_date,
+                    'buyer_name' => $first->buyer_name,
+                    'reference_name' => $first->reference_name,
+                    'company_names' => $details
+                        ->map(fn($item) => $item->company_name ?? '  -  ')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'garden_names' => $details
+                        ->filter(fn($item) => !empty($item->garden_name))
+                        ->pluck('garden_name', 'garden_id')
+                        ->values()
+                        ->implode(', '),
+                    'invoice_nos' => $details
+                        ->filter(fn($item) => !empty($item->invoice_no))
+                        ->pluck('invoice_no')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'grades' => $details
+                        ->filter(fn($item) => !empty($item->grade_name))
+                        ->pluck('grade_name')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'invoice_status' => $invoiceStatus,
+                    'sample_status' => $sampleStatus,
+                    'net_kg' => $details->sum('net_kg'),
+                    'rate' => $first->rate,
+                    'amount' => $details->sum('amount'),
+                    'credit_days' => $first->credit_days,
+                    'dispatch_status' => $first->dispatch_status,
+                    'expected_dispatch_date' => $first->expected_dispatch_date ? date('d-m-Y', strtotime($first->expected_dispatch_date)) : '',
+                ];
+            })
+            ->filter() // Remove null values from sample status filter
+            ->values();
+
+        // Return via DataTables
+        if ($orderData->isEmpty()) {
+            return DataTables::of($orderData)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($orderData)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
+    }
+
+    public function turnoverReportData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filter_order_date_from' => 'nullable|date',
+            'filter_order_date_to' => 'nullable|date',
+            'filter_company' => 'nullable|integer',
+            'filter_buyer' => 'nullable|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorresponse(422, $validator->messages());
+        }
+
+        // Base query - group by company and buyer, sum net_kg
+        $query = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+            ->join('order_details', 'order_details.order_id', 'orders.id')
+            ->join('gardens', 'gardens.id', 'order_details.garden_id')
+            ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+            ->where('orders.is_deleted', 0);
+
+        // Apply filters
+        if ($request->filter_order_date_from) {
+            $query->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+        }
+        if ($request->filter_order_date_to) {
+            $query->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+        }
+        if ($request->filter_company) {
+            $query->where('companymasters.id', $request->filter_company);
+        }
+        if ($request->filter_buyer) {
+            $query->where('orders.buyer_party', $request->filter_buyer);
+        }
+
+        // Group by company and buyer, sum net_kg
+        $turnoverData = $query->select(
+                'companymasters.company_name',
+                'buyer.name as buyer_name',
+                DB::raw('SUM(order_details.net_kg) as total_net_kg')
+            )
+            ->groupBy('companymasters.company_name', 'buyer.name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'company_name' => $item->company_name ?? '-',
+                    'buyer_name' => $item->buyer_name ?? '-',
+                    'total_net_kg' => $item->total_net_kg ?? 0,
+                ];
+            });
+
+        // Return via DataTables
+        if ($turnoverData->isEmpty()) {
+            return DataTables::of($turnoverData)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        return DataTables::of($turnoverData)
+            ->with([
+                'status' => 200,
+            ])
+            ->make(true);
     }
 }

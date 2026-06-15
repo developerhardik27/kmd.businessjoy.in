@@ -303,6 +303,7 @@
             <th>Grade</th>
             <th>Bags</th>
             <th>Net kg</th>
+            <th>Sample Purchase Date</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -336,7 +337,14 @@ $('document').ready(function () {
     /* ── Init Select2 for multiple selects ── */
     function initMultiSelect2(selector, placeholder) {
         $(selector).select2({
-            placeholder, allowClear: true, width: '100%'
+            placeholder, allowClear: true, width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
         });
     }
 
@@ -554,6 +562,7 @@ $('document').ready(function () {
                 { data: 'grade_name',     name: 'grade_name',     orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'bags',           name: 'bags',           orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'net_kg',         name: 'net_kg',         orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'sample_purchase_date', name: 'sample_purchase_date', orderable: true,  searchable: true,  defaultContent: '-' },
                 {
                     data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
                     render: (data, type, row) => {
@@ -562,17 +571,17 @@ $('document').ready(function () {
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                 <button type="button" data-view="${data}" data-toggle="modal" data-target="#exampleModalScrollable"
                                     class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                    <i class="ri-indent-decrease"></i></button></span>`;
+                                    View</button></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.edit') == '1')
                             let editUrl = `{{ route('admin.brokerpurchaseupdateform', '__id__') }}`.replace('__id__', data);
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Sample Purchase">
-                                <a href="${editUrl}"><button class="btn btn-success btn-rounded btn-sm my-0"><i class="ri-edit-fill"></i></button></a></span>`;
+                                <a href="${editUrl}"><button class="btn btn-success btn-rounded btn-sm my-0">Edit</button></a></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.delete') == '1')
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
-                                <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                    <i class="ri-delete-bin-fill"></i></button></span>`;
+                                <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mr-2">
+                                    Delete</span>`;
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.view') == '1')
                             let sampleurl = `{{ route('admin.samplepurchase', '__id__') }}`.replace('__id__', data);

@@ -837,4 +837,21 @@ class companymasterController extends commonController
 
         return $this->successresponse(200, 'message', 'bankdetail succesfully deleted');
     }
+
+    public function getGardensByCompany(Request $request)
+    {
+        $companyId = $request->company_master_id;
+
+        if (!$companyId) {
+            return $this->successresponse(400, 'message', 'Company ID is required');
+        }
+
+        $gardens = $this->companygardenModel::where('company_id', $companyId)
+            ->leftJoin('gardens', 'company_garden.garden_id', '=', 'gardens.id')
+            ->select('gardens.id', 'gardens.garden_name')
+            ->where('gardens.is_deleted', 0)
+            ->get();
+
+        return $this->successresponse(200, 'gardens', $gardens);
+    }
 }

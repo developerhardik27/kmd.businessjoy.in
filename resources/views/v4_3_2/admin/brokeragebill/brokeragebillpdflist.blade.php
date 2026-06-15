@@ -458,10 +458,26 @@ $('document').ready(function () {
 
     /* ── Init Select2 helpers ── */
     function initSingleSelect2(selector, placeholder) {
-        $(selector).select2({ placeholder, allowClear: true, width: '100%' });
+        $(selector).select2({ placeholder, allowClear: true, width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
     }
     function initMultiSelect2(selector, placeholder) {
-        $(selector).select2({ placeholder, allowClear: true, width: '100%' });
+        $(selector).select2({ placeholder, allowClear: true, width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
     }
 
     /* ── Payment Status pre-init ── */
@@ -637,7 +653,7 @@ $('document').ready(function () {
                     render: (data, type, row) => `<span>
                         <button type="button" data-id="${row.id}" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Invoice"
                             class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                            <i class="ri-delete-bin-fill"></i></button></span>`
+                            Delete</button></span>`
                 },
                 {
                     data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
@@ -1013,7 +1029,14 @@ $('document').ready(function () {
         placeholder: "Select Invoice",
         allowClear: true,
         width: '100%',
-        dropdownParent: $('#pdfDateModal')
+        dropdownParent: $('#pdfDateModal'),
+        templateResult: function (option) {
+            if (!option.id) return option.text;
+            const selected = $('#invoice_id').val();
+            if (Array.isArray(selected) && selected.includes(option.id)) return null;
+            if (selected == option.id) return null;
+            return option.text;
+        }
     });
 });
 </script>

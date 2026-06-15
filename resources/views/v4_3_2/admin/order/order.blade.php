@@ -8,7 +8,6 @@
 @section('table_title')
     Orders
 @endsection
-
 @section('style')
 <style>
     .ui-widget-header {
@@ -34,7 +33,6 @@
         border-color: var(--iq-success) !important;
         color: rgb(250, 250, 250) !important;
     }
-
     /* ───────── FILTER BAR ───────── */
     .filter-bar {
         background: #fff;
@@ -61,7 +59,6 @@
         align-items: flex-end;
         gap: 10px;
     }
-
     /* ───────── SCROLL AREA ───────── */
     .filter-scroll-area {
         display: flex;
@@ -86,7 +83,6 @@
         border-right: 1px solid #eaecf2;
     }
     .filter-field:last-child { border-right: none; }
-
     /* Range fields wider */
     .filter-field.range-field {
         flex: 0 0 260px;
@@ -100,7 +96,6 @@
     .filter-scroll-area .filter-field:nth-child(even) {
         background-color: rgba(0, 0, 0, 0.04);
     }
-
     /* First and last get rounded corners */
     .filter-scroll-area .filter-field:first-child { border-radius: 8px 0 0 8px; }
     .filter-scroll-area .filter-field:last-child  { border-radius: 0 8px 8px 0; }
@@ -133,7 +128,6 @@
         box-shadow: 0 0 0 2px rgba(59,91,219,.1);
         outline: none;
     }
-
     /* Select2 */
     .filter-field .select2-container {
         width: 100% !important;
@@ -178,7 +172,6 @@
         color: #fff !important;
         margin-right: 4px !important;
     }
-
     /* ───────── RANGE GROUP ───────── */
     .range-group {
         display: flex;
@@ -203,7 +196,6 @@
         color: #9ca3af;
         flex-shrink: 0;
     }
-
     /* ───────── ACTION BUTTONS ───────── */
     .filter-actions-fixed {
         flex: 0 0 auto;
@@ -226,7 +218,6 @@
         width: 90px;
         margin: 0;
     }
-
     /* ───────── ACTION BAR ───────── */
     .action-bar {
         display: flex;
@@ -245,7 +236,6 @@
         gap: 5px;
         white-space: nowrap;
     }
-
     /* ───────── MOBILE ───────── */
     @media (max-width: 576px) {
         .filter-bar-inner { flex-direction: column; align-items: stretch; }
@@ -261,16 +251,12 @@
         .range-group {
             gap: 6px;
         }
-
         .range-sep {
-            display: none; /* hide the dash on mobile */
+            display: none;
         }
-
         .range-item input.form-control {
-            width: 100%; /* full width */
+            width: 100%;
         }
-
-        /* Adjust filter-field for mobile */
         .filter-field.range-field {
             flex: 1 1 100%;
             min-width: 100%;
@@ -285,7 +271,6 @@
     }
 </style>
 @endsection
-
 @if (session('user_permissions.teamodule.order.add') == '1')
     @section('addnew')
         {{ route('admin.orderform') }}
@@ -297,25 +282,23 @@
         </button>
     @endsection
 @endif
-
 @section('table-content')
 
 {{-- ── Filter Bar ── --}}
+
 <div class="filter-bar">
     <div class="filter-bar-header">
         <i class="ri-filter-3-line"></i> Filters
     </div>
     <div class="filter-bar-inner">
-
         <div class="filter-scroll-area">
-
             <div class="filter-field">
                 <label>Company</label>
                 <select name="filter_company" class="filter form-control select2" id="filter_company">
                      <option value="">Select Company</option>
+                     <option value="blank_company">No Company</option>
                 </select>
             </div>
-
             <div class="filter-field">
                 <label>Invoice Status</label>
                 <select name="filter_invoice_status" class="filter form-control select2" id="filter_invoice_status">
@@ -325,7 +308,6 @@
                     <option value="Invoices Created">Invoices Created</option>
                 </select>
             </div>
-
             <div class="filter-field">
                 <label>Sample Status</label>
                 <select name="filter_sample_status" class="filter form-control select2" id="filter_sample_status">
@@ -339,26 +321,27 @@
                 <label>Buyer</label>
                 <select name="filter_buyer" class="filter form-control select2" id="filter_buyer">
                     <option value="">Select Buyer</option>
+                    <option value="blank_buyer">No Buyer</option>
                 </select>
             </div>
-
+            <div class="filter-field">
+                <label>Reference</label>
+                <select name="filter_reference" class="filter form-control select2" id="filter_reference">
+                    <option value="">Select Reference</option>
+                </select>
+            </div>
             <div class="filter-field">
                 <label>Garden</label>
                 <select name="filter_garden" class="filter form-control select2" id="filter_garden" multiple></select>
             </div>
-
             <div class="filter-field">
                 <label>Transport</label>
                 <select name="filter_transport" class="filter form-control select2" id="filter_transport" multiple></select>
             </div>
-
             <div class="filter-field">
                 <label>Grade</label>
                 <select name="filter_grade" class="filter form-control select2" id="filter_grade" multiple></select>
             </div>
-
-            
-
             <div class="filter-field range-field">
                 <label>Amount From <span class="m-3"></span> Amount To</label>
                 <div class="range-group">
@@ -371,7 +354,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="filter-field range-field">
                 <label>Credit Days From <span class="m-2"></span> Credit Days To</label>
                 <div class="range-group">
@@ -396,8 +378,27 @@
                     </div>
                 </div>
             </div>
+            <div class="filter-field range-field">
+                <label>Expected Dispatch Date From <span class="m-2"></span> Expected Dispatch Date To</label>
+                <div class="range-group">
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_expected_dispatch_date_from" name="filter_expected_dispatch_date_from" placeholder="From">
+                    </div>
+                    <span class="range-sep">—</span>
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_expected_dispatch_date_to" name="filter_expected_dispatch_date_to" placeholder="To">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label>Dispatch Status</label>
+                <select name="filter_dispatch_status" class="filter form-control select2" id="filter_dispatch_status">
+                    <option value="">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
         </div>
-
         <div class="filter-actions-fixed">
             <button class="btn btn-primary applyfilters">
                 <i class="ri-filter-line"></i> Apply
@@ -406,10 +407,8 @@
                 <i class="ri-close-line"></i> Clear
             </button>
         </div>
-
     </div>
 </div>
-
 {{-- ── Action Bar ── --}}
 <div class="action-bar">
     <button class="btn btn-primary" id="pdfBtn">
@@ -419,7 +418,6 @@
         <i class="ri-file-excel-2-line"></i> Export Excel
     </button>
 </div>
-
 <table id="data" class="table display table-bordered table-striped w-100">
     <thead>
         <tr>
@@ -428,10 +426,13 @@
             <th>Company Name</th>
             <th>Gardens</th>
             <th>Buyer</th>
+            <th>Reference</th>
             <th>Invoice/Lot No</th>
             <th>Grades</th>
             <th>Invoice Status</th>
             <th>Sample Status</th>
+            <th>Dispatch Status</th>
+            <th>Expected Dispatch Date</th>
             <th>Total Net Kg</th>
             <th>Order Pdf</th>
             <th>Rate </th>
@@ -442,20 +443,100 @@
     </thead>
     <tbody id="tabledata"></tbody>
 </table>
-
+{{-- ── Dispatch Status Modal ── --}}
+<div class="modal fade" id="dispatchStatusModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Dispatch Status</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="dispatchStatusForm">
+                    @csrf
+                    <input type="hidden" name="token" value="{{ session('api_token') }}">
+                    <input type="hidden" name="user_id" value="{{ session('user_id') }}">
+                    <input type="hidden" name="company_id" value="{{ session('company_id') }}">
+                    <input type="hidden" id="dispatch_order_id" name="order_id">
+                    <div class="form-group">
+                        <label>Dispatch Status</label>
+                        <select class="form-control" name="dispatch_status" id="modal_dispatch_status">
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="expected_date_group" style="display: none;">
+                        <label>Expected Dispatch Date <span style="color:red;">*</span></label>
+                        <input type="date" class="form-control" name="expected_dispatch_date" id="modal_expected_dispatch_date">
+                        <span style="color:red;" id="error-expected_dispatch_date"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveDispatchStatus">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- ── Sample Status Garden Selection Modal ── --}}
+<div class="modal fade" id="sampleGardenModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Garden for Sample Purchase</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="sample_order_id">
+                <div class="form-group">
+                    <label>Select Garden</label>
+                    <select class="form-control" id="sample_garden_select">
+                        <option value="">Select a garden</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="goToSamplePurchase">Go to Sample Purchase</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- ── Invoice Status Company Selection Modal ── --}}
+<div class="modal fade" id="invoiceCompanyModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Company for Invoice Creation</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="invoice_order_id">
+                <input type="hidden" id="invoice_buyer_id">
+                <div class="form-group">
+                    <label>Select Company</label>
+                    <select class="form-control" id="invoice_company_select">
+                        <option value="">Select a company</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="invoice_company_confirm">Create Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
-
 @push('ajax')
 <script>
 $('document').ready(function () {
-
     let gettransportname = [], getgardenname = [], getbuyername = [], getgradename = [], getcompanyname = [];
     var global_response = '';
-
     const API_TOKEN  = "{{ session()->get('api_token') }}";
     const COMPANY_ID = "{{ session()->get('company_id') }}";
     const USER_ID    = "{{ session()->get('user_id') }}";
-
     /* ── Data fetchers ── */
     function fetchData(url) {
         return new Promise((resolve, reject) => {
@@ -467,24 +548,29 @@ $('document').ready(function () {
             });
         });
     }
-
     /* ── Init Select2 helper ── */
     function initSelect2(selector, placeholder, multiple = false) {
         $(selector).select2({
             placeholder,
             allowClear: true,
             width: '100%',
-            ...(multiple ? {} : {})
+            ...(multiple ? {} : {}),
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
         });
     }
-
     /* ── Load saved filters from sessionStorage ── */
     function loadFilters() {
         return new Promise(resolve => {
             var fd = JSON.parse(sessionStorage.getItem('filterData'));
             if (fd) {
                 $.each(fd, function (k, v) { if (v != ' ') $('#' + k).val(v); });
-                $('#filter_company,#filter_transport,#filter_buyer,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status').trigger('change');
+                $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('filterData');
                 loaderhide();
@@ -494,67 +580,60 @@ $('document').ready(function () {
             resolve();
         });
     }
-
     /* ── Initialize all filters ── */
     async function initialize() {
         try {
-            const [companyRes, transportRes, buyerRes, gardenRes, gradeRes] = await Promise.all([
+            const [companyRes, transportRes, buyerRes, referenceRes, gardenRes, gradeRes] = await Promise.all([
                 fetchData("{{ route('companymaster.index') }}"),
                 fetchData("{{ route('transport.index') }}"),
                 fetchData("{{ route('buyer.index') }}"),
+                fetchData("{{ route('reference.index') }}"),
                 fetchData("{{ route('garden.index') }}"),
                 fetchData("{{ route('grade.index') }}")
             ]);
-
             // Company
             if (companyRes.status == 200 && companyRes.data.length) {
                 companyRes.data.forEach(v => $('#filter_company').append(`<option value="${v.id}">${v.company_name}</option>`));
             }
             initSelect2('#filter_company', 'Select Company');
-
             // Invoice Status
             initSelect2('#filter_invoice_status', 'Select Invoice Status');
             initSelect2('#filter_sample_status', 'Select Sample Status');
-
+            initSelect2('#filter_dispatch_status', 'Select Status');
             // Transport
             if (transportRes.status == 200 && transportRes.data.length) {
                 transportRes.data.forEach(v => $('#filter_transport').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_transport', 'Select Transport', true);
-
             // Buyer
             if (buyerRes.status == 200 && buyerRes.data.length) {
                 buyerRes.data.forEach(v => $('#filter_buyer').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_buyer', 'Select Buyer');
-
+             if (referenceRes.status == 200 && referenceRes.data.length) {
+                referenceRes.data.forEach(v => $('#filter_reference').append(`<option value="${v.id}">${v.name}</option>`));
+            }
+            initSelect2('#filter_reference', 'Select Reference');
             // Garden
             if (gardenRes.status == 200 && gardenRes.data.length) {
                 gardenRes.data.forEach(v => $('#filter_garden').append(`<option value="${v.id}">${v.garden_name}</option>`));
+
             }
             initSelect2('#filter_garden', 'Select Garden', true);
-
-            // Grade
             if (gradeRes.status == 200 && gradeRes.data.length) {
                 gradeRes.data.forEach(v => $('#filter_grade').append(`<option value="${v.id}">${v.grade}</option>`));
             }
             initSelect2('#filter_grade', 'Select Grade', true);
-
             loaderhide();
             await loadFilters();
-
         } catch (e) {
             console.error(e);
             Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
             loaderhide();
         }
     }
-
     initialize();
-
-    /* ── DataTable ── */
     let table = '';
-
     function loaddata() {
         loadershow();
         table = $('#data').DataTable({
@@ -573,8 +652,12 @@ $('document').ready(function () {
                     d.token                 = API_TOKEN;
                     d.filter_credit_days_from  = $('#filter_credit_days_from').val();
                     d.filter_credit_days_to    = $('#filter_credit_days_to').val();
+                    d.filter_reference  = $('#filter_reference').val();
+                    d.filter_dispatch_status    = $('#filter_dispatch_status').val();
                     d.filter_final_amount_from = $('#filter_final_amount_from').val();
                     d.filter_final_amount_to   = $('#filter_final_amount_to').val();
+                    d.filter_expected_dispatch_date_from = $('#filter_expected_dispatch_date_from').val();
+                    d.filter_expected_dispatch_date_to   = $('#filter_expected_dispatch_date_to').val();
                     d.filter_date_from         = $('#filter_date_from').val();
                     d.filter_date_to           = $('#filter_date_to').val();
                     d.filter_transport         = $('#filter_transport').val();
@@ -621,27 +704,21 @@ $('document').ready(function () {
                     orderable: true,
                     searchable: true,
                     defaultContent: '-',
-
                     render: (data) => {
                         if (!data) return '-';
                         let s = data.length > 20 ? data.substring(0, 20) + '...' : data;
                         return `<span data-toggle="tooltip" data-original-title="${data}">${s}</span>`;
                     },
-
                     createdCell: function (td, cellData, rowData) {
-
                         let hasInvalidCompany = false;
-
                         if (rowData.company_names) {
                             let companies = rowData.company_names.split(',');
-
                             hasInvalidCompany = companies.some(c => {
                                 return !c || c.trim() === '-' || c.trim() === '';
                             });
                         } else {
                             hasInvalidCompany = true;
                         }
-
                         if (hasInvalidCompany) {
                             $(td).css({
                                 'background-color': 'red',
@@ -656,6 +733,7 @@ $('document').ready(function () {
                         else return data;
                     }
                 },
+                { data: 'reference_name',     name: 'reference_name',     orderable: true,  searchable: true,  defaultContent: '-' },
                 {
                     data: 'invoice_nos', name: 'invoice_nos', orderable: true, searchable: true, defaultContent: '-',
                     render: (data) => {
@@ -665,8 +743,59 @@ $('document').ready(function () {
                     }
                 },
                 { data: 'grades',         name: 'grades',         orderable: true,  searchable: true,  defaultContent: '-' },
-                { data: 'invoice_status', name: 'invoice_status', orderable: true,  searchable: true,  defaultContent: '-' },
-                { data: 'sample_status',  name: 'sample_status',  orderable: true,  searchable: true,  defaultContent: '-' },
+                {
+                    data: 'invoice_status',
+                    name: 'invoice_status',
+                    orderable: true,
+                    searchable: true,
+                    defaultContent: '-',
+                    render: (data, type, row) => {
+                        if (!data) return '-';
+                        let orderId = row.id;
+                        if (data != 'Invoices Created') {
+                            return `<button class="invoice-status-btn btn btn-sm" style="background-color: #28a745; color: #fff; border: 1px solid #28a745; cursor: pointer;" data-order-id="${orderId}">
+                                ${data}
+                            </button>`;
+                        }
+                        return data;
+                    }
+                },
+
+                {
+                    data: 'sample_status',
+                    name: 'sample_status',
+                    orderable: true,
+                    searchable: true,
+                    defaultContent: '-',
+                    render: (data, type, row) => {
+                        if (!data) return '-';
+                        let orderId = row.id;
+                        if (data === 'Pending' || data === 'Half Sample') {
+                            return `<button class="sample-status-btn btn btn-sm" style="background-color: #17a2b8; color: #fff; border: 1px solid #17a2b8; cursor: pointer;" data-order-id="${orderId}">
+                                ${data}
+                            </button>`;
+                        } else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    data: 'dispatch_status',
+                    name: 'dispatch_status',
+                    orderable: true,
+                    searchable: true,
+                    defaultContent: '-',
+                    render: (data, type, row) => {
+                        if (!data) return '-';
+                        let bgColor = data === 'Completed' ? '#28a745' : '#ffc107';
+                        let textColor = data === 'Completed' ? '#fff' : '#000';
+                        let orderId = row.id;
+                        return `<button class="dispatch-status-btn btn btn-sm" style="background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${bgColor}; cursor: pointer;" data-order-id="${orderId}" data-current-status="${data}" data-expected-date="${row.expected_dispatch_date || ''}">
+                            ${data} <i class="ri-edit-line" style="font-size: 12px; margin-left: 4px;"></i>
+                        </button>`;
+                    }
+                },
+                { data: 'expected_dispatch_date',  name: 'expected_dispatch_date',  orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'totalNetKg',     name: 'totalNetKg',     orderable: true,  searchable: true,  defaultContent: '-' },
                 {
                     data: 'id', name: 'id', orderable: false, searchable: false,
@@ -697,20 +826,20 @@ $('document').ready(function () {
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                 <button type="button" data-view="${data}" data-toggle="modal" data-target="#exampleModalScrollable"
                                     class="view-btn btn btn-info btn-rounded btn-sm my-0">
-                                    <i class="ri-indent-decrease"></i>
+                                    View
                                 </button></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.teadashboard.edit') == '1')
                             let editUrl = `{{ route('admin.orderupdateform', '__id__') }}`.replace('__id__', data);
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Order">
                                 <a href="${editUrl}">
-                                    <button class="btn btn-success btn-rounded btn-sm my-0"><i class="ri-edit-fill"></i></button>
+                                    <button class="btn btn-success btn-rounded btn-sm my-0">Edit</button>
                                 </a></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.teadashboard.delete') == '1')
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Order">
                                 <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                    <i class="ri-delete-bin-fill"></i>
+                                    Delete
                                 </button></span>`;
                         @endif
                         return btns;
@@ -743,7 +872,6 @@ $('document').ready(function () {
             }
         });
     }
-
     /* ── Generate Report ── */
     let params;
     /* ── Generate Report (shared helper) ── */
@@ -763,9 +891,7 @@ $('document').ready(function () {
         params.filter_date_from         = $('#filter_date_from').val();
         params.filter_date_to           = $('#filter_date_to').val();
         params.type                     = type;   // <-- key addition
-
         let url = "{{ route('order.orderreport') }}" + '?' + $.param(params);
-
         loadershow();
         $.ajax({
             type: 'GET',
@@ -782,17 +908,14 @@ $('document').ready(function () {
             error: function (xhr) { loaderhide(); handleAjaxError(xhr); }
         });
     }
-
     $('#pdfBtn').on('click',   function () { exportReport('pdf');   });
     $('#excelBtn').on('click', function () { exportReport('excel'); });
-
     /* ── View Order Details ── */
     $(document).on('click', '.view-btn', function () {
         $("#exampleModalScrollable .modal-dialog").addClass('modal-xl');
         var orderId = $(this).data('view');
         var order = global_response.data.find(o => o.id == orderId);
         if (!order) return;
-
         var html = `
             <table class="table table-bordered">
                 <thead><tr>
@@ -812,7 +935,6 @@ $('document').ready(function () {
                 <tr>
                     <td colspan="8" class="p-0" style="background-color: white;"> <div class="p-2" style="text-align: center;"><h5>Order Details</h5></div></td>
                 </tr>
-               
                 </table>
             <table class="table table-striped table-bordered">
                 <thead><tr>
@@ -820,7 +942,6 @@ $('document').ready(function () {
                     <th>Bags</th><th>KG</th><th>Net KG</th><th>Rate</th><th>Amount</th>
                 </tr></thead>
                 <tbody>`;
-
         $.each(order.details, function (k, d) {
             html += `<tr>
                 <td>${d.garden_name||'-'}</td><td>${d.grade_name||'-'}</td><td>${d.invoice_no||'-'}</td>
@@ -831,7 +952,6 @@ $('document').ready(function () {
         html += `</tbody></table>`;
         $('#details').html(html);
     });
-
     /* ── Delete ── */
     $(document).on('click', '.del-btn', function () {
         var deleteid = $(this).data('id');
@@ -852,24 +972,315 @@ $('document').ready(function () {
             }
         );
     });
+    /* ── Dispatch Status Modal ── */
+    $(document).on('click', '.dispatch-status-btn', function () {
+        const orderId = $(this).data('order-id');
+        const currentStatus = $(this).data('current-status');
+        const expectedDate = $(this).data('expected-date');
+        $('#dispatch_order_id').val(orderId);
+        $('#modal_dispatch_status').val(currentStatus);
+        $('#modal_expected_dispatch_date').val(expectedDate);
+        if (currentStatus === 'Completed') {
+            $('#expected_date_group').show();
+        } else {
+            $('#expected_date_group').hide();
+        }
+        $('#error-expected_dispatch_date').text('');
+        $('#dispatchStatusModal').modal('show');
+    });
 
+    /* ── Sample Status Garden Selection Modal ── */
+
+    function fetchInvoicesForOrder(orderId, gardenId, callback) {
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('order.getInvoices') }}",
+            data: {
+                order_id: orderId,
+                garden_id: gardenId,
+                company_id: COMPANY_ID,
+                user_id: USER_ID,
+                token: API_TOKEN
+            },
+            success: function(response) {
+                loaderhide();
+                if (response.status === 200 && response.data && response.data.length > 0) {
+                    // Filter invoices that belong to this order (you may need to adjust this logic based on your data structure)
+                    // For now, return all invoices for the garden
+                    const invoiceNos = response.data.map(item => item.invoice_no);
+                    callback(invoiceNos);
+                } else {
+                    callback([]);
+                }
+            },
+            error: function(xhr) {
+                loaderhide();
+                console.log(xhr.responseText);
+                callback([]);
+            }
+        });
+    }
+
+    $(document).on('click', '.sample-status-btn', function () {
+        const orderId = $(this).data('order-id');
+        $('#sample_order_id').val(orderId);
+        $('#sample_garden_select').empty().append('<option value="">Select a garden</option>');
+        // Fetch gardens for this order
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('order.getGardensByOrder') }}",
+            data: {
+                order_id: orderId,
+                user_id: USER_ID,
+                company_id: COMPANY_ID,
+                token: API_TOKEN
+            },
+            success: function (response) {
+                loaderhide();
+                // Handle different response structures
+                let gardensData = response.data;
+                // If data is not in response.data, check if it's under the message key
+                if (!gardensData && response['Gardens retrieved successfully']) {
+                    gardensData = response['Gardens retrieved successfully'];
+                }
+                if (response.status === 200 && gardensData && gardensData.length > 0) {
+                    // If only one garden, redirect directly without showing modal
+                    if (gardensData.length === 1) {
+                        const garden = gardensData[0];
+                        // Store in sessionStorage to avoid URL parameters
+                        sessionStorage.setItem('sample_purchase_order_id', orderId);
+                        sessionStorage.setItem('sample_purchase_garden_id', garden.garden_id);
+                        // Also fetch invoice numbers for this order and garden
+                        fetchInvoicesForOrder(orderId, garden.garden_id, function(invoiceNos) {
+                            sessionStorage.setItem('sample_purchase_invoice_nos', JSON.stringify(invoiceNos));
+                            window.location.href = "{{ route('admin.brokerpurchaseform') }}";
+                        });
+                    } else {
+                        // Multiple gardens, show modal for selection
+                        gardensData.forEach(garden => {
+                            $('#sample_garden_select').append(`<option value="${garden.garden_id}">${garden.garden_name}</option>`);
+                        });
+                        $('#sampleGardenModal').modal('show');
+                    }
+                } else {
+                    Toast.fire({ icon: 'info', title: 'No gardens found for this order' });
+                }
+            },
+            error: function (xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }
+        });
+    });
+    $('#goToSamplePurchase').on('click', function () {
+        const orderId = $('#sample_order_id').val();
+        const gardenId = $('#sample_garden_select').val();
+        if (!gardenId) {
+            Toast.fire({ icon: 'error', title: 'Please select a garden' });
+            return;
+        }
+        sessionStorage.setItem('sample_purchase_order_id', orderId);
+        sessionStorage.setItem('sample_purchase_garden_id', gardenId);
+        // Also fetch invoice numbers for this order and garden
+        fetchInvoicesForOrder(orderId, gardenId, function(invoiceNos) {
+            sessionStorage.setItem('sample_purchase_invoice_nos', JSON.stringify(invoiceNos));
+            window.location.href = "{{ route('admin.brokerpurchaseform') }}";
+        });
+    });
+    // Invoice status button click handler
+    $(document).on('click', '.invoice-status-btn', function () {
+        const orderId = $(this).data('order-id');
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('order.getOrderDetailsForInvoice') }}",
+            data: {
+                order_id: orderId,
+                user_id: USER_ID,
+                company_id: COMPANY_ID,
+                token: API_TOKEN
+            },
+            success: function (response) {
+                loaderhide();
+                // Handle different response structures
+                let data = response.data;
+                if (!data && response['Order details retrieved successfully']) {
+                    data = response['Order details retrieved successfully'];
+                } else if (!data && response['Multiple companies found']) {
+                    data = response['Multiple companies found'];
+                }
+                if (response.status === 200 && data) {
+                    if (data.has_multiple_companies) {
+                        // Show company selection modal
+                        $('#invoice_company_select').empty().append('<option value="">Select a company</option>');
+                        data.companies.forEach(company => {
+                            $('#invoice_company_select').append(`<option value="${company.company_id}">${company.company_name}</option>`);
+                        });
+                        $('#invoice_order_id').val(orderId);
+                        $('#invoice_buyer_id').val(data.buyer_id);
+                        $('#invoiceCompanyModal').modal('show');
+                    } else {
+                        // Single company - call API directly
+                        callLotNoCreateInvoice(data.company_id, data.buyer_id, data.garden_ids, data.invoice_nos, data.order_detail_ids);
+                    }
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message || 'Error fetching order details' });
+                }
+            },
+            error: function (xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }
+        });
+    });
+
+    // Function to call lot_no_createInvoice API
+    function callLotNoCreateInvoice(companyId, buyerId, gardenIds, invoiceNos, orderDetailIds) {
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('brokerpurchase.lot_no_createInvoice') }}",
+            data: {
+                company_ids: companyId,
+                buyer_parties: buyerId,
+                garden_ids: gardenIds,
+                invoice_no: invoiceNos,
+                order_detail_ids: orderDetailIds,
+                user_id: USER_ID,
+                company_id: COMPANY_ID,
+                token: API_TOKEN
+            },
+            success: function (response) {
+                    if (response.status === 200) {
+                        $.post("{{ route('admin.lot_no_storeInvoiceSession') }}", {
+                            _token: "{{ csrf_token() }}", data: response.data
+                        }, function () { window.location.href = "{{ route('admin.addinvoice') }}"; });
+                    } else {
+                        loaderhide();
+                        Toast.fire({ icon: 'error', title: response.message || 'Something went wrong' });
+                    }
+            },
+            error: function (xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }
+        });
+    }
+    // Company selection confirm button
+    $('#invoice_company_confirm').on('click', function () {
+        const orderId = $('#invoice_order_id').val();
+        const buyerId = $('#invoice_buyer_id').val();
+        const companyId = $('#invoice_company_select').val();
+        if (!companyId) {
+            Toast.fire({ icon: 'error', title: 'Please select a company' });
+            return;
+        }
+        // Fetch order details for selected company
+        loadershow();
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('order.getOrderDetailsForInvoice') }}",
+            data: {
+                order_id: orderId,
+                filter_company_id: companyId,
+                user_id: USER_ID,
+                company_id: COMPANY_ID,
+                token: API_TOKEN
+            },
+            success: function (response) {
+                loaderhide();
+                // Handle different response structures
+                let data = response.data;
+                if (!data && response['Order details retrieved successfully']) {
+                    data = response['Order details retrieved successfully'];
+                }
+
+                if (response.status === 200 && data) {
+                    callLotNoCreateInvoice(data.company_id, buyerId, data.garden_ids, data.invoice_nos, data.order_detail_ids);
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message || 'Error fetching order details' });
+                }
+            },
+            error: function (xhr) {
+                loaderhide();
+                handleAjaxError(xhr);
+            }
+        });
+        $('#invoiceCompanyModal').modal('hide');
+    });
+    $('#modal_dispatch_status').on('change', function () {
+        if ($(this).val() === 'Completed') {
+            $('#expected_date_group').show();
+        } else {
+            $('#expected_date_group').hide();
+            $('#modal_expected_dispatch_date').val('');
+        }
+    });
+    $('#saveDispatchStatus').on('click', function () {
+        const orderId = $('#dispatch_order_id').val();
+        const dispatchStatus = $('#modal_dispatch_status').val();
+        const expectedDispatchDate = $('#modal_expected_dispatch_date').val();
+        if (dispatchStatus === 'Completed' && !expectedDispatchDate) {
+            $('#error-expected_dispatch_date').text('Expected dispatch date is required');
+            return;
+        }
+        $('#error-expected_dispatch_date').text('');
+        loadershow();
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('order.updateDispatchStatus') }}",
+            data: {
+                _token: $('input[name="_token"]').val(),
+                token: API_TOKEN,
+                user_id: USER_ID,
+                company_id: COMPANY_ID,
+                order_id: orderId,
+                dispatch_status: dispatchStatus,
+                expected_dispatch_date: expectedDispatchDate
+            },
+            success: function (r) {
+                loaderhide();
+                if (r.status == 200) {
+                    Toast.fire({ icon: 'success', title: r.message });
+                    $('#dispatchStatusModal').modal('hide');
+                    table.draw();
+                } else {
+                    Toast.fire({ icon: 'error', title: r.message });
+                }
+            },
+            error: function (xhr) {
+                loaderhide();
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+                    if (errors.expected_dispatch_date) {
+                        $('#error-expected_dispatch_date').text(errors.expected_dispatch_date[0]);
+                    }
+                } else {
+                    handleAjaxError(xhr);
+                }
+            }
+        });
+    });
     /* ── Apply / Clear filters ── */
     $('.applyfilters').on('click', function () { table.draw(); });
-
     $('.removefilters').on('click', function () {
         $('#filter_transport').val(null).trigger('change');
         $('#filter_company').val(null).trigger('change');
         $('#filter_invoice_status').val(null).trigger('change');
         $('#filter_sample_status').val(null).trigger('change');
         $('#filter_buyer').val(null).trigger('change');
+        $('#filter_reference').val(null).trigger('change');
         $('#filter_garden').val(null).trigger('change');
         $('#filter_grade').val(null).trigger('change');
+        $('#filter_dispatch_status').val(null).trigger('change');
         $('#filter_credit_days_from, #filter_credit_days_to').val('');
         $('#filter_final_amount_from, #filter_final_amount_to').val('');
+        $('#filter_expected_dispatch_date_from, #filter_expected_dispatch_date_to').val('');
         $('#filter_date_from, #filter_date_to').val('');
         table.draw();
     });
-
 });
 </script>
 @endpush

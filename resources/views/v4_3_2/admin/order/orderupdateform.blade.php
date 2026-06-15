@@ -390,6 +390,18 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                        placeholder="0.00" value="0" min="0">
                 <span class="f-err" id="error-discount"></span>
             </div>
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+                <label class="f-label">Reference</label>
+                <select class="form-control" name="reference" id="reference">
+                    <option value="" selected disabled>Select Reference</option>
+                </select>
+                <span class="f-err" id="error-reference"></span>
+            </div>
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+               <label class="f-label">Expected Dispatch Date</label>
+                <input type="date" class="f-ctrl" name="expected_dispatch_date" id="expected_dispatch_date">
+                <span class="f-err" id="error-expected_dispatch_date"></span>
+            </div>
         </div>
     </div>
 
@@ -822,6 +834,18 @@ $(document).ready(function () {
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
+    async function fetchreference() {
+        try {
+            const r = await ajaxRequest('GET', "{{ route('reference.index') }}", {
+                user_id: "{{ session()->get('user_id') }}", company_id: "{{ session()->get('company_id') }}", token: "{{ session()->get('api_token') }}"
+            });
+            const $sel = $('#reference');
+            $sel.empty().append('<option value="" selected disabled>Select Reference</option>');
+            if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
+            $sel.select2({ placeholder: 'Select Reference', width: '100%' });
+        } catch (xhr) { handleAjaxError(xhr); }
+        finally { loaderhide(); }
+    }
 
     async function fetchTransports() {
         try {
@@ -852,9 +876,11 @@ $(document).ready(function () {
 
                 $('#buyer_party').val(order.buyer_party).trigger('change');
                 $('#transport').val(order.transport).trigger('change');
+                $('#reference').val(order.reference).trigger('change');
                 $('#credit_days').val(order.credit_days);
                 $('#discount').val(order.discount ?? 0);
                 $('#order_date').val(order.order_date);
+                $('#expected_dispatch_date').val(order.expected_dispatch_date);
                 $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
 
                 order_details.forEach(detail => addNewRow(detail));
@@ -876,7 +902,7 @@ $(document).ready(function () {
     async function init() {
         loadershow();
         try {
-            await Promise.all([ fetchGardens(), fetchGrade(), fetchBuyers(), fetchTransports() ]);
+            await Promise.all([ fetchGardens(), fetchGrade(), fetchBuyers(), fetchTransports(), fetchreference() ]);
             await loaddata();
         } catch (e) { handleAjaxError(e); }
         finally { loaderhide(); }
@@ -923,6 +949,8 @@ $(document).ready(function () {
             user_id:        $('input[name="user_id"]').val(),
             company_id:     $('input[name="company_id"]').val(),
             buyer_party:    $('#buyer_party').val(),
+            reference: $('#reference').val(),
+            expected_dispatch_date: $('#expected_dispatch_date').val(),
             transport:      $('#transport').val(),
             credit_days:    $('#credit_days').val(),
             discount:       $('#discount').val(),

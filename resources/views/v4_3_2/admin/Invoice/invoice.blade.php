@@ -493,8 +493,24 @@
         // ────────────────────────────────────────────────────────────────────────────
         // Sidebar filter selects
         // ────────────────────────────────────────────────────────────────────────────
-        $('#filter_payment_status').select2({ placeholder: "Select Payment Status", allowClear: true, width: '100%' });
-        $('#filter_commission_bill_status').select2({ placeholder: "Select Status", allowClear: true, width: '100%' });
+        $('#filter_payment_status').select2({ placeholder: "Select Payment Status", allowClear: true, width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#filter_payment_status').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
+        $('#filter_commission_bill_status').select2({ placeholder: "Select Status", allowClear: true, width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#filter_commission_bill_status').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
         function getCompanyData() {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -540,9 +556,25 @@
                         getcompanyname.push(v.company_name);
                         $('#filter_company').append(`<option value="${v.id}">${v.company_name}</option>`);
                     });
-                    $('#filter_company').val('').select2({ search: true, placeholder: 'Select Company', allowClear: true });
+                    $('#filter_company').val('').select2({ search: true, placeholder: 'Select Company', allowClear: true,
+                        templateResult: function (option) {
+                            if (!option.id) return option.text;
+                            const selected = $('#filter_company').val();
+                            if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                            if (selected == option.id) return null;
+                            return option.text;
+                        }
+                    });
                 } else {
-                    $('#filter_company').val('').select2({ search: true, placeholder: 'No company found', allowClear: true });
+                    $('#filter_company').val('').select2({ search: true, placeholder: 'No company found', allowClear: true,
+                        templateResult: function (option) {
+                            if (!option.id) return option.text;
+                            const selected = $('#filter_company').val();
+                            if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                            if (selected == option.id) return null;
+                            return option.text;
+                        }
+                    });
                 }
 
                 if (buyerRes.status == 200 && buyerRes.data != '') {
@@ -550,7 +582,15 @@
                         getbuyername.push(v.name);
                         $('#filter_buyer').append(`<option value="${v.id}">${v.name}</option>`);
                     });
-                    $('#filter_buyer').val('').select2({ search: true, placeholder: 'Select Buyer', allowClear: true });
+                    $('#filter_buyer').val('').select2({ search: true, placeholder: 'Select Buyer', allowClear: true,
+                        templateResult: function (option) {
+                            if (!option.id) return option.text;
+                            const selected = $('#filter_buyer').val();
+                            if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                            if (selected == option.id) return null;
+                            return option.text;
+                        }
+                    });
                 } else {
                     $('#filter_buyer').val('').select2({ search: true, placeholder: 'No buyer found', allowClear: true });
                 }
@@ -689,7 +729,33 @@
             invoice_no($(this).val(), pre ? pre.split(',') : []);
         });
 
-        $('#companymaster_id, #buyer_id, #invoice_no').select2({ placeholder: "Select", width: '100%', search: true });
+        $('#companymaster_id').select2({ placeholder: "Select", width: '100%', search: true,
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#companymaster_id').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
+        $('#buyer_id').select2({ placeholder: "Select", width: '100%', search: true,
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#buyer_id').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
+        $('#invoice_no').select2({ placeholder: "Select", width: '100%', search: true,
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#invoice_no').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
 
         $(document).on("click", ".generate-invoice", function () { companymaster(); $('#generateinvoiceModal').modal('show'); });
 
@@ -1075,7 +1141,7 @@
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Edit Invoice"
                                                     class="edit-btn btn btn-success btn-rounded btn-sm my-0">
-                                                    <i class="ri-edit-fill"></i>
+                                                    Edit
                                                 </button>
                                             </a>
                                         </span>`;
@@ -1090,7 +1156,7 @@
                                             data-toggle="tooltip" data-placement="bottom"
                                             data-original-title="Delete Invoice"
                                             class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                            <i class="ri-delete-bin-fill"></i>
+                                            Delete
                                         </button>
                                     </span>`;
                             @endif

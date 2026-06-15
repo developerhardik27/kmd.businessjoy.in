@@ -189,7 +189,7 @@
                                     actionBtns += `   
                                         <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                             <button type="button"  data-view = '${data}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 ">
-                                                <i class="ri-indent-decrease"></i>
+                                                View
                                             </button>
                                         </span>
                                     `;
@@ -200,7 +200,7 @@
                                         <button type="button"
                                             class="btn btn-success btn-rounded btn-sm my-0 edit-btn"
                                             data-id="${data}">
-                                            <i class="ri-edit-fill"></i>
+                                            Edit
                                         </button>
                                     </span>
                                 `;
@@ -211,7 +211,7 @@
                                     actionBtns += `
                                          <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete grade Details">
                                                 <button type="button" data-id= '${data}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                    <i class="ri-delete-bin-fill"></i>
+                                                    Delete
                                                 </button>
                                             </span>
                                     `;

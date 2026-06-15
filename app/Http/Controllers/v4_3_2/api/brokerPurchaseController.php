@@ -45,13 +45,7 @@ class brokerPurchaseController extends commonController
             ::join('gardens', 'gardens.id', '=', 'order_details.garden_id')
             ->where('order_details.is_deleted', 0)
 
-            ->whereNotExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('broker_purchases')
-                    ->whereColumn('broker_purchases.garden_id', 'order_details.garden_id')
-                    ->whereColumn('broker_purchases.order_detail_id', 'order_details.id')
-                    ->where('broker_purchases.is_deleted', 0);
-            })
+            
 
             ->select(
                 'gardens.id as garden_id',
@@ -97,19 +91,61 @@ class brokerPurchaseController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
         $usedInvoices = $this->brokerpurchaseModel
+        ::where('is_deleted', 0)
+        ->where('garden_id', $request->garden_id)
+        ->where('source', 'purchase')
+        ->pluck('invoice_no')
+        ->toArray();
+
+        $query = $this->order_detailModel
+            ::where('is_deleted', 0)
+            ->where('garden_id', $request->garden_id)
+            ->whereNotIn('invoice_no', $usedInvoices);
+
+        // Filter by order_id if provided in request
+        if ($request->has('order_id') && !empty($request->order_id)) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        $allInvoices = $query->orderBy('invoice_no', 'ASC')->get();
+        // dd($allInvoices);
+        return $this->successresponse(200, 'data', $allInvoices);
+    }
+    public function getorderInvoices(Request $request)
+    {
+        if ($this->rp['teamodule']['brokerpurchase']['view'] != 1) {
+            return $this->successresponse(500, 'message', 'You are Unauthorized');
+        }
+
+        // Get used invoice_nos from broker_purchases
+        $usedInvoices = $this->brokerpurchaseModel
             ::where('is_deleted', 0)
             ->where('garden_id', $request->garden_id)
             ->where('source', 'purchase')
             ->pluck('invoice_no')
             ->toArray();
 
-        $allInvoices = $this->order_detailModel
+        // Get used order_detail_ids from broker_purchases
+        $usedOrderDetailIds = $this->brokerpurchaseModel
+            ::where('is_deleted', 0)
+            ->where('garden_id', $request->garden_id)
+            ->where('source', 'purchase')
+            ->pluck('order_detail_id')
+            ->toArray();
+
+        $query = $this->order_detailModel
             ::where('is_deleted', 0)
             ->where('garden_id', $request->garden_id)
             ->whereNotIn('invoice_no', $usedInvoices)
-            ->orderBy('invoice_no', 'ASC')
-            ->get();
-        // dd("yes");
+            ->whereNotIn('id', $usedOrderDetailIds);  // exclude already used order_detail ids
+
+        // Filter by order_id if provided
+        if ($request->has('order_id') && !empty($request->order_id)) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        $allInvoices = $query->orderBy('invoice_no', 'ASC')->get();
+
         return $this->successresponse(200, 'data', $allInvoices);
     }
     public function getOtherDetails(Request $request)
@@ -227,7 +263,6 @@ class brokerPurchaseController extends commonController
             return $this->successresponse(500, 'message', 'You are Unauthorized');
         }
 
-        // dd($request->all());
         $buyerParties = $request->buyer_parties;
         $companyIds   = $request->company_ids;
         $invoice_no   = $request->invoice_no;
@@ -477,7 +512,6 @@ class brokerPurchaseController extends commonController
     }
     public function store(Request $request)
     {
-        // dd($request->all());
         // Check permission
         if ($this->rp['teamodule']['brokerpurchase']['add'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -521,6 +555,7 @@ class brokerPurchaseController extends commonController
             if ($existing) {
                 // ── UPDATE existing record ──
                 $updated = $existing->update([
+                    'sample_purchase_date' => $request->sample_purchase_date,
                     'source'     => 'purchase',
                     'updated_by' => $request->user_id,
                 ]);
@@ -535,6 +570,7 @@ class brokerPurchaseController extends commonController
                 // ── CREATE new record ──
                 $create = $this->brokerpurchaseModel::create([
                     'garden_id'       => $request->garden_id,
+                    'sample_purchase_date' => $request->sample_purchase_date,
                     'invoice_no'      => $detail['invoice_no'],
                     'grade'           => $detail['garde'],   // fix: was $detail['garde'] (typo)
                     'bags'            => $detail['bags'],
@@ -615,6 +651,7 @@ class brokerPurchaseController extends commonController
         }
         $details = $this->order_detailModel::where('garden_id', $request->garden_id)->where('invoice_no', $request->invoice_no)->get();
         $update = $this->brokerpurchaseModel::where('id', $id)->update([
+            'sample_purchase_date' => $request->sample_purchase_date,
             'garden_id' => $request->garden_id,
             'invoice_no' => $request->invoice_no,
             'grade' => $details[0]->grade,

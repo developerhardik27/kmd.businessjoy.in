@@ -165,6 +165,8 @@ Route::group(['middleware' => ['CheckSession']], function () {
             Route::controller($InvoiceController)->group(function () {
                 Route::get('/invoiceview/{id}', 'invoiceview')->name('admin.invoiceview')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/invoice', 'index')->name('admin.invoice')->middleware('checkPermission:invoicemodule,invoice,show');
+                Route::get('/prompt-report', 'paymentReport')->name('admin.prompt_report')->middleware('checkPermission:invoicemodule,invoice,show');
+                Route::post('/prompt-report/send-mail', 'sendPromptReportMail')->name('admin.prompt_report_send_mail')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/invoice/managecolumn', 'managecolumn')->name('admin.invoicemanagecolumn')->middleware('checkPermission:invoicemodule,mngcol,edit');
                 Route::get('/invoice/formula', 'formula')->name('admin.invoiceformula')->middleware('checkPermission:invoicemodule,formula,edit');
                 Route::get('/invoice/othersettings', 'othersettings')->name('admin.invoiceothersettings')->middleware('checkPermission:invoicemodule,invoicesetting,view');
@@ -358,9 +360,28 @@ Route::group(['middleware' => ['CheckSession']], function () {
 
             $orderController = getadminversion('orderController');
             Route::controller($orderController)->group(function () {
-                Route::get('/order', 'index')->name('admin.order')->middleware('checkPermission:teamodule,teadashboard,show');
-                Route::get('/AddNeworder', 'create')->name('admin.orderform')->middleware('checkPermission:teamodule,teadashboard,add');
-                Route::get('/Editorder/{id}', 'edit')->name('admin.orderupdateform')->middleware('checkPermission:teamodule,teadashboard,edit');
+                Route::get('/order', 'index')->name('admin.order')->middleware('checkPermission:teamodule,order,show');
+                Route::get('/AddNeworder', 'create')->name('admin.orderform')->middleware('checkPermission:teamodule,order,add');
+                Route::get('/Editorder/{id}', 'edit')->name('admin.orderupdateform')->middleware('checkPermission:teamodule,order,edit');
+                Route::get('/expected-dispatch-report', 'expectedDispatchReport')->name('admin.expected_dispatch_report')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/send-expected-dispatch-mail', 'sendExpectedDispatchMail')->name('admin.send_expected_dispatch_mail')->middleware('checkPermission:teamodule,order,show');
+                Route::get('/pending-invoice-report', 'pendingInvoiceReport')->name('admin.pending_invoice_report')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/send-pending-invoice-mail', 'sendPendingInvoiceMail')->name('admin.send_pending_invoice_mail')->middleware('checkPermission:teamodule,order,show');
+                Route::get('/pending-sample-purchase-report', 'pendingSamplePurchaseReport')->name('admin.pending_sample_purchase_report')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/send-pending-sample-mail', 'sendPendingSampleMail')->name('admin.send_pending_sample_mail')->middleware('checkPermission:teamodule,order,show');
+                Route::get('/turnover-report', 'turnoverReport')->name('admin.turnover_report')->middleware('checkPermission:teamodule,order,show');
+            });
+
+            $pdfController = getadminversion('PdfController');
+            Route::controller($pdfController)->group(function () {
+                Route::post('/expected-dispatch-report-pdf', 'expectedDispatchReportPdf')->name('admin.expected_dispatch_report_pdf')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/expected-dispatch-report-excel', 'expectedDispatchReportExcel')->name('admin.expected_dispatch_report_excel')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/pending-invoice-report-pdf', 'pendingInvoiceReportPdf')->name('admin.pending_invoice_report_pdf')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/pending-invoice-report-excel', 'pendingInvoiceReportExcel')->name('admin.pending_invoice_report_excel')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/pending-sample-purchase-report-pdf', 'pendingSamplePurchaseReportPdf')->name('admin.pending_sample_purchase_report_pdf')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/pending-sample-purchase-report-excel', 'pendingSamplePurchaseReportExcel')->name('admin.pending_sample_purchase_report_excel')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/turnover-report-pdf', 'turnoverReportPdf')->name('admin.turnover_report_pdf')->middleware('checkPermission:teamodule,order,show');
+                Route::post('/turnover-report-excel', 'turnoverReportExcel')->name('admin.turnover_report_excel')->middleware('checkPermission:teamodule,order,show');
             });
             /**
              * logistic module route start
@@ -438,13 +459,14 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/generaterecieptall/{id}', 'generaterecieptall')->name('invoice.generaterecieptll')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/brokerbillgeneraterecieptall/{id}', 'brokerBillgeneraterecieptall')->name('invoice.brokerBillgeneraterecieptall')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/brokerbillgeneratereciept/{id}', 'brokerBillgeneratereciept')->name('invoice.brokerBillgeneratereciept')->middleware('checkPermission:invoicemodule,invoice,view');
-                // generate consignor copy pdf 
+                // generate consignor copy pdf
                 Route::get('/generateconsignorcopypdf/{id}', 'generateconsignorcopypdf')->name('consignorcopy.generatepdf')->middleware('checkPermission:logisticmodule,consignorcopy,view');
                 Route::get('/generatebrokragebillpdf/{id}', 'generatebrokragebillpdf')->name('brokragbill.generatebrokragebillpdf')->middleware('checkPermission:invoicemodule,invoice,view');
                 Route::get('/orderreport', 'orderreport')->name('order.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
                 Route::get('/samplereport', 'samplereport')->name('brokerpurchase.samplereport')->middleware('checkPermission:teamodule,brokerpurchase,show');
                 Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,brokeragebill,show');
                 Route::get('/ledger', 'leger')->name('invoice.leger')->middleware('checkPermission:invoicemodule,invoice,show');
+                Route::get('/prompt-report-export', 'paymentReportExport')->name('prompt_report.export')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/orderpdf/{id}', 'orderpdf')->name('admin.orderpdf')->middleware('checkPermission:teamodule,order,show');
                 Route::get('/samplepurchase/{id}', 'samplepurchase')->name('admin.samplepurchase')->middleware('checkPermission:teamodule,brokerpurchase,show');
             });

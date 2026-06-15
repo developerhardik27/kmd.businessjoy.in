@@ -13,7 +13,7 @@
         @csrf
         <div class="form-group">
             <div class="form-row">
-                <div class="col-sm-6 mb-2">
+                <div class="col-sm-4 mb-2">
                     <input type="hidden" name="token" class="form-control" value="{{ session('api_token') }}"
                         placeholder="token" required />
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
@@ -21,15 +21,20 @@
                     <input type="hidden" class="form-control requiredinput" name="grade" id="grade">
                     <input type="hidden" id="broker_purchase_id" value="{{ $brokerpurchase->id ?? '' }}">
                     <label for="garden_id">Select Garden</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name="garden_id" id="garden_id">
+                    <select class="form-control requiredinput" name="garden_id" id="garden_id" style="height: 38px;">
                         <option selected disabled>Select your garden</option>
                     </select>
                     <span class="error-msg" id="error-garden_id" style="color: red"></span>
 
                 </div>
-                <div class="col-sm-6 mb-2">
+                <div class="col-sm-4 mb-2">
+                    <label for="sample_purchase_date">Sample Purchase Date</label>
+                    <input type="date" class="form-control" name="sample_purchase_date" id="sample_purchase_date" style="height: 38px;">
+                    <span class="error-msg" id="error-sample_purchase_date" style="color: red"></span>
+                </div>
+                <div class="col-sm-4 mb-2">
                     <label for="invoice_no">Select Invoice No</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name="invoice_no" id="invoice_no">
+                    <select class="form-control requiredinput" name="invoice_no" id="invoice_no" style="height: 38px;">
                         <option selected disabled>Select your Invoice No</option>
                     </select>
                     <span class="error-msg" id="error-invoice_no" style="color: red"></span>
@@ -248,7 +253,7 @@
                         if (response.status === 200) {
                             oldData = response.brokerpurchase;
                             $("#broker_purchase_id").val(oldData.id);
-
+                            $("#sample_purchase_date").val(oldData.sample_purchase_date);
                             // Sequentially load gardens → invoices → order details
                             loadGardens(oldData.garden_id, function() {
                                 loadInvoices(oldData.garden_id, oldData.invoice_no, function() {

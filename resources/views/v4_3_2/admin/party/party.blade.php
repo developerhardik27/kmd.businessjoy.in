@@ -188,7 +188,7 @@
                                     actionBtns += `   
                                         <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="View Details">
                                             <button type="button"  data-view = '${data}' data-toggle="modal" data-target="#exampleModalScrollable" class="view-btn btn btn-info btn-rounded btn-sm my-0 ">
-                                                <i class="ri-indent-decrease"></i>
+                                                View
                                             </button>
                                         </span>
                                     `;
@@ -202,7 +202,7 @@
                                         <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Edit party">
                                             <a href=${editUrl}>
                                                 <button type="button" class="btn btn-success btn-rounded btn-sm my-0">
-                                                    <i class="ri-edit-fill"></i>
+                                                    Edit
                                                 </button>
                                             </a>
                                         </span>
@@ -213,7 +213,7 @@
                                     actionBtns += `
                                          <span class="" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete party Details">
                                                 <button type="button" data-id= '${data}' class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                                    <i class="ri-delete-bin-fill"></i>
+                                                    Delete
                                                 </button>
                                             </span>
                                     `;

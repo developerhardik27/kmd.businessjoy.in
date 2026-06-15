@@ -19,6 +19,7 @@
                         <option selected="" disabled="">Select your party type</option>
                         <option value = "Transport">Transport</option>
                         <option value = "Buyer">Buyer</option>
+                        <option value = "Reference">Reference</option>
                     </select>
                     <span class="error-msg" id="error-party_type" style="color: red"></span>
                 </div>
@@ -130,7 +131,14 @@ $('document').ready(function () {
         $(selector).select2({
             placeholder: placeholder,
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
         });
     }
     initSelect2('#party_type', 'Select your Party Type');

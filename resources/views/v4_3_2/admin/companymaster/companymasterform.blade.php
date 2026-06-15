@@ -314,7 +314,14 @@ $('document').ready(function () {
         var config = {
             placeholder: placeholder,
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $(selector).val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
         };
         if (parent) config.dropdownParent = $(parent); // required for modal
         $(selector).select2(config);

@@ -605,7 +605,18 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                        placeholder="0.00" value="0" min="0">
                 <span class="f-err" id="error-discount"></span>
             </div>
-
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+                <label class="f-label">Reference</label>
+                <select class="form-control" name="reference" id="reference">
+                    <option value="" selected disabled>Select Reference</option>
+                </select>
+                <span class="f-err" id="error-reference"></span>
+            </div>
+            <div class="col-sm-3 mb-0" style="padding:0 6px;">
+               <label class="f-label">Expected Dispatch Date</label>
+                <input type="date" class="f-ctrl" name="expected_dispatch_date" id="expected_dispatch_date">
+                <span class="f-err" id="error-expected_dispatch_date"></span>
+            </div>
         </div>
     </div>
 
@@ -995,11 +1006,11 @@ $(document).ready(function () {
     /* ════════════════════════════════════════════════════════
        PARTY MODAL
     ════════════════════════════════════════════════════════ */
-    $(document).on('change', '#buyer_party, #transport', function () {
+    $(document).on('change', '#buyer_party, #transport,#reference', function () {
         const opt = $(this).find(':selected');
         if (opt.val() === 'add_new') {
             let pType = opt.data('type');
-            if (pType === 'Buyer') $('#buyer_party').val(''); else $('#transport').val('');
+            if (pType === 'Buyer') $('#buyer_party').val(''); else if (pType === 'Transport') $('#transport').val(''); else $('#reference').val('');
             $('#partyModalLabel').text(`Add New Party - ${pType}`);
             $('#party_type').val(pType);
             loadPartyCountry();
@@ -1025,7 +1036,7 @@ $(document).ready(function () {
             success: function (r) {
                 if (r.status == 200) {
                     Toast.fire({ icon: 'success', title: r.message });
-                    if (r.data['party_type'] === 'Buyer') buyer_party(r.data['party_id']); else transport(r.data['party_id']);
+                    if (r.data['party_type'] === 'Buyer') buyer_party(r.data['party_id']); else if (r.data['party_type'] === 'Transport') transport(r.data['party_id']); else reference(r.data['party_id']);
                     $('#partyform')[0].reset(); $('#partyModal').modal('hide');
                 } else Toast.fire({ icon: 'error', title: r.message });
                 loaderhide();
@@ -1204,6 +1215,21 @@ $(document).ready(function () {
         } catch (xhr) { handleAjaxError(xhr); }
         finally { loaderhide(); }
     }
+    async function reference(party_id = null) {
+        try {
+            const r = await ajaxRequest('GET', "{{ route('reference.index') }}", {
+                user_id: "{{ session()->get('user_id') }}",
+                company_id: "{{ session()->get('company_id') }}",
+                token: "{{ session()->get('api_token') }}"
+            });
+            const $sel = $('#reference');
+            $sel.empty().append('<option value="" selected disabled>Select Reference</option><option value="add_new" data-type="reference">+ Add New Reference</option>');
+            if (r.data && r.data.length) r.data.forEach(p => $sel.append(`<option value="${p.id}">${p.name}</option>`));
+            if (party_id) $sel.val(party_id);
+            $sel.select2({ placeholder: 'Select Reference', width: '100%' });
+        } catch (xhr) { handleAjaxError(xhr); }
+        finally { loaderhide(); }
+    }
 
     async function transport(party_id = null) {
         try {
@@ -1231,7 +1257,7 @@ $(document).ready(function () {
     async function initOrderForm() {
         loadershow();
         try {
-            await Promise.all([ fetchGardens(), fetchGrade(), buyer_party(), transport() ]);
+            await Promise.all([ fetchGardens(), fetchGrade(), buyer_party(), transport(),reference() ]);
             $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
             addNewRow();
         } catch (e) { handleAjaxError(e); }
@@ -1281,6 +1307,8 @@ $(document).ready(function () {
             user_id:        $('input[name="user_id"]').val(),
             company_id:     $('input[name="company_id"]').val(),
             buyer_party:    $('#buyer_party').val(),
+            reference:      $('#reference').val(),
+            expected_dispatch_date: $('#expected_dispatch_date').val(),
             transport:      $('#transport').val(),
             credit_days:    $('#credit_days').val(),
             discount:       $('#discount').val(),

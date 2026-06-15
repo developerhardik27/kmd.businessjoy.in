@@ -848,7 +848,15 @@ async function transports(tid = 0) {
             $.each(r.data, function(k,v) {
                 $('#transport_id').append(`<option data-gstno="${v.gst_no}" value="${v.id}">${[v.name,v.mobile_1,v.email].filter(Boolean).join(' - ')}</option>`);
             });
-            $('#transport_id').val(tid).select2();
+            $('#transport_id').val(tid).select2({
+                templateResult: function (option) {
+                    if (!option.id) return option.text;
+                    const selected = $('#transport_id').val();
+                    if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                    if (selected == option.id) return null;
+                    return option.text;
+                }
+            });
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -862,7 +870,15 @@ async function customers(cid = 0) {
             });
             $('#customer').val(cid);
             buyer_state_id = $('#customer').find('option:selected').data('state_id');
-            $('#customer').select2();
+            $('#customer').select2({
+                templateResult: function (option) {
+                    if (!option.id) return option.text;
+                    const selected = $('#customer').val();
+                    if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                    if (selected == option.id) return null;
+                    return option.text;
+                }
+            });
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -874,7 +890,15 @@ async function companymaster(mid = 0) {
             $.each(r.data, function(k,v) {
                 $('#companymaster_id').append(`<option data-gstno="${v.gst_no}" value="${v.id}" data-state_id="${v.state_id}">${[v.company_name,v.mobile_1,v.email].filter(Boolean).join(' - ')}</option>`);
             });
-            $('#companymaster_id').val(mid).select2();
+            $('#companymaster_id').val(mid).select2({
+                templateResult: function (option) {
+                    if (!option.id) return option.text;
+                    const selected = $('#companymaster_id').val();
+                    if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                    if (selected == option.id) return null;
+                    return option.text;
+                }
+            });
             company_state_id = $('#companymaster_id').find('option:selected').data('state_id');
         }
     } catch(e) { handleAjaxError(e); }
@@ -939,7 +963,14 @@ async function loadBankDetails(selectedId = null) {
         $sel.select2({
             width: '100%',
             placeholder: 'Select Bank',
-            allowClear: true
+            allowClear: true,
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $sel.val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
         });
     } catch(e) { handleAjaxError(e); }
 }
@@ -983,7 +1014,15 @@ $(document).ready(async function() {
                         $('#product').append(`<option id="product_option_${v.id}" ${v.track_quantity==0?'disabled':''} value="${v.id}">${v.name}${v.track_quantity==0?' - inventory not tracked':''}</option>`);
                     }
                 });
-                $('#product').val('').select2({placeholder:"Select Product",search:true});
+                $('#product').val('').select2({placeholder:"Select Product",search:true,
+                    templateResult: function (option) {
+                        if (!option.id) return option.text;
+                        const selected = $('#product').val();
+                        if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                        if (selected == option.id) return null;
+                        return option.text;
+                    }
+                });
                 if (cnt<1) $('#productdiv').hide();
             } else $('#productdiv').hide();
         });
@@ -997,7 +1036,15 @@ $(document).ready(async function() {
                     const d=[v.consignee,v.consignment_note_no,v.consignor,v.container_no,v.to_pay].filter(Boolean).join(' - ');
                     $('#lr').append(`<option value="${v.id}">${d}</option>`);
                 });
-                $('#lr').val('').select2({placeholder:"Select LR",search:true});
+                $('#lr').val('').select2({placeholder:"Select LR",search:true,
+                    templateResult: function (option) {
+                        if (!option.id) return option.text;
+                        const selected = $('#lr').val();
+                        if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                        if (selected == option.id) return null;
+                        return option.text;
+                    }
+                });
                 if (cnt<1) $('#lrdiv').hide();
             } else $('#lrdiv').hide();
         });
@@ -1148,7 +1195,15 @@ $(function() {
                 }
             });
         } else { Toast.fire({icon:"info",title:"Product column mapping required"}); }
-        $('#product').val('').select2({placeholder:"Select Product",search:true});
+        $('#product').val('').select2({placeholder:"Select Product",search:true,
+            templateResult: function (option) {
+                if (!option.id) return option.text;
+                const selected = $('#product').val();
+                if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                if (selected == option.id) return null;
+                return option.text;
+            }
+        });
     });
 
     /* LR quick-add */

@@ -663,6 +663,44 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (session('user_permissions.teamodule.order.show') == '1')
+                                <li class="iq-menu-title"><i class="ri-subtract-line"></i><span>Reports</span></li>
+
+                                <li class="{{ request()->routeIs('admin.expected_dispatch_report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.expected_dispatch_report') }}" class="iq-waves-effect">
+                                        <i class="ri-calendar-check-line"></i>
+                                        <span>Expected Dispatch</span>
+                                    </a>
+                                </li>
+
+                                <li class="{{ request()->routeIs('admin.pending_sample_purchase_report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.pending_sample_purchase_report') }}" class="iq-waves-effect">
+                                        <i class="ri-test-tube-line"></i>
+                                        <span>Pending Sample Purchase</span>
+                                    </a>
+                                </li>
+
+                                <li class="{{ request()->routeIs('admin.pending_invoice_report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.pending_invoice_report') }}" class="iq-waves-effect">
+                                        <i class="ri-receipt-line"></i>
+                                        <span>Pending Invoice</span>
+                                    </a>
+                                </li>
+
+                                <li class="{{ request()->routeIs('admin.turnover_report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.turnover_report') }}" class="iq-waves-effect">
+                                        <i class="ri-bar-chart-grouped-line"></i>
+                                        <span>Turnover Report</span>
+                                    </a>
+                                </li>
+
+                                <li class="{{ request()->routeIs('admin.prompt_report') ? 'active' : '' }}">
+                                    <a href="{{ route('admin.prompt_report') }}" class="iq-waves-effect">
+                                        <i class="ri-alarm-warning-fill"></i>
+                                        <span>Prompt Report</span>
+                                    </a>
+                                </li>
+                            @endif
                         @elseif (Session::has('menu') && Session::get('menu') == 'Customer support')
                             @if (session('user_permissions.customersupportmodule.customersupport.show') == '1')
                                 <li class="{{ request()->routeIs('admin.customersupport') ? 'active' : '' }}">

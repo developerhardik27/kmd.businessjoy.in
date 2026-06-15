@@ -297,6 +297,8 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/columnname', 'columnname')->name('invoice.columnname');
         Route::get('/numbercolumnname', 'numbercolumnname')->name('invoice.numbercolumnname');
         Route::get('/inv_list', 'inv_list')->name('invoice.inv_list');
+        Route::get('/prompt_report_list', 'paymentReportList')->name('prompt_report.list');
+        Route::post('/prompt_report/send_mail', 'sendPaymentReminder')->name('prompt_report.send_mail');
         Route::put('/inv_status/{id}', 'status')->name('invoice.status');
         Route::get('/invoice/{id}', 'index')->name('invoice.index');
         Route::post('/invoice/insert', 'store')->name('invoice.store');
@@ -523,6 +525,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/garden/edit/{id}', 'gardenedit')->name('garden.edit');
         Route::put('/garden/update/{id}', 'gardenupdate')->name('garden.update');
         Route::put('/garden/delete/{id}', 'gardendestroy')->name('garden.delete');
+        Route::get('/garden-by-company', 'getGardensByCompany')->name('garden.bycompany');
 
         Route::get('/bank_detailslist', 'bank_detailslist')->name('bank_detail.list');
         Route::get('/bank_detail', 'bank_detailindex')->name('bank_detail.index');
@@ -534,6 +537,7 @@ Route::middleware(['checkToken'])->group(function () {
     $partyController = getversion('partyController');
     Route::controller($partyController)->group(function () {
         Route::get('/buyer', 'buyerindex')->name('buyer.index');
+        Route::get('/reference', 'referenceindex')->name('reference.index');
         Route::get('/company-buyer', 'company_buyer')->name('company_buyer.index');
         Route::get('/invoice-no', 'invoice_no')->name('invoice_no.index');
         Route::get('/transport', 'transportindex')->name('transport.index');
@@ -542,6 +546,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/party/edit/{id}', 'partyedit')->name('party.edit');
         Route::get('/party/search/{id}', 'partyedit')->name('party.search');
         Route::put('/party/update/{id}', 'partyupdate')->name('party.update');
+        Route::put('/party/update_email/{id}', 'updateEmail')->name('party.update_email');
         Route::put('/party/delete/{id}', 'partydestroy')->name('party.delete');
         Route::get('/grade', 'gradeindex')->name('grade.index');
         Route::post('/grade/insert', 'gradestore')->name('grade.store');
@@ -555,6 +560,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::get('/list_sample', 'list_sample')->name('brokerpurchase.list_sample');
         Route::get('/brokerpurchase/getGardens', 'getGardens')->name('brokerpurchase.getGardens');
         Route::get('/brokerpurchase/get-invoices', 'getInvoices')->name('brokerpurchase.getInvoices');
+        Route::get('/brokerpurchase/get-order-invoice', 'getorderInvoices')->name('order.getInvoices');
         Route::get('/brokerpurchase/get-update-invoices', 'getupdateInvoices')->name('brokerpurchase.getupdateInvoices');
         Route::get('/brokerpurchase/check-invoices', 'checkInvoice')->name('brokerpurchase.checkInvoice');
         Route::get('/brokerpurchase/get-other-details', 'getOtherDetails')->name('brokerpurchase.getOtherDetails');
@@ -593,6 +599,13 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/order/update/{id}', 'update')->name('order.update');
         Route::put('/order/delete/{id}', 'destroy')->name('order.delete');
         Route::get('/orderchart', 'orderChart')->name('order.chart');
+        Route::post('/order/update-dispatch-status', 'updateDispatchStatus')->name('order.updateDispatchStatus');
+        Route::get('/order/get-gardens-by-order', 'getGardensByOrder')->name('order.getGardensByOrder');
+        Route::get('/order/get-order-details-for-invoice', 'getOrderDetailsForInvoice')->name('order.getOrderDetailsForInvoice');
+        Route::get('/order/expected-dispatch-report-data', 'expectedDispatchReportData')->name('order.expectedDispatchReportData');
+        Route::get('/order/pending-invoice-report-data', 'pendingInvoiceReportData')->name('order.pendingInvoiceReportData');
+        Route::get('/order/pending-sample-purchase-report-data', 'pendingSamplePurchaseReportData')->name('order.pendingSamplePurchaseReportData');
+        Route::get('/order/turnover-report-data', 'turnoverReportData')->name('order.turnoverReportData');
     });
     // api_authorization  route
     $apiauthorizationController = getversion('apiauthorizationController');

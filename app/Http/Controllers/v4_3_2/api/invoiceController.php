@@ -470,6 +470,227 @@ class invoiceController extends commonController
         return $this->successresponse(200, 'columnname', $columnname);
     }
 
+    /**
+     * Payment Report - Get invoice data with credit date from orders
+     */
+    public function paymentReportList(Request $request)
+    {
+        if ($this->rp['invoicemodule']['invoice']['view'] != 1) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'You are Unauthorized',
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0
+            ]);
+        }
+
+        $check_data = $this->invoiceModel::where('is_deleted', 0)->get();
+        if ($check_data->isEmpty()) {
+            return DataTables::of($check_data)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                ])
+                ->make(true);
+        }
+
+        // 1️⃣ Subquery for line totals
+        $lineTotalSub = DB::connection('dynamic_connection')
+            ->table('mng_col')
+            ->select(
+                'invoice_id',
+                DB::raw("ROUND(SUM(amount)) as line_total")
+            )
+            ->where('is_deleted', 0)
+            ->groupBy('invoice_id');
+
+        // 2️⃣ Subquery for garden IDs from broker_purchases
+        $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases')
+            ->select(
+                'invoice_id',
+                DB::raw("GROUP_CONCAT(DISTINCT garden_id ORDER BY garden_id SEPARATOR ',') as garden_ids"),
+                DB::raw("GROUP_CONCAT(DISTINCT brokerbill_no ORDER BY id SEPARATOR ',') as brokerbill_no")
+            )
+            ->groupBy('invoice_id');
+
+        // 3️⃣ Subquery for credit_days from orders (to avoid duplicates)
+        $creditDaysSub = DB::connection('dynamic_connection')->table('order_details')
+            ->select(
+                'invoice_id',
+                DB::raw("MAX(orders.credit_days) as credit_days"),
+                DB::raw("MAX(orders.created_at) as order_created_at")
+            )
+            ->leftJoin('orders', 'order_details.order_id', '=', 'orders.id')
+            ->where('order_details.is_deleted', 0)
+            ->groupBy('invoice_id');
+
+        // 4️⃣ Main Invoice Query
+        $invoiceres = $this->invoiceModel::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+            ->leftJoin($this->masterdbname . '.country', 'partys.country_id', '=', $this->masterdbname . '.country.id')
+            ->leftJoin($this->masterdbname . '.state', 'partys.state_id', '=', $this->masterdbname . '.state.id')
+            ->leftJoin($this->masterdbname . '.city', 'partys.city_id', '=', $this->masterdbname . '.city.id')
+            ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+
+            // Join with credit_days subquery
+            ->leftJoinSub($creditDaysSub, 'credit_data', function ($join) {
+                $join->on('credit_data.invoice_id', '=', 'invoices.id');
+            })
+
+            // Latest payment_details
+            ->leftJoin('payment_details', function ($join) {
+                $join->on('invoices.id', '=', 'payment_details.inv_id')
+                    ->whereRaw('payment_details.id = (
+                SELECT id FROM payment_details 
+                WHERE inv_id = invoices.id 
+                AND is_deleted = 0 
+                ORDER BY id DESC 
+                LIMIT 1
+            )');
+            })
+
+            // Join aggregated line totals
+            ->leftJoinSub($lineTotalSub, 'mc_totals', function ($join) {
+                $join->on('mc_totals.invoice_id', '=', 'invoices.id');
+            })
+
+            // Join aggregated garden IDs
+            ->leftJoinSub($gardenSub, 'broker_totals', function ($join) {
+                $join->on('broker_totals.invoice_id', '=', 'invoices.id');
+            })
+
+            ->leftJoin($this->masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id');
+
+        // 4️⃣ Filters
+        $filters = [
+            'filter_company'        => 'invoices.company_details_id',
+            'filter_buyer'          => 'invoices.customer_id',
+            'filter_payment_status' => 'invoices.status',
+        ];
+
+        foreach ($filters as $requestKey => $column) {
+            $value = $request->$requestKey;
+            if (isset($value)) {
+                if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                    $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                    $invoiceres->whereDate($column, $operator, $value);
+                } else {
+                    $invoiceres->where($column, $value);
+                }
+            }
+        }
+
+        // Credit days filter
+        if (isset($request->filter_credit_days) && $request->filter_credit_days !== '') {
+            $invoiceres->where('credit_data.credit_days', $request->filter_credit_days);
+        }
+
+        // 5️⃣ Final Select
+        $invoiceres = $invoiceres
+            ->select(
+                'invoices.*',
+                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
+                'payment_details.id as paymentid',
+                'payment_details.part_payment',
+                'payment_details.pending_amount',
+                'partys.address',
+                'partys.id as customer_id',
+                'partys.email as customer_email',
+                DB::raw("CONCAT_WS(' ', partys.name) as customer"),
+                'country.country_name',
+                'country_details.currency',
+                'country_details.currency_symbol',
+                'state.state_name',
+                'city.city_name',
+                'companymasters.id as garden_company_id',
+                'companymasters.company_name as garden_company_name',
+                'companymasters.brokerage as brokerage',
+                'credit_data.credit_days',
+                DB::raw("DATE_FORMAT(credit_data.order_created_at, '%d-%m-%Y') as credit_date"),
+                // Aggregated fields
+                'mc_totals.line_total',
+                'broker_totals.garden_ids',
+                'broker_totals.brokerbill_no'
+            )
+            ->where('invoices.is_deleted', 0)
+            ->orderBy('invoices.inv_date', 'desc');
+
+        // 6️⃣ User Restriction
+        if ($this->rp['invoicemodule']['invoice']['alldata'] != 1) {
+            $invoiceres->where('invoices.created_by', $this->userId);
+        }
+
+        // 7️⃣ Count
+        $totalcount = (clone $invoiceres)->count();
+
+        // 8️⃣ Get Final Data
+        $invoice = $invoiceres->get();
+
+        // Calculate expected payment date for each invoice
+        $invoice->transform(function ($item) {
+            if ($item->inv_date && $item->credit_days) {
+                $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($item->credit_days);
+                $item->expected_payment_date = $expectedDate->format('d-m-Y');
+            } else {
+                $item->expected_payment_date = '-';
+            }
+            return $item;
+        });
+
+        if ($invoice->isEmpty()) {
+            return DataTables::of($invoice)
+                ->with([
+                    'status' => 404,
+                    'message' => 'No Data Found',
+                    'recordsTotal' => $totalcount,
+                ])
+                ->make(true);
+        }
+        $company_detials = $this->companymastersModel::where("id", $this->companyId)->value("id");
+        return DataTables::of($invoice)
+            ->with([
+                'status' => 200,
+                'recordsTotal' => $totalcount,
+                'company_details_id' => $company_detials
+            ])
+            ->make(true);
+    }
+
+    /**
+     * Send payment reminder mail
+     */
+    public function sendPaymentReminder(Request $request)
+    {
+        try {
+            $email = $request->email;
+            $message = $request->message;
+            $buyerName = $request->buyer_name;
+            $invoices = json_decode($request->invoices, true);
+
+            // Send mail using Laravel's Mail facade with email template
+            \Mail::send('emails.prompt_report', [
+                'buyerName' => $buyerName,
+                'email' => $email,
+                'invoices' => $invoices,
+                'message' => $message
+            ], function ($mail) use ($email, $buyerName) {
+                $mail->to($email)
+                    ->subject("Payment Reminder - {$buyerName}")
+                    ->from(config('mail.from.address'), config('mail.from.name'));
+            });
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Mail sent successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to send mail: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 
     /**
      * Store a newly created resource in storage.

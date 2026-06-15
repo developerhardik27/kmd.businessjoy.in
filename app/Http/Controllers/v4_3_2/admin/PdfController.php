@@ -1113,6 +1113,7 @@ class PdfController extends commonController
                     'sample_status'  => $sampleStatus, // Sample status included
                     'company_names' => $details
                         ->map(fn($item) => $item->company_name ?? '  -  ')
+                        ->unique()
                         ->values()
                         ->implode(', '),
 
@@ -2125,7 +2126,7 @@ class PdfController extends commonController
          $filename = 'Ledger-' . date('Y-m-d') . '.xls';
 
          $html  = '<table border="1" cellspacing="0" cellpadding="5">';
-        $html .= '<tr>
+         $html .= '<tr>
             <th colspan="17" style="font-size:30px; font-weight:bold; text-align:center;">
                LEDGER - Date: '.date('d-m-Y').'
             </th>
@@ -2219,6 +2220,213 @@ class PdfController extends commonController
          ]);
       }
    }
+
+   /**
+    * Payment Report Export
+    */
+   public function paymentReportExport(Request $request)
+   {
+      $userId = $request->user_id;
+      $masterdbname = DB::connection()->getDatabaseName();
+
+      // 1️⃣ Subquery for line totals
+      $lineTotalSub = DB::connection('dynamic_connection')
+         ->table('mng_col')
+         ->select(
+               'invoice_id',
+               DB::raw("ROUND(SUM(amount)) as line_total")
+         )
+         ->where('is_deleted', 0)
+         ->groupBy('invoice_id');
+
+      // 2️⃣ Subquery for garden IDs from broker_purchases
+      $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases')
+         ->select(
+               'invoice_id',
+               DB::raw("GROUP_CONCAT(DISTINCT garden_id ORDER BY garden_id SEPARATOR ',') as garden_ids"),
+               DB::raw("GROUP_CONCAT(DISTINCT brokerbill_no ORDER BY id SEPARATOR ',') as brokerbill_no")
+         )
+         ->groupBy('invoice_id');
+
+      // 3️⃣ Subquery for credit_days from orders (to avoid duplicates)
+      $creditDaysSub = DB::connection('dynamic_connection')->table('order_details')
+         ->select(
+               'invoice_id',
+               DB::raw("MAX(orders.credit_days) as credit_days"),
+               DB::raw("MAX(orders.created_at) as order_created_at")
+         )
+         ->leftJoin('orders', 'order_details.order_id', '=', 'orders.id')
+         ->where('order_details.is_deleted', 0)
+         ->groupBy('invoice_id');
+
+      // 4️⃣ Main Invoice Query
+      $invoiceres = $this->invoiceModel::leftJoin('partys', 'invoices.customer_id', '=', 'partys.id')
+         ->leftJoin($masterdbname . '.country', 'partys.country_id', '=', $masterdbname . '.country.id')
+         ->leftJoin($masterdbname . '.state', 'partys.state_id', '=', $masterdbname . '.state.id')
+         ->leftJoin($masterdbname . '.city', 'partys.city_id', '=', $masterdbname . '.city.id')
+         ->leftJoin('companymasters', 'invoices.company_details_id', '=', 'companymasters.id')
+
+         // Join with credit_days subquery
+         ->leftJoinSub($creditDaysSub, 'credit_data', function ($join) {
+               $join->on('credit_data.invoice_id', '=', 'invoices.id');
+         })
+
+         // Latest payment_details
+         ->leftJoin('payment_details', function ($join) {
+               $join->on('invoices.id', '=', 'payment_details.inv_id')
+                  ->whereRaw('payment_details.id = (
+               SELECT id FROM payment_details 
+               WHERE inv_id = invoices.id 
+               AND is_deleted = 0 
+               ORDER BY id DESC 
+               LIMIT 1
+            )');
+         })
+
+         // Join aggregated line totals
+         ->leftJoinSub($lineTotalSub, 'mc_totals', function ($join) {
+               $join->on('mc_totals.invoice_id', '=', 'invoices.id');
+         })
+
+         // Join aggregated garden IDs
+         ->leftJoinSub($gardenSub, 'broker_totals', function ($join) {
+               $join->on('broker_totals.invoice_id', '=', 'invoices.id');
+         })
+
+         ->leftJoin($masterdbname . '.country as country_details', 'invoices.currency_id', '=', 'country_details.id');
+
+      // 4️⃣ Filters
+      $filters = [
+         'filter_company'        => 'invoices.company_details_id',
+         'filter_buyer'          => 'invoices.customer_id',
+         'filter_payment_status' => 'invoices.status',
+      ];
+
+      foreach ($filters as $requestKey => $column) {
+         $value = $request->$requestKey;
+         if (isset($value)) {
+               if (strpos($requestKey, 'from') !== false || strpos($requestKey, 'to') !== false) {
+                  $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
+                  $invoiceres->whereDate($column, $operator, $value);
+               } else {
+                  $invoiceres->where($column, $value);
+               }
+         }
+      }
+
+      // Credit days filter
+      if (isset($request->filter_credit_days) && $request->filter_credit_days !== '') {
+         $invoiceres->where('credit_data.credit_days', $request->filter_credit_days);
+      }
+
+      // 5️⃣ Final Select
+      $invoiceres = $invoiceres
+         ->select(
+               'invoices.*',
+               DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
+               'payment_details.id as paymentid',
+               'payment_details.part_payment',
+               'payment_details.pending_amount',
+               'partys.address',
+               'partys.id as customer_id',
+               'partys.email as customer_email',
+               DB::raw("CONCAT_WS(' ', partys.name) as customer"),
+               'country.country_name',
+               'country_details.currency',
+               'country_details.currency_symbol',
+               'state.state_name',
+               'city.city_name',
+               'companymasters.id as garden_company_id',
+               'companymasters.company_name as garden_company_name',
+               'companymasters.brokerage as brokerage',
+               'credit_data.credit_days',
+               DB::raw("DATE_FORMAT(credit_data.order_created_at, '%d-%m-%Y') as credit_date"),
+               // Aggregated fields
+               'mc_totals.line_total',
+               'broker_totals.garden_ids',
+               'broker_totals.brokerbill_no'
+         )
+         ->where('invoices.is_deleted', 0)
+         ->orderBy('invoices.inv_date', 'desc');
+
+      // 6️⃣ Get Final Data
+      $invoices = $invoiceres->get();
+
+      // Calculate expected payment date for each invoice
+      $invoices->transform(function ($item) {
+         if ($item->inv_date && $item->credit_days) {
+               $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($item->credit_days);
+               $item->expected_payment_date = $expectedDate->format('d-m-Y');
+         } else {
+               $item->expected_payment_date = '-';
+         }
+         return $item;
+      });
+
+      if ($invoices->isEmpty()) {
+         return $this->successresponse(500, 'message', 'No data found for export!');
+      }
+
+      if (($request->type ?? 'pdf') === 'pdf') {
+         $options = [
+               'isPhpEnabled'        => true,
+               'isHtml5ParserEnabled' => true,
+               'isRemoteEnabled'     => true,
+         ];
+         $pdf = PDF::setOptions($options)
+               ->loadView($this->version . '.admin.PDF.prompt_report', ["invoices" => $invoices])
+               ->setPaper('a4', 'portrait');
+
+         // return $pdf->stream('Prompt_Report' . date('Y-m-d_H-i-s') . '.pdf');
+         return $pdf->download('Prompt_Report_' . date('Ymd_His') . '.pdf');
+      }
+
+      if ($request->type === 'excel') {
+         $filename = 'Prompt_Report-' . date('Y-m-d') . '.xls';
+
+         $html  = '<table border="1" cellspacing="0" cellpadding="5">';
+         $html .= '<tr>
+            <th colspan="9" style="font-size:30px; font-weight:bold; text-align:center;">
+               PROMPT REPORT - Date: '.date('d-m-Y').'
+            </th>
+         </tr>';
+         // Header Row
+         $html .= '<tr>
+            <th>ID</th>
+            <th>Invoice No</th>
+            <th>Invoice Date</th>
+            <th>Company Name</th>
+            <th>Buyer Name</th>
+            <th>Amount</th>
+            <th>Credit Days</th>
+            <th>Expected Payment Date</th>
+            <th>Status</th>
+         </tr>';
+
+         foreach ($invoices as $invoice) {
+            $html .= '<tr>
+               <td>' . ($invoice->id ?? '-') . '</td>
+               <td>' . ($invoice->inv_no ?? '-') . '</td>
+               <td>' . ($invoice->inv_date_formatted ?? '-') . '</td>
+               <td>' . ($invoice->garden_company_name ?? '-') . '</td>
+               <td>' . ($invoice->customer ?? '-') . '</td>
+               <td>' . number_format($invoice->grand_total ?? 0, 2) . '</td>
+               <td>' . ($invoice->credit_days ?? '-') . '</td>
+               <td>' . ($invoice->expected_payment_date ?? '-') . '</td>
+               <td>' . ucfirst($invoice->status ?? '-') . '</td>
+            </tr>';
+         }
+
+         $html .= '</table>';
+
+         return response($html)
+               ->header('Content-Type', 'application/vnd.ms-excel')
+               ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+      }
+
+      return $this->successresponse(500, 'message', 'Invalid export type!');
+   }
+
    public function orderpdf($id)
    {
       $order = $this->orderModel::find($id);
@@ -2516,4 +2724,754 @@ class PdfController extends commonController
       // return $pdf->download('orderpdf - '.$id. date('Y-m-d_H-i-s') . '.pdf');
       return $pdf->stream('Sample Purchase Pdf:-' . $id.'.pdf');
 }
+
+   private function getExpectedDispatchReportQuery(Request $request)
+   {
+      // Base query - matching order list pattern
+      $order = $this->orderModel::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+         ->leftJoin('partys as reference', 'reference.id', 'orders.reference')
+         ->join('order_details', 'order_details.order_id', 'orders.id')
+         ->join('gardens', 'gardens.id', 'order_details.garden_id')
+         ->leftJoin('broker_purchases', function ($join) {
+            $join->on('broker_purchases.order_detail_id', '=', 'order_details.id')
+               ->where('broker_purchases.is_deleted', 0);
+         })
+         ->leftJoin('grades', 'grades.id', 'order_details.grade')
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->where('orders.is_deleted', 0);
+
+      // Apply filters
+      if ($request->filter_expected_dispatch_date_from) {
+         $order->where('orders.expected_dispatch_date', '>=', $request->filter_expected_dispatch_date_from);
+      }
+      if ($request->filter_expected_dispatch_date_to) {
+         $order->where('orders.expected_dispatch_date', '<=', $request->filter_expected_dispatch_date_to);
+      }
+      if ($request->filter_dispatch_status) {
+         $order->where('orders.dispatch_status', $request->filter_dispatch_status);
+      }
+      if ($request->filter_garden) {
+         $order->where('order_details.garden_id', $request->filter_garden);
+      }
+      if ($request->filter_order_date_from) {
+         $order->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+      }
+      if ($request->filter_order_date_to) {
+         $order->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+      }
+      if ($request->filter_buyer) {
+         $order->where('orders.buyer_party', $request->filter_buyer);
+      }
+      if ($request->filter_sample_date_from) {
+         $order->where('broker_purchases.sample_purchase_date', '>=', $request->filter_sample_date_from);
+      }
+      if ($request->filter_sample_date_to) {
+         $order->where('broker_purchases.sample_purchase_date', '<=', $request->filter_sample_date_to);
+      }
+
+      // Company filter using whereExists
+      if (!empty($request->filter_company) && $request->filter_company !== '') {
+         $companyIds = (array) $request->filter_company;
+         $order->whereExists(function ($query) use ($companyIds) {
+            $query->select(DB::raw(1))
+               ->from('order_details as od_sub')
+               ->join('company_garden as cg_sub', 'cg_sub.garden_id', '=', 'od_sub.garden_id')
+               ->whereColumn('od_sub.order_id', 'orders.id')
+               ->whereIn('cg_sub.company_id', $companyIds)
+               ->limit(1);
+         });
+      }
+
+      // Fetch and process data
+      $orderData = $order
+         ->select(
+            'orders.id as order_id',
+            'buyer.name as buyer_name',
+            'reference.name as reference_name',
+            'orders.*',
+            DB::raw("DATE_FORMAT(orders.order_date, '%d-%m-%Y') as order_date"),
+            'order_details.*',
+            'gardens.garden_name as garden_name',
+            'grades.grade as grade_name',
+            'companymasters.id as company_id',
+            'companymasters.company_name as company_name',
+            'broker_purchases.id as broker_purchase_id',
+            'broker_purchases.source as broker_purchase_source',
+         )
+         ->get()
+         ->groupBy('order_id')
+         ->map(function ($details, $orderId) use ($request) {
+            $first = $details->first();
+
+            // Determine invoice status based on broker_purchase_id
+            $invoiceIds = $details->pluck('invoice_id');
+            if ($invoiceIds->every(fn($id) => empty($id))) {
+               $invoiceStatus = 'Pending';
+            } elseif ($invoiceIds->contains(fn($id) => empty($id))) {
+               $invoiceStatus = 'Half Invoice';
+            } else {
+               $invoiceStatus = 'Invoices Created';
+            }
+
+            // Apply invoice status filter if provided
+            if ($request->filter_invoice_status && $invoiceStatus !== $request->filter_invoice_status) {
+               return null; // Skip this order if it doesn't match the filter
+            }
+
+            // Determine sample status
+            $sampleIds = $details->pluck('broker_purchase_id');
+            $sampleSources = $details->pluck('broker_purchase_source');
+               if($sampleSources->contains('invoice')){
+                  $sampleStatus = 'Pending';
+               }
+               else{
+                  if ($sampleIds->every(fn($id) => empty($id))) {
+                        $sampleStatus = 'Pending';
+                  } elseif ($sampleIds->contains(fn($id) => empty($id))) {
+                        $sampleStatus = 'Half Sample';
+                  } else {
+                        $sampleStatus = 'Sample Created';
+                  }
+               }
+
+            // Apply sample status filter if provided
+            if ($request->filter_sample_status && $sampleStatus !== $request->filter_sample_status) {
+               return null; // Skip this order if it doesn't match the filter
+            }
+
+            return (object)[
+               'order_id' => $orderId,
+               'order_date' => $first->order_date,
+               'buyer_name' => $first->buyer_name,
+               'reference_name' => $first->reference_name,
+               'company_name' => $details
+                  ->map(fn($item) => $item->company_name ?? '  -  ')
+                  ->unique()
+                  ->values()
+                  ->implode(', '),
+               'garden_name' => $details
+                  ->filter(fn($item) => !empty($item->garden_name))
+                  ->pluck('garden_name', 'garden_id')
+                  ->values()
+                  ->implode(', '),
+               'invoice_no' => $details
+                  ->filter(fn($item) => !empty($item->invoice_no))
+                  ->pluck('invoice_no')
+                  ->unique()
+                  ->values()
+                  ->implode(', '),
+               'grade' => $details
+                  ->filter(fn($item) => !empty($item->grade_name))
+                  ->pluck('grade_name')
+                  ->unique()
+                  ->values()
+                  ->implode(', '),
+               'invoice_status' => $invoiceStatus,
+               'sample_status' => $sampleStatus,
+               'net_kg' => $details->sum('net_kg'),
+               'rate' => $first->rate,
+               'amount' => $details->sum('amount'),
+               'credit_days' => $first->credit_days,
+               'dispatch_status' => $first->dispatch_status,
+               'expected_dispatch_date' => $first->expected_dispatch_date ? date('d-m-Y', strtotime($first->expected_dispatch_date)) : '',
+            ];
+         })
+         ->filter() // Remove null values from invoice status filter
+         ->values();
+
+      return $orderData;
+   }
+
+   public function expectedDispatchReportPdf(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Resolve filter IDs to names
+      $filterNames = [];
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterNames['company'] = $company ? $company->company_name : $request->filter_company;
+      }
+      if ($request->filter_garden) {
+         $garden = \App\Models\v4_3_2\garden::find($request->filter_garden);
+         $filterNames['garden'] = $garden ? $garden->garden_name : $request->filter_garden;
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      return $pdf->download('expected_dispatch_report_' . date('Ymd_His') . '.pdf');
+      // return $pdf->stream('expected_dispatch_report_' . date('Ymd_His') . '.pdf');
+      return view($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames'));
+   }
+
+   public function expectedDispatchReportExcel(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Excel export using PhpSpreadsheet
+      $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet();
+
+      // Report header
+      $sheet->mergeCells('A1:P1');
+      $sheet->setCellValue('A1', 'Expected Dispatch Report');
+      $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+      $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+      $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
+      $sheet->setCellValue('P2', 'Total Records: ' . $data->count());
+
+      // Filters
+      $filterText = '';
+      if ($request->filter_expected_dispatch_date_from) {
+         $filterText .= 'Date From: ' . $request->filter_expected_dispatch_date_from . ' ';
+      }
+      if ($request->filter_expected_dispatch_date_to) {
+         $filterText .= 'Date To: ' . $request->filter_expected_dispatch_date_to . ' ';
+      }
+      if ($request->filter_dispatch_status) {
+         $filterText .= 'Status: ' . $request->filter_dispatch_status . ' ';
+      }
+      if ($request->filter_company) {
+         $filterText .= 'Company ID: ' . $request->filter_company . ' ';
+      }
+      if ($request->filter_garden) {
+         $filterText .= 'Garden ID: ' . $request->filter_garden . ' ';
+      }
+
+      if ($filterText) {
+         $sheet->setCellValue('A3', 'Filters Applied: ' . $filterText);
+         $sheet->mergeCells('A3:P3');
+         $headerRow = 4;
+      } else {
+         $headerRow = 3;
+      }
+
+      // Set headers - single row with all columns
+      $headers = ['Order ID', 'Order Date', 'Company Name', 'Gardens', 'Buyer', 'Reference', 'Invoice/Lot No', 'Grades', 'Invoice Status', 'Sample Status', 'Dispatch Status', 'Expected Dispatch Date', 'Total Net Kg', 'Rate', 'Final Amount', 'Credit Days'];
+      $col = 'A';
+      foreach ($headers as $header) {
+         $sheet->setCellValue($col . $headerRow, $header);
+         $col++;
+      }
+
+      // Set data - single row per item
+      $row = $headerRow + 1;
+      foreach ($data as $item) {
+         $sheet->setCellValue('A' . $row, $item->order_id ?? ' ');
+         $sheet->setCellValue('B' . $row, $item->order_date ?? ' ');
+         $sheet->setCellValue('C' . $row, $item->company_name ?? ' ');
+         $sheet->setCellValue('D' . $row, $item->garden_name ?? ' ');
+         $sheet->setCellValue('E' . $row, $item->buyer_name ?? ' ');
+         $sheet->setCellValue('F' . $row, $item->reference_name ?? ' ');
+         $sheet->setCellValue('G' . $row, $item->invoice_no ?? ' ');
+         $sheet->setCellValue('H' . $row, $item->grade ?? ' ');
+         $sheet->setCellValue('I' . $row, $item->invoice_status ?? ' ');
+         $sheet->setCellValue('J' . $row, $item->sample_status ?? ' ');
+         $sheet->setCellValue('K' . $row, $item->dispatch_status ?? ' ');
+         $sheet->setCellValue('L' . $row, $item->expected_dispatch_date ?? ' ');
+         $sheet->setCellValue('M' . $row, $item->net_kg ?? ' ');
+         $sheet->setCellValue('N' . $row, $item->rate ?? ' ');
+         $sheet->setCellValue('O' . $row, $item->amount ?? ' ');
+         $sheet->setCellValue('P' . $row, $item->credit_days ?? ' ');
+         $row++;
+      }
+
+      // Style headers
+      $highestCol = $sheet->getHighestColumn();
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")->getFont()->setBold(true);
+
+      // Auto-size columns
+      foreach (range('A', $highestCol) as $col) {
+         $sheet->getColumnDimension($col)->setAutoSize(true);
+      }
+
+      // Download
+      $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+      ob_start();
+      $writer->save('php://output');
+      $excelOutput = ob_get_clean();
+
+      $filename = 'expected_dispatch_report_' . date('Ymd_His') . '.xlsx';
+
+      return response($excelOutput, 200, [
+         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+         'Content-Disposition' => "attachment; filename=\"$filename\"",
+         'Cache-Control' => 'max-age=0',
+         'Pragma' => 'public',
+      ]);
+   }
+   public function pendingInvoiceReportPdf(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Resolve filter IDs to names
+      $filterNames = [];
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterNames['company'] = $company ? $company->company_name : $request->filter_company;
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterNames['buyer'] = $buyer ? $buyer->name : $request->filter_buyer;
+      }
+      if ($request->filter_garden) {
+         $garden = \App\Models\v4_3_2\garden::find($request->filter_garden);
+         $filterNames['garden'] = $garden ? $garden->garden_name : $request->filter_garden;
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      return $pdf->download('pending_invoice_report_' . date('Ymd_His') . '.pdf');
+      // return $pdf->stream('pending_invoice_report_' . date('Ymd_His') . '.pdf');
+      return view($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames'));
+   }
+
+   public function pendingInvoiceReportExcel(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Excel export using PhpSpreadsheet
+      $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet();
+
+      // Report title
+      $sheet->setCellValue('A1', 'Pending Invoice Report');
+      $sheet->mergeCells('A1:P1');
+      $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+      $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+      // Report date
+      $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
+      $sheet->mergeCells('A2:P2');
+
+      // Filters
+      $filterText = '';
+      if ($request->filter_order_date_from) {
+         $filterText .= 'Order Date From: ' . $request->filter_order_date_from . ' ';
+      }
+      if ($request->filter_order_date_to) {
+         $filterText .= 'Order Date To: ' . $request->filter_order_date_to . ' ';
+      }
+      if ($request->filter_invoice_status) {
+         $filterText .= 'Invoice Status: ' . $request->filter_invoice_status . ' ';
+      }
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterText .= 'Company: ' . ($company ? $company->company_name : $request->filter_company) . ' ';
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterText .= 'Buyer: ' . ($buyer ? $buyer->name : $request->filter_buyer) . ' ';
+      }
+      if ($request->filter_sample_date_from) {
+         $filterText .= 'Sample Date From: ' . $request->filter_sample_date_from . ' ';
+      }
+      if ($request->filter_sample_date_to) {
+         $filterText .= 'Sample Date To: ' . $request->filter_sample_date_to . ' ';
+      }
+
+      if ($filterText) {
+         $sheet->setCellValue('A3', 'Filters Applied: ' . $filterText);
+         $sheet->mergeCells('A3:P3');
+         $headerRow = 4;
+      } else {
+         $headerRow = 3;
+      }
+
+      // Set headers - single row with all columns
+      $headers = ['Order ID', 'Order Date', 'Company Name', 'Gardens', 'Buyer', 'Reference', 'Invoice/Lot No', 'Grades', 'Invoice Status', 'Sample Status', 'Dispatch Status', 'Expected Dispatch Date', 'Total Net Kg', 'Rate', 'Final Amount', 'Credit Days'];
+      $col = 'A';
+      foreach ($headers as $header) {
+         $sheet->setCellValue($col . $headerRow, $header);
+         $col++;
+      }
+
+      // Set data - single row per item
+      $row = $headerRow + 1;
+      foreach ($data as $item) {
+         $sheet->setCellValue('A' . $row, $item->order_id ?? ' ');
+         $sheet->setCellValue('B' . $row, $item->order_date ?? ' ');
+         $sheet->setCellValue('C' . $row, $item->company_name ?? ' ');
+         $sheet->setCellValue('D' . $row, $item->garden_name ?? ' ');
+         $sheet->setCellValue('E' . $row, $item->buyer_name ?? ' ');
+         $sheet->setCellValue('F' . $row, $item->reference_name ?? ' ');
+         $sheet->setCellValue('G' . $row, $item->invoice_no ?? ' ');
+         $sheet->setCellValue('H' . $row, $item->grade ?? ' ');
+         $sheet->setCellValue('I' . $row, $item->invoice_status ?? ' ');
+         $sheet->setCellValue('J' . $row, $item->sample_status ?? ' ');
+         $sheet->setCellValue('K' . $row, $item->dispatch_status ?? ' ');
+         $sheet->setCellValue('L' . $row, $item->expected_dispatch_date ?? ' ');
+         $sheet->setCellValue('M' . $row, $item->net_kg ?? ' ');
+         $sheet->setCellValue('N' . $row, $item->rate ?? ' ');
+         $sheet->setCellValue('O' . $row, $item->amount ?? ' ');
+         $sheet->setCellValue('P' . $row, $item->credit_days ?? ' ');
+         $row++;
+      }
+
+      // Style headers
+      $highestCol = $sheet->getHighestColumn();
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getFont()->setBold(true);
+
+      // Auto-size columns
+      foreach (range('A', $highestCol) as $col) {
+         $sheet->getColumnDimension($col)->setAutoSize(true);
+      }
+
+      // Generate and download
+      $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+      $filename = 'pending_invoice_report_' . date('Ymd_His') . '.xlsx';
+      ob_start();
+      $writer->save('php://output');
+      $excelOutput = ob_get_clean();
+
+      return response($excelOutput, 200, [
+         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+         'Content-Disposition' => "attachment; filename=\"$filename\"",
+         'Cache-Control' => 'max-age=0',
+         'Pragma' => 'public',
+      ]);
+   }
+
+   public function pendingSamplePurchaseReportPdf(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Resolve filter IDs to names
+      $filterNames = [];
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterNames['company'] = $company ? $company->company_name : $request->filter_company;
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterNames['buyer'] = $buyer ? $buyer->name : $request->filter_buyer;
+      }
+      if ($request->filter_garden) {
+         $garden = \App\Models\v4_3_2\garden::find($request->filter_garden);
+         $filterNames['garden'] = $garden ? $garden->garden_name : $request->filter_garden;
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      return $pdf->download('pending_sample_purchase_report_' . date('Ymd_His') . '.pdf');
+      // return $pdf->stream('pending_sample_purchase_report_' . date('Ymd_His') . '.pdf');
+      return view($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames'));
+   }
+
+   public function pendingSamplePurchaseReportExcel(Request $request)
+   {
+      $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Excel export using PhpSpreadsheet
+      $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet();
+
+      // Report title
+      $sheet->setCellValue('A1', 'Pending Sample Purchase Report');
+      $sheet->mergeCells('A1:P1');
+      $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+      $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+      // Report date
+      $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
+      $sheet->mergeCells('A2:P2');
+
+      // Filters
+      $filterText = '';
+      if ($request->filter_order_date_from) {
+         $filterText .= 'Order Date From: ' . $request->filter_order_date_from . ' ';
+      }
+      if ($request->filter_order_date_to) {
+         $filterText .= 'Order Date To: ' . $request->filter_order_date_to . ' ';
+      }
+      if ($request->filter_sample_status) {
+         $filterText .= 'Sample Status: ' . $request->filter_sample_status . ' ';
+      }
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterText .= 'Company: ' . ($company ? $company->company_name : $request->filter_company) . ' ';
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterText .= 'Buyer: ' . ($buyer ? $buyer->name : $request->filter_buyer) . ' ';
+      }
+      if ($request->filter_sample_date_from) {
+         $filterText .= 'Sample Date From: ' . $request->filter_sample_date_from . ' ';
+      }
+      if ($request->filter_sample_date_to) {
+         $filterText .= 'Sample Date To: ' . $request->filter_sample_date_to . ' ';
+      }
+
+      if ($filterText) {
+         $sheet->setCellValue('A3', 'Filters Applied: ' . $filterText);
+         $sheet->mergeCells('A3:P3');
+         $headerRow = 4;
+      } else {
+         $headerRow = 3;
+      }
+
+      // Set headers - single row with all columns
+      $headers = ['Order ID', 'Order Date', 'Company Name', 'Gardens', 'Buyer', 'Reference', 'Invoice/Lot No', 'Grades', 'Invoice Status', 'Sample Status', 'Dispatch Status', 'Expected Dispatch Date', 'Total Net Kg', 'Rate', 'Final Amount', 'Credit Days'];
+      $col = 'A';
+      foreach ($headers as $header) {
+         $sheet->setCellValue($col . $headerRow, $header);
+         $col++;
+      }
+
+      // Set data - single row per item
+      $row = $headerRow + 1;
+      foreach ($data as $item) {
+         $sheet->setCellValue('A' . $row, $item->order_id ?? ' ');
+         $sheet->setCellValue('B' . $row, $item->order_date ?? ' ');
+         $sheet->setCellValue('C' . $row, $item->company_name ?? ' ');
+         $sheet->setCellValue('D' . $row, $item->garden_name ?? ' ');
+         $sheet->setCellValue('E' . $row, $item->buyer_name ?? ' ');
+         $sheet->setCellValue('F' . $row, $item->reference_name ?? ' ');
+         $sheet->setCellValue('G' . $row, $item->invoice_no ?? ' ');
+         $sheet->setCellValue('H' . $row, $item->grade ?? ' ');
+         $sheet->setCellValue('I' . $row, $item->invoice_status ?? ' ');
+         $sheet->setCellValue('J' . $row, $item->sample_status ?? ' ');
+         $sheet->setCellValue('K' . $row, $item->dispatch_status ?? ' ');
+         $sheet->setCellValue('L' . $row, $item->expected_dispatch_date ?? ' ');
+         $sheet->setCellValue('M' . $row, $item->net_kg ?? ' ');
+         $sheet->setCellValue('N' . $row, $item->rate ?? ' ');
+         $sheet->setCellValue('O' . $row, $item->amount ?? ' ');
+         $sheet->setCellValue('P' . $row, $item->credit_days ?? ' ');
+         $row++;
+      }
+
+      // Style headers
+      $highestCol = $sheet->getHighestColumn();
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getFont()->setBold(true);
+
+      // Auto-size columns
+      foreach (range('A', $highestCol) as $col) {
+         $sheet->getColumnDimension($col)->setAutoSize(true);
+      }
+
+      // Generate and download
+      $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+      $filename = 'pending_sample_purchase_report_' . date('Ymd_His') . '.xlsx';
+      ob_start();
+      $writer->save('php://output');
+      $excelOutput = ob_get_clean();
+
+      return response($excelOutput, 200, [
+         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+         'Content-Disposition' => "attachment; filename=\"$filename\"",
+         'Cache-Control' => 'max-age=0',
+         'Pragma' => 'public',
+      ]);
+   }
+
+   public function turnoverReportPdf(Request $request)
+   {
+      // Base query - group by company and buyer, sum net_kg
+      $query = \App\Models\v4_3_2\order::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+         ->join('order_details', 'order_details.order_id', 'orders.id')
+         ->join('gardens', 'gardens.id', 'order_details.garden_id')
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->where('orders.is_deleted', 0);
+
+      // Apply filters
+      if ($request->filter_order_date_from) {
+         $query->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+      }
+      if ($request->filter_order_date_to) {
+         $query->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+      }
+      if ($request->filter_company) {
+         $query->where('companymasters.id', $request->filter_company);
+      }
+      if ($request->filter_buyer) {
+         $query->where('orders.buyer_party', $request->filter_buyer);
+      }
+
+      // Group by company and buyer, sum net_kg
+      $data = $query->select(
+            'companymasters.company_name',
+            'buyer.name as buyer_name',
+            DB::raw('SUM(order_details.net_kg) as total_net_kg')
+         )
+         ->groupBy('companymasters.company_name', 'buyer.name')
+         ->get()
+         ->map(function ($item) {
+            return [
+               'company_name' => $item->company_name ?? '-',
+               'buyer_name' => $item->buyer_name ?? '-',
+               'total_net_kg' => $item->total_net_kg ?? 0,
+            ];
+         });
+
+      // Resolve filter IDs to names
+      $filterNames = [];
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterNames['company'] = $company ? $company->company_name : $request->filter_company;
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterNames['buyer'] = $buyer ? $buyer->name : $request->filter_buyer;
+      }
+
+      $options = [
+         'isPhpEnabled' => true,
+         'isHtml5ParserEnabled' => true,
+         'isRemoteEnabled' => true,
+      ];
+
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.turnoverreportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      return $pdf->download('turnover_report_' . date('Ymd_His') . '.pdf');
+   }
+
+   public function turnoverReportExcel(Request $request)
+   {
+      // Base query - group by company and buyer, sum net_kg
+      $query = \App\Models\v4_3_2\order::leftJoin('partys as buyer', 'buyer.id', 'orders.buyer_party')
+         ->join('order_details', 'order_details.order_id', 'orders.id')
+         ->join('gardens', 'gardens.id', 'order_details.garden_id')
+         ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+         ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
+         ->where('orders.is_deleted', 0);
+
+      // Apply filters
+      if ($request->filter_order_date_from) {
+         $query->whereDate('orders.order_date', '>=', $request->filter_order_date_from);
+      }
+      if ($request->filter_order_date_to) {
+         $query->whereDate('orders.order_date', '<=', $request->filter_order_date_to);
+      }
+      if ($request->filter_company) {
+         $query->where('companymasters.id', $request->filter_company);
+      }
+      if ($request->filter_buyer) {
+         $query->where('orders.buyer_party', $request->filter_buyer);
+      }
+
+      // Group by company and buyer, sum net_kg
+      $data = $query->select(
+            'companymasters.company_name',
+            'buyer.name as buyer_name',
+            DB::raw('SUM(order_details.net_kg) as total_net_kg')
+         )
+         ->groupBy('companymasters.company_name', 'buyer.name')
+         ->get()
+         ->map(function ($item) {
+            return [
+               'company_name' => $item->company_name ?? '-',
+               'buyer_name' => $item->buyer_name ?? '-',
+               'total_net_kg' => $item->total_net_kg ?? 0,
+            ];
+         });
+
+      // Excel export using PhpSpreadsheet
+      $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet();
+
+      // Report title
+      $sheet->setCellValue('A1', 'Turnover Report');
+      $sheet->mergeCells('A1:C1');
+      $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+      $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+      // Report date
+      $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
+      $sheet->mergeCells('A2:C2');
+
+      // Filters
+      $filterText = '';
+      if ($request->filter_order_date_from) {
+         $filterText .= 'Order Date From: ' . $request->filter_order_date_from . ' ';
+      }
+      if ($request->filter_order_date_to) {
+         $filterText .= 'Order Date To: ' . $request->filter_order_date_to . ' ';
+      }
+      if ($request->filter_company) {
+         $company = \App\Models\v4_3_2\companymaster::find($request->filter_company);
+         $filterText .= 'Company: ' . ($company ? $company->company_name : $request->filter_company) . ' ';
+      }
+      if ($request->filter_buyer) {
+         $buyer = \App\Models\v4_3_2\party::find($request->filter_buyer);
+         $filterText .= 'Buyer: ' . ($buyer ? $buyer->name : $request->filter_buyer) . ' ';
+      }
+
+      if ($filterText) {
+         $sheet->setCellValue('A3', 'Filters Applied: ' . $filterText);
+         $sheet->mergeCells('A3:C3');
+         $headerRow = 4;
+      } else {
+         $headerRow = 3;
+      }
+
+      // Set headers
+      $headers = ['Company Name', 'Buyer Name', 'Total Net Kg'];
+      $col = 'A';
+      foreach ($headers as $header) {
+         $sheet->setCellValue($col . $headerRow, $header);
+         $col++;
+      }
+
+      // Set data
+      $row = $headerRow + 1;
+      foreach ($data as $item) {
+         $sheet->setCellValue('A' . $row, $item['company_name'] ?? ' ');
+         $sheet->setCellValue('B' . $row, $item['buyer_name'] ?? ' ');
+         $sheet->setCellValue('C' . $row, $item['total_net_kg'] ?? ' ');
+         $row++;
+      }
+
+      // Style headers
+      $highestCol = $sheet->getHighestColumn();
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
+         ->getFont()->setBold(true);
+
+      // Auto-size columns
+      foreach (range('A', $highestCol) as $col) {
+         $sheet->getColumnDimension($col)->setAutoSize(true);
+      }
+
+      // Generate and download
+      $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+      $filename = 'turnover_report_' . date('Ymd_His') . '.xlsx';
+      ob_start();
+      $writer->save('php://output');
+      $excelOutput = ob_get_clean();
+
+      return response($excelOutput, 200, [
+         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+         'Content-Disposition' => "attachment; filename=\"$filename\"",
+         'Cache-Control' => 'max-age=0',
+         'Pragma' => 'public',
+      ]);
+   }
 }
