@@ -483,6 +483,18 @@ $('document').ready(function () {
     /* ── Payment Status pre-init ── */
     initMultiSelect2('#filter_payment_status', 'Select Payment Status');
 
+    /* ── Reset all filters ── */
+    function resetFilters() {
+        // Reset date inputs
+        $('#filter_date_from, #filter_date_to').val('');
+        
+        // Reset Select2 dropdowns
+        $('#filter_payment_status').val(null).trigger('change');
+        $('#filter_company').val(null).trigger('change');
+        $('#filter_buyer').val(null).trigger('change');
+        $('#filter_garden').val(null).trigger('change');
+    }
+
     /* ── Load saved filters ── */
     function loadFilters() {
         return new Promise(resolve => {
@@ -494,6 +506,7 @@ $('document').ready(function () {
                 sessionStorage.removeItem('filterData');
                 loaderhide();
             } else {
+                resetFilters();
                 loaddata();
             }
             resolve();
@@ -908,11 +921,7 @@ $('document').ready(function () {
     /* ── Apply / Clear ── */
     $('.applyfilters').on('click',  function () { table.draw(); });
     $('.removefilters').on('click', function () {
-        $('#filter_payment_status').val(null).trigger('change');
-        $('#filter_company').val(null).trigger('change');
-        $('#filter_buyer').val(null).trigger('change');
-        $('#filter_garden').val(null).trigger('change');
-        $('#filter_date_to, #filter_date_from').val('');
+        resetFilters();
         table.draw();
     });
     $('#pdfDateForm').on('submit', function (e) {

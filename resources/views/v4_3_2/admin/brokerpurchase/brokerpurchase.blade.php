@@ -348,6 +348,20 @@ $('document').ready(function () {
         });
     }
 
+    /* ── Reset all filters ── */
+    function resetFilters() {
+        // Reset number/date inputs
+        $('#filter_net_kg_from, #filter_net_kg_to').val('');
+        $('#filter_bags_from, #filter_bags_to').val('');
+        $('#filter_from_date, #filter_to_date').val('');
+        
+        // Reset Select2 dropdowns
+        $('#filter_company').val(null).trigger('change');
+        $('#filter_buyer').val(null).trigger('change');
+        $('#filter_garden').val(null).trigger('change');
+        $('#filter_grade').val(null).trigger('change');
+    }
+
     /* ── Load saved session filters ── */
     function loadFilters() {
         return new Promise(resolve => {
@@ -359,6 +373,7 @@ $('document').ready(function () {
                 sessionStorage.removeItem('filterData');
                 loaderhide();
             } else {
+                resetFilters();
                 loaddata();
             }
             resolve();
@@ -700,13 +715,7 @@ $('document').ready(function () {
     /* ── Apply / Clear ── */
     $('.applyfilters').on('click',  function () { table.draw(); });
     $('.removefilters').on('click', function () {
-        $('#filter_company').val(null).trigger('change');
-        $('#filter_buyer').val(null).trigger('change');
-        $('#filter_garden').val(null).trigger('change');
-        $('#filter_grade').val(null).trigger('change');
-        $('#filter_from_date, #filter_to_date').val('');
-        $('#filter_net_kg_from, #filter_net_kg_to').val('');
-        $('#filter_bags_from, #filter_bags_to').val('');
+        resetFilters();
         table.draw();
     });
 

@@ -116,13 +116,6 @@ class orderController extends Controller
                 ]);
             }
 
-            // Get filter parameters
-            $filter_expected_dispatch_date_from = $request->filter_expected_dispatch_date_from;
-            $filter_expected_dispatch_date_to = $request->filter_expected_dispatch_date_to;
-            $filter_dispatch_status = $request->filter_dispatch_status;
-            $filter_company = $request->filter_company;
-            $filter_garden = $request->filter_garden;
-
             // Check if any company has null or blank email
             $companiesWithoutEmail = [];
             $companiesWithEmail = [];
@@ -153,32 +146,15 @@ class orderController extends Controller
             $emailsSent = 0;
             $errors = [];
             
-            // Get the API order controller to fetch company-specific data
-            $orderController = new \App\Http\Controllers\v4_3_2\api\orderController($request);
-            
             foreach ($companiesWithEmail as $company) {
                 try {
                     \Log::info('Attempting to send email to: ' . $company['email'] . ' for company: ' . $company['name']);
                     
-                    // Create a new request with company-specific filter
-                    $companyRequest = new \Illuminate\Http\Request();
-                    $companyRequest->merge([
-                        'token' => $token,
-                        'user_id' => $user_id,
-                        'company_id' => $company_id,
-                        'filter_expected_dispatch_date_from' => $filter_expected_dispatch_date_from,
-                        'filter_expected_dispatch_date_to' => $filter_expected_dispatch_date_to,
-                        'filter_dispatch_status' => $filter_dispatch_status,
-                        'filter_company' => $company['id'], // Filter by this specific company
-                        'filter_garden' => $filter_garden
-                    ]);
+                    // Use selected rows from the company data
+                    $selectedRows = $company['rows'] ?? [];
                     
-                    // Fetch company-specific report data
-                    $reportData = $orderController->expectedDispatchReportData($companyRequest);
-                    $reportData = json_decode($reportData->getContent(), true);
-                    
-                    \Log::info('Company-specific report data fetched for: ' . $company['name'], [
-                        'data_count' => count($reportData['data'] ?? [])
+                    \Log::info('Using selected rows for: ' . $company['name'], [
+                        'rows_count' => count($selectedRows)
                     ]);
 
                     // Get current user name using EmailLog model method
@@ -196,13 +172,13 @@ class orderController extends Controller
                         'sent_by_name' => $sentByName,
                     ]);
 
-                    // Send email with company-specific data
+                    // Send email with selected rows only
                     \Mail::to($company['email'])->send(new \App\Mail\ExpectedDispatchReportMail(
                         [$company], // Only this company
-                        $reportData['data'] ?? [], // Company-specific data
-                        $filter_expected_dispatch_date_from,
-                        $filter_expected_dispatch_date_to,
-                        $filter_dispatch_status
+                        $selectedRows, // Selected rows only
+                        null,
+                        null,
+                        null
                     ));
 
                     // Update email log as success
@@ -261,12 +237,7 @@ class orderController extends Controller
         try {
             \Log::info('Send Pending Invoice Mail - Request received', $request->all());
 
-            $companies = $request->input('companies', []);
-            $filter_order_date_from = $request->input('dateFrom');
-            $filter_order_date_to = $request->input('dateTo');
-            $filter_invoice_status = $request->input('invoiceStatus');
-            $filter_sample_date_from = $request->input('sampleDateFrom');
-            $filter_sample_date_to = $request->input('sampleDateTo');
+            $companies = json_decode($request->companies, true);
 
             if (empty($companies)) {
                 return response()->json([
@@ -275,35 +246,16 @@ class orderController extends Controller
                 ]);
             }
 
-            // Initialize API controller to get data
-            $apiController = new \App\Http\Controllers\v4_3_2\api\orderController(new Request([
-                'company_id' => session('company_id'),
-                'user_id' => session('user_id')
-            ]));
-
             $emailsSent = 0;
             $errors = [];
 
             foreach ($companies as $company) {
                 try {
-                    // Fetch company-specific data using the API controller
-                    $reportData = $apiController->pendingInvoiceReportData(
-                        new Request([
-                            'token' => session('api_token'),
-                            'user_id' => session('user_id'),
-                            'company_id' => session('company_id'),
-                            'filter_order_date_from' => $filter_order_date_from,
-                            'filter_order_date_to' => $filter_order_date_to,
-                            'filter_invoice_status' => $filter_invoice_status,
-                            'filter_company' => $company['id'],
-                            'filter_sample_date_from' => $filter_sample_date_from,
-                            'filter_sample_date_to' => $filter_sample_date_to,
-                        ])
-                    );
-                    $reportData = json_decode($reportData->getContent(), true);
-
-                    \Log::info('Company-specific pending invoice data fetched for: ' . $company['name'], [
-                        'data_count' => count($reportData['data'] ?? [])
+                    // Use selected rows from the company data
+                    $selectedRows = $company['rows'] ?? [];
+                    
+                    \Log::info('Using selected rows for: ' . $company['name'], [
+                        'rows_count' => count($selectedRows)
                     ]);
 
                     // Get current user name using EmailLog model method
@@ -321,15 +273,15 @@ class orderController extends Controller
                         'sent_by_name' => $sentByName,
                     ]);
 
-                    // Send email with company-specific data
+                    // Send email with selected rows only
                     \Mail::to($company['email'])->send(new \App\Mail\PendingInvoiceReportMail(
                         [$company], // Only this company
-                        $reportData['data'] ?? [], // Company-specific data
-                        $filter_order_date_from,
-                        $filter_order_date_to,
-                        $filter_invoice_status,
-                        $filter_sample_date_from,
-                        $filter_sample_date_to
+                        $selectedRows, // Selected rows only
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
                     ));
 
                     // Update email log as success
@@ -388,10 +340,7 @@ class orderController extends Controller
         try {
             \Log::info('Send Pending Sample Mail - Request received', $request->all());
 
-            $companies = $request->input('companies', []);
-            $filter_order_date_from = $request->input('dateFrom');
-            $filter_order_date_to = $request->input('dateTo');
-            $filter_sample_status = $request->input('sampleStatus');
+            $companies = json_decode($request->companies, true);
 
             if (empty($companies)) {
                 return response()->json([
@@ -400,33 +349,16 @@ class orderController extends Controller
                 ]);
             }
 
-            // Initialize API controller to get data
-            $apiController = new \App\Http\Controllers\v4_3_2\api\orderController(new Request([
-                'company_id' => session('company_id'),
-                'user_id' => session('user_id')
-            ]));
-
             $emailsSent = 0;
             $errors = [];
 
             foreach ($companies as $company) {
                 try {
-                    // Fetch company-specific data using the API controller
-                    $reportData = $apiController->pendingSamplePurchaseReportData(
-                        new Request([
-                            'token' => session('api_token'),
-                            'user_id' => session('user_id'),
-                            'company_id' => session('company_id'),
-                            'filter_order_date_from' => $filter_order_date_from,
-                            'filter_order_date_to' => $filter_order_date_to,
-                            'filter_sample_status' => $filter_sample_status,
-                            'filter_company' => $company['id'],
-                        ])
-                    );
-                    $reportData = json_decode($reportData->getContent(), true);
-
-                    \Log::info('Company-specific pending sample data fetched for: ' . $company['name'], [
-                        'data_count' => count($reportData['data'] ?? [])
+                    // Use selected rows from the company data
+                    $selectedRows = $company['rows'] ?? [];
+                    
+                    \Log::info('Using selected rows for: ' . $company['name'], [
+                        'rows_count' => count($selectedRows)
                     ]);
 
                     // Get current user name using EmailLog model method
@@ -444,13 +376,13 @@ class orderController extends Controller
                         'sent_by_name' => $sentByName,
                     ]);
 
-                    // Send email with company-specific data
+                    // Send email with selected rows only
                     \Mail::to($company['email'])->send(new \App\Mail\PendingSampleReportMail(
                         [$company], // Only this company
-                        $reportData['data'] ?? [], // Company-specific data
-                        $filter_order_date_from,
-                        $filter_order_date_to,
-                        $filter_sample_status
+                        $selectedRows, // Selected rows only
+                        null,
+                        null,
+                        null
                     ));
 
                     // Update email log as success

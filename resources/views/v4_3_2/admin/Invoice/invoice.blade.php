@@ -533,6 +533,15 @@
             });
         }
 
+        /* ── Reset all filters ── */
+        function resetFilters() {
+            // Reset Select2 dropdowns
+            $('#filter_payment_status').val(null).trigger('change');
+            $('#filter_commission_bill_status').val(null).trigger('change');
+            $('#filter_company').val(null).trigger('change');
+            $('#filter_buyer').val(null).trigger('change');
+        }
+
         function loadFilters() {
             return new Promise(resolve => {
                 var fd = JSON.parse(sessionStorage.getItem('filterData'));
@@ -543,7 +552,11 @@
                     sessionStorage.removeItem('filterData');
                     loaderhide();
                     resolve();
-                } else { resolve(); loaddata(); }
+                } else {
+                    resetFilters();
+                    resolve();
+                    loaddata();
+                }
             });
         }
 
@@ -1464,7 +1477,7 @@
         // ── Sidebar filter buttons ────────────────────────────────────────────────
         $('.applyfilters').on('click',  function () { table.draw(); hideOffCanvass(); });
         $('.removefilters').on('click', function () {
-            $('#filter_payment_status, #filter_company, #filter_buyer,#filter_commission_bill_status').val(null).trigger('change');
+            resetFilters();
             table.draw();
             hideOffCanvass();
         });

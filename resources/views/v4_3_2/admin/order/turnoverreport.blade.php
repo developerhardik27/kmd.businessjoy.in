@@ -99,36 +99,46 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
     <div class="row" style="margin: 0 -6px;">
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Company*</label>
             <select name="filter_company" class="f-ctrl select2" id="filter_company" required>
                 <option value="">Select Company</option>
             </select>
         </div>
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Buyer*</label>
             <select name="filter_buyer" class="f-ctrl select2" id="filter_buyer" required>
                 <option value="">Select Buyer</option>
             </select>
         </div>
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 " style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Order Date From</label>
             <input type="date" class="f-ctrl" id="filter_order_date_from" name="filter_order_date_from">
         </div>
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 " style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Order Date To</label>
             <input type="date" class="f-ctrl" id="filter_order_date_to" name="filter_order_date_to">
         </div>
+     <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
+            <button type="button" class="btn btn-secondary" id="clearBtn" style="margin-top:20px; width:100%; display: none;">Clear</button>
+        </div>
     </div>
 
-    <div class="btn-group">
-        <button type="button" class="btn btn-primary" id="pdfBtn">Generate PDF</button>
-        <button type="button" class="btn btn-success" id="excelBtn">Generate Excel</button>
-        <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-sm-12" id="buttonContainer1" style="text-align:center">
+                <button type="button" class="btn btn-secondary clearbtn" style="width: 120px;">Clear</button>
+                <button type="button" class="btn btn-primary" id="generateBtn" style="width: 120px;">Generate</button>
+            </div>
+            <div class="col-sm-12" id="buttonContainer2">
+                <button type="button" class="btn btn-primary mt-2" id="pdfBtn" style="display: none; float: right;">Generate PDF</button>
+                <button type="button" class="btn btn-success mt-2" id="excelBtn" style="display: none; float: right;">Generate Excel</button>
+            </div>
+        </div>
     </div>
 </form>
 
-<div id="reportTableContainer" style="margin-top: 20px;">
+<div id="reportTableContainer" style="margin-top: 20px; display: none; ">
     <div class="card" style="border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-white);">
         <div class="card-body" style="padding: 15px;">
             <table id="reportTable" class="table table-bordered table-striped" style="width: 100%; font-size: 12px;">
@@ -154,7 +164,7 @@ $(document).ready(function () {
     const COMPANY_ID = "{{ session()->get('company_id') }}";
 
     let table;
-
+loaderhide();
     /* ─────────────────────────────────────────
      *  DATATABLE
      * ───────────────────────────────────────── */
@@ -275,8 +285,6 @@ $(document).ready(function () {
             }
             initSelect2('#filter_buyer', 'All');
 
-            // Load DataTable only after dropdowns are ready
-            loaddata();
 
         } catch (e) {
             console.error('Initialization error:', e);
@@ -303,6 +311,20 @@ $(document).ready(function () {
 
     $('#filter_order_date_from, #filter_order_date_to').on('change', function () {
         if (table) table.ajax.reload();
+    });
+
+    $('#generateBtn').on('click', function() {
+        $('#reportTableContainer').show();
+        $('.btn2').removeClass('col-sm-3');
+        $('.btn2').addClass('col-sm-2'); 
+        $('#generateBtn').hide();
+        $('.clearbtn').hide();
+        $('#pdfBtn, #excelBtn, #clearBtn').show();
+        if (table) {
+            table.ajax.reload();
+        } else {
+            loaddata();
+        }
     });
 
     /* ─────────────────────────────────────────
@@ -346,11 +368,21 @@ $(document).ready(function () {
     /* ─────────────────────────────────────────
      *  CLEAR FILTERS
      * ───────────────────────────────────────── */
-    $('#clearBtn').on('click', function () {
+    $('#clearBtn, .clearbtn').on('click', function () {
         $('#filter_order_date_from, #filter_order_date_to').val('');
         $('#filter_company').val(null).trigger('change');
         $('#filter_buyer').val(null).trigger('change');
-        if (table) table.ajax.reload();
+        $('#filter_company').select2('val', '');
+        $('#filter_buyer').select2('val', '');
+        $('#reportTableContainer').hide();
+        $('#generateBtn').show();
+        $('#pdfBtn, #excelBtn, #clearBtn').hide();
+        $('.clearbtn').show();
+        $('.btn2').addClass('col-sm-3');
+        $('.btn2').removeClass('col-sm-2'); 
+        if (table) {
+            table.clear().draw();
+        }
     });
 
     /* ─────────────────────────────────────────

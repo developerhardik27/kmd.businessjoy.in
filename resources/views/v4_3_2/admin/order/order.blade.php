@@ -564,6 +564,23 @@ $('document').ready(function () {
             }
         });
     }
+    /* ── Reset all filters ── */
+    function resetFilters() {
+        // Reset text/number/date inputs
+        $('#filter_final_amount_from, #filter_final_amount_to, #filter_credit_days_from, #filter_credit_days_to, #filter_date_from, #filter_date_to, #filter_expected_dispatch_date_from, #filter_expected_dispatch_date_to').val('');
+        
+        // Reset Select2 dropdowns
+        $('#filter_company').val(null).trigger('change');
+        $('#filter_invoice_status').val(null).trigger('change');
+        $('#filter_sample_status').val(null).trigger('change');
+        $('#filter_buyer').val(null).trigger('change');
+        $('#filter_reference').val(null).trigger('change');
+        $('#filter_garden').val(null).trigger('change');
+        $('#filter_transport').val(null).trigger('change');
+        $('#filter_grade').val(null).trigger('change');
+        $('#filter_dispatch_status').val(null).trigger('change');
+    }
+
     /* ── Load saved filters from sessionStorage ── */
     function loadFilters() {
         return new Promise(resolve => {
@@ -575,6 +592,7 @@ $('document').ready(function () {
                 sessionStorage.removeItem('filterData');
                 loaderhide();
             } else {
+                resetFilters();
                 loaddata();
             }
             resolve();
@@ -1266,19 +1284,7 @@ $('document').ready(function () {
     /* ── Apply / Clear filters ── */
     $('.applyfilters').on('click', function () { table.draw(); });
     $('.removefilters').on('click', function () {
-        $('#filter_transport').val(null).trigger('change');
-        $('#filter_company').val(null).trigger('change');
-        $('#filter_invoice_status').val(null).trigger('change');
-        $('#filter_sample_status').val(null).trigger('change');
-        $('#filter_buyer').val(null).trigger('change');
-        $('#filter_reference').val(null).trigger('change');
-        $('#filter_garden').val(null).trigger('change');
-        $('#filter_grade').val(null).trigger('change');
-        $('#filter_dispatch_status').val(null).trigger('change');
-        $('#filter_credit_days_from, #filter_credit_days_to').val('');
-        $('#filter_final_amount_from, #filter_final_amount_to').val('');
-        $('#filter_expected_dispatch_date_from, #filter_expected_dispatch_date_to').val('');
-        $('#filter_date_from, #filter_date_to').val('');
+        resetFilters();
         table.draw();
     });
 });

@@ -61,38 +61,8 @@
         {{-- TITLE --}}
         <div class="title-bar">
             <h1>Pending Invoice Report</h1>
-            <p>Generated report for your records</p>
+            <p>Selected invoice details for your review</p>
         </div>
-
-        {{-- REPORT DETAILS --}}
-        <div class="body-pad">
-            <div class="details-card">
-                <p class="label">Report Details</p>
-                <table>
-                    <tr>
-                        <td class="key">Date Range</td>
-                        <td class="val">{{ $dateFrom ?? 'All' }} — {{ $dateTo ?? 'All' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="key">Invoice Status</td>
-                        <td class="val">{{ $invoiceStatus ?? 'All' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="key">Sample Date Range</td>
-                        <td class="val">{{ $sampleDateFrom ?? 'All' }} — {{ $sampleDateTo ?? 'All' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="key">Company</td>
-                        <td class="val">{{ $companies[0]['name'] ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="key">Email</td>
-                        <td class="val">{{ $companies[0]['email'] ?? 'N/A' }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
         {{-- DATA TABLE --}}
         @if(!empty($reportData))
         <div class="section-pad">
@@ -157,7 +127,8 @@
 
         {{-- FOOTER MESSAGE --}}
         <div class="footer-msg">
-            <p>Please find the pending invoice details above.<br>
+            <p>Please find the selected pending invoice details above for your review.<br>
+            If you have any questions regarding these invoices, please contact us.<br>
             <strong style="color: #253566;">Thank you for your business.</strong></p>
         </div>
 

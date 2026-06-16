@@ -1259,11 +1259,36 @@ $(document).ready(function () {
         try {
             await Promise.all([ fetchGardens(), fetchGrade(), buyer_party(), transport(),reference() ]);
             $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
+            
+            // Reset form on page load
+            $('#orderform')[0].reset();
+            $('#buyer_party').val(null).trigger('change');
+            $('#reference').val(null).trigger('change');
+            $('#transport').val(null).trigger('change');
+            $('#credit_days').val(null).trigger('change');
+            
             addNewRow();
         } catch (e) { handleAjaxError(e); }
         finally { loaderhide(); }
     }
     initOrderForm();
+
+    /* ════════════════════════════════════════════════════════
+       RESET BUTTON
+    ════════════════════════════════════════════════════════ */
+    $('button[type="reset"]').on('click', function() {
+        setTimeout(function() {
+            // Reset main form Select2 dropdowns
+            $('#buyer_party').val(null).trigger('change');
+            $('#reference').val(null).trigger('change');
+            $('#transport').val(null).trigger('change');
+            $('#credit_days').val(null).trigger('change');
+            
+            // Reset line item Select2 dropdowns
+            $('.garden-select').val(null).trigger('change');
+            $('.grade-select').val(null).trigger('change');
+        }, 10);
+    });
 
     /* ════════════════════════════════════════════════════════
        CANCEL

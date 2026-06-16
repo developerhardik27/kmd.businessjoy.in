@@ -192,6 +192,13 @@ $('document').ready(function () {
             loaderhide();
             handleAjaxError(xhr);
         }
+    }).done(function() {
+        // Reset form after AJAX completes to ensure clean state
+        $('#partyform')[0].reset();
+        $('#party_type').val(null).trigger('change');
+        $('#country').val(null).trigger('change');
+        $('#state').val(null).trigger('change');
+        $('#city').val(null).trigger('change');
     });
 
     // ── Country change → reload states ─────────────────────────────
@@ -277,6 +284,16 @@ $('document').ready(function () {
             }
         });
     }
+
+    // ── Reset button ─────────────────────────────────────────────────
+    $('button[type="reset"]').on('click', function() {
+        setTimeout(function() {
+            $('#party_type').val(null).trigger('change');
+            $('#country').val(null).trigger('change');
+            $('#state').val(null).trigger('change');
+            $('#city').val(null).trigger('change');
+        }, 10);
+    });
 
     // ── Cancel button ────────────────────────────────────────────────
     $('#cancelbtn').on('click', function () {

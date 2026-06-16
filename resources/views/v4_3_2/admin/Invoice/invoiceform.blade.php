@@ -1406,6 +1406,19 @@ $(function() {
             .fail(xhr => { loaderhide(); handleAjaxError(xhr); });
     });
 
+    /* ── Reset button handler ── */
+    $('button[type="reset"]').on('click', function() {
+        setTimeout(function() {
+            // Reset main form Select2 dropdowns
+            $('#customer').val(null).trigger('change');
+            $('#companymaster_id').val(null).trigger('change');
+            $('#transport_id').val(null).trigger('change');
+            $('#product').val(null).trigger('change');
+            $('#lr').val(null).trigger('change');
+            $('#acc_details').val(null).trigger('change');
+        }, 10);
+    });
+
     $('#cancelbtn').on('click', () => { loadershow(); window.location.href = "{{ route('admin.invoice') }}"; });
 
     /* ── Customer modal location ── */

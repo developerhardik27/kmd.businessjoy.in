@@ -99,27 +99,36 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
     <div class="row" style="margin: 0 -6px;">
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Company</label>
             <select name="filter_company" class="f-ctrl select2" id="filter_company">
                 <option value="">Select Company</option>
             </select>
         </div>
-        <div class="col-sm-3" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Buyer</label>
             <select name="filter_buyer" class="f-ctrl select2" id="filter_buyer">
                 <option value="">Select Buyer</option>
             </select>
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Order Date From</label>
             <input type="date" class="f-ctrl" id="filter_order_date_from" name="filter_order_date_from">
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Order Date To</label>
             <input type="date" class="f-ctrl" id="filter_order_date_to" name="filter_order_date_to">
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
+            <label class="f-label">Sample Date From</label>
+            <input type="date" class="f-ctrl" id="filter_sample_date_from" name="filter_sample_date_from">
+        </div>
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
+            <label class="f-label">Sample Date To</label>
+            <input type="date" class="f-ctrl" id="filter_sample_date_to" name="filter_sample_date_to">
+        </div>
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Sample Status</label>
             <select name="filter_sample_status" class="f-ctrl select2" id="filter_sample_status">
                 <option value="Pending" selected>Pending</option>
@@ -127,21 +136,22 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 <option value="Sample Created">Sample Created</option>
             </select>
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
-            <label class="f-label">Sample Date From</label>
-            <input type="date" class="f-ctrl" id="filter_sample_date_from" name="filter_sample_date_from">
-        </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
-            <label class="f-label">Sample Date To</label>
-            <input type="date" class="f-ctrl" id="filter_sample_date_to" name="filter_sample_date_to">
+         <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
+            <button type="button" class="btn btn-secondary" id="clearBtn" style="margin-top:20px; width:100%; display: none;">Clear</button>
         </div>
     </div>
-
-    <div class="btn-group">
-        <button type="button" class="btn btn-primary" id="pdfBtn">Generate PDF</button>
-        <button type="button" class="btn btn-success" id="excelBtn">Generate Excel</button>
-        <button type="button" class="btn btn-info" id="sendMailBtn">Send Mail</button>
-        <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-sm-12" id="buttonContainer1" style="text-align:center">
+                <button type="button" class="btn btn-secondary clearbtn" style="width: 120px;">Clear</button>
+                <button type="button" class="btn btn-primary" id="generateBtn" style="width: 120px;">Generate</button>
+            </div>
+            <div class="col-sm-12" id="buttonContainer2">
+                <button type="button" class="btn btn-info mt-2" id="sendMailBtn" style="display: none;">Send Mail <span id="selectedCount" style="display: none;">(0)</span></button>
+                <button type="button" class="btn btn-primary mt-2" id="pdfBtn" style="display: none; float: right;">Generate PDF</button>
+                <button type="button" class="btn btn-success mt-2" id="excelBtn" style="display: none; float: right;">Generate Excel</button>
+            </div>
+        </div>
     </div>
 </form>
 
@@ -150,15 +160,15 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Email for Company</h5>
+                <h5 class="modal-title">Add Email for Company: <span id="modalCompanyName"></span></h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="emailForm">
-                    <input type="hidden" id="main_company_id" name="main_company_id">
+                    <input type="hidden" id="modalCompanyId" name="modalCompanyId">
                     <div class="form-group">
-                        <label for="company_email">Company Email</label>
-                        <input type="email" class="form-control" id="company_email" name="company_email" required>
+                        <label for="companyEmail">Company Email</label>
+                        <input type="email" class="form-control" id="companyEmail" name="companyEmail" required>
                     </div>
                 </form>
             </div>
@@ -170,12 +180,13 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     </div>
 </div>
 
-<div id="reportTableContainer" style="margin-top: 20px;">
+<div id="reportTableContainer" style="margin-top: 20px; display: none;">
     <div class="card" style="border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-white);">
         <div class="card-body" style="padding: 15px;">
             <table id="reportTable" class="table table-bordered table-striped" style="width: 100%; font-size: 12px;">
                 <thead>
                     <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="selectAllRows"></th>
                         <th>Id</th>
                         <th>Order Date</th>
                         <th>Company Name</th>
@@ -242,7 +253,10 @@ $(document).ready(function () {
                     global_response = json;
                     return json.data;
                 },
-                complete: () => loaderhide(),
+                complete: () => {
+                    loaderhide();
+                    attachTableDrawHandler();
+                },
                 error: xhr => {
                     global_response = '';
                     console.log(xhr.responseText);
@@ -251,8 +265,17 @@ $(document).ready(function () {
 
             },
 
-            order: [[0, 'desc']],
+            order: [[1, 'desc']],
             columns: [
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    defaultContent: '',
+                    render: function(data, type, row) {
+                        return `<input type="checkbox" class="row-checkbox" data-row-id="${row.id}">`;
+                    }
+                },
                 { data: 'id',             name: 'id',             orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'order_date',     name: 'order_date',     orderable: true,  searchable: true,  defaultContent: '-' },
                 {
@@ -349,6 +372,16 @@ $(document).ready(function () {
             ],
             pagingType: 'full_numbers',
             drawCallback: function () {
+                // Restore checkbox state for selected rows
+                let table = $('#reportTable').DataTable();
+                table.rows().every(function() {
+                    let row = this.data();
+                    if (row && selectedRowIds.has(row.id)) {
+                        let checkbox = $(this.node()).find('.row-checkbox');
+                        checkbox.prop('checked', true);
+                    }
+                });
+
                 $('[data-toggle="tooltip"]').tooltip({ boundary: 'window', offset: '0, 10' });
                 if ($('#jumpToPageWrapper').length === 0) {
                     $(".dt-paging").after(`
@@ -400,9 +433,6 @@ $(document).ready(function () {
             // Initialize Select2 for other fields
             initSelect2('#filter_sample_status', 'Select Status');
 
-            // Initialize DataTable
-            loaddata();
-
             // Initialize tooltips
             $('[data-toggle="tooltip"]').tooltip();
 
@@ -439,9 +469,166 @@ $(document).ready(function () {
     /* ── Reload DataTable on filter change ── */
     $('#filter_order_date_from, #filter_order_date_to, #filter_sample_status, #filter_company, #filter_buyer, #filter_sample_date_from, #filter_sample_date_to').on('change', function() {
         if (table) {
-            table.ajax.reload();
+            table.ajax.reload(function() {
+                // After reload, clear selections that are no longer visible
+                let visibleRowIds = new Set();
+                table.rows({ search: 'applied' }).every(function() {
+                    let row = this.data();
+                    if (row) {
+                        visibleRowIds.add(row.id);
+                    }
+                });
+
+                // Keep only selected rows that are still visible
+                let newSelectedRowIds = new Set();
+                selectedRowIds.forEach(id => {
+                    if (visibleRowIds.has(id)) {
+                        newSelectedRowIds.add(id);
+                    }
+                });
+                selectedRowIds = newSelectedRowIds;
+
+                // Update checkboxes and count
+                table.rows({ search: 'applied' }).every(function() {
+                    let row = this.data();
+                    let checkbox = $(this.node()).find('.row-checkbox');
+                    if (row && selectedRowIds.has(row.id)) {
+                        checkbox.prop('checked', true);
+                    } else {
+                        checkbox.prop('checked', false);
+                    }
+                });
+                $('#selectAllRows').prop('checked', false);
+                updateSelectedCount();
+            });
         }
     });
+
+    $('#generateBtn').on('click', function() {
+        $('#reportTableContainer').show();
+        $('.btn2').removeClass('col-sm-3');
+        $('.btn2').addClass('col-sm-2');
+        $('#generateBtn').hide();
+        $('.clearbtn').hide();
+        $('#sendMailBtn, #pdfBtn, #excelBtn, #clearBtn').show();
+        if (table) {
+            table.ajax.reload();
+        } else {
+            loaddata();
+        }
+    });
+
+    // Store selected row IDs
+    let selectedRowIds = new Set();
+
+    // Handle row checkbox clicks
+    $(document).on('change', '.row-checkbox', function() {
+        let rowId = $(this).data('row-id');
+        let table = $('#reportTable').DataTable();
+        let rowData = table.row($(this).closest('tr')).data();
+        
+        if ($(this).is(':checked')) {
+            // Check if row has valid company name
+            let companyNames = rowData.company_names ? rowData.company_names.trim() : '';
+            console.log(companyNames);
+            if (!companyNames || companyNames === '' || companyNames === '-') {
+                $(this).prop('checked', false);
+                Toast.fire({ icon: 'error', title: 'This row does not have a company' });
+                return;
+            }
+            selectedRowIds.add(rowId);
+        } else {
+            selectedRowIds.delete(rowId);
+        }
+        updateSelectedCount();
+    });
+
+    // Handle select all checkbox (only selects visible rows)
+    $('#selectAllRows').on('change', function() {
+        let isChecked = $(this).is(':checked');
+        let table = $('#reportTable').DataTable();
+        let skippedRows = [];
+
+        // Only process visible rows (respecting filters)
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            let rowId = row.id;
+            let companyNames = row.company_names ? row.company_names.trim() : '';
+
+            // Only select rows with valid company names
+            if (companyNames && companyNames !== '' && companyNames !== '-') {
+                if (isChecked) {
+                    selectedRowIds.add(rowId);
+                } else {
+                    selectedRowIds.delete(rowId);
+                }
+            } else {
+                // Always uncheck rows without valid company
+                selectedRowIds.delete(rowId);
+                if (isChecked) {
+                    skippedRows.push(rowId);
+                }
+            }
+        });
+
+        // Update checkboxes for visible rows
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            let checkbox = $(this.node()).find('.row-checkbox');
+            let companyNames = row.company_names ? row.company_names.trim() : '';
+
+            if (companyNames && companyNames !== '' && companyNames !== '-') {
+                checkbox.prop('checked', isChecked);
+            } else {
+                checkbox.prop('checked', false);
+            }
+        });
+
+        updateSelectedCount();
+
+        // Show message if any rows were skipped
+        if (isChecked && skippedRows.length > 0) {
+            let skippedIds = skippedRows.join(', ');
+            Toast.fire({ icon: 'warning', title: 'Row(s) skipped: ' + skippedIds + ' - no company assigned' });
+        }
+    });
+
+    // Update selected count display based on visible rows only
+    function updateSelectedCount() {
+        let table = $('#reportTable').DataTable();
+        let visibleSelectedCount = 0;
+
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            if (row && selectedRowIds.has(row.id)) {
+                visibleSelectedCount++;
+            }
+        });
+
+        $('#selectedCount').text('(' + visibleSelectedCount + ')');
+        if (visibleSelectedCount > 0) {
+            $('#selectedCount').show();
+        } else {
+            $('#selectedCount').hide();
+        }
+    }
+
+    // Restore checkbox states after table reload
+    function attachTableDrawHandler() {
+        if (table) {
+            table.on('draw', function() {
+                $('.row-checkbox').each(function() {
+                    let rowId = $(this).data('row-id');
+                    if (selectedRowIds.has(rowId)) {
+                        $(this).prop('checked', true);
+                    } else {
+                        $(this).prop('checked', false);
+                    }
+                });
+                updateSelectedCount();
+            });
+        }
+    }
 
     /* ── Generate Report ── */
     function generateReport(type) {
@@ -492,114 +679,128 @@ $(document).ready(function () {
 
     /* ── Send Mail Functionality ── */
     $('#sendMailBtn').on('click', function () {
-        if (!global_response || !global_response.data || global_response.data.length === 0) {
-            Toast.fire({ icon: 'warning', title: 'No data available to send mail' });
-            return;
-        }
+        console.log('Selected Row IDs:', Array.from(selectedRowIds));
 
-        const companies = {};
-        let companyNames = new Set();
+        let table = $('#reportTable').DataTable();
 
-        // Extract company names from aggregated data
-        global_response.data.forEach(row => {
-            if (row.company_names) {
-                const names = row.company_names.split(',').map(n => n.trim()).filter(n => n);
-                names.forEach(name => companyNames.add(name));
+        // Get only visible selected rows (respecting current filters)
+        let selectedRows = [];
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            if (row && selectedRowIds.has(row.id)) {
+                selectedRows.push(row);
             }
         });
 
-        if (companyNames.size === 0) {
-            Toast.fire({ icon: 'warning', title: 'No companies found in data' });
+        console.log('Visible selected rows:', selectedRows.length);
+
+        if (selectedRows.length === 0) {
+            Toast.fire({ icon: 'error', title: 'Please select at least one visible row' });
             return;
         }
 
-        // Fetch company details for each company name
-        const companyPromises = Array.from(companyNames).map(companyName => {
-            return fetchData("{{ route('companymaster.index') }}")
-                .then(response => {
-                    const company = response.data.find(c => c.company_name === companyName);
-                    if (company) {
-                        companies[companyName] = {
-                            id: company.id,
-                            name: company.company_name,
-                            email: company.email
+        // Group selected rows by company only
+        let groupedData = {};
+        selectedRows.forEach(row => {
+            let companyNames = row.company_names ? row.company_names.split(',').map(name => name.trim()) : [];
+
+            companyNames.forEach(companyName => {
+                if (companyName && companyName !== '  -  ') {
+                    let companyKey = companyName.toLowerCase().replace(/\s+/g, '_');
+
+                    if (!groupedData[companyKey]) {
+                        groupedData[companyKey] = {
+                            companyName: companyName,
+                            companyEmail: row.company_email,
+                            rows: []
                         };
                     }
-                });
-        });
-
-        Promise.all(companyPromises).then(() => {
-            const companiesWithEmail = [];
-            const companiesWithoutEmail = [];
-
-            Object.values(companies).forEach(company => {
-                if (company.email && company.email.trim() !== '') {
-                    companiesWithEmail.push(company);
-                } else {
-                    companiesWithoutEmail.push(company);
+                    groupedData[companyKey].rows.push(row);
                 }
             });
+        });
 
-            if (companiesWithoutEmail.length > 0) {
-                // Show modal for first company without email
-                const company = companiesWithoutEmail[0];
-                $('#main_company_id').val(company.id);
-                $('#company_email').val('');
-                $('#emailModal').modal('show');
-            } else {
-                // All companies have emails, proceed to send mail
-                sendMailToCompanies(companiesWithEmail);
+        console.log('Grouped Data:', groupedData);
+
+        // Get unique companies from grouped data
+        let companies = {};
+        Object.values(groupedData).forEach(group => {
+            let companyKey = group.companyName.toLowerCase().replace(/\s+/g, '_');
+            if (!companies[companyKey]) {
+                companies[companyKey] = {
+                    id: companyKey,
+                    name: group.companyName,
+                    email: group.companyEmail,
+                    rows: group.rows
+                };
             }
         });
+
+        console.log('Companies Object:', companies);
+
+        // Check if any company is missing email directly from grouped data
+        let missingEmailCompanies = Object.values(companies).filter(c => !c.email || c.email.trim() === '');
+
+        if (missingEmailCompanies.length > 0) {
+            // Show modal for first company with missing email
+            let company = missingEmailCompanies[0];
+            $('#modalCompanyName').text(company.name);
+            $('#modalCompanyId').val(company.id);
+            $('#companyEmail').val('');
+            $('#emailModal').modal('show');
+        } else {
+            // All companies have emails, proceed to send mail
+            sendMailToCompanies(companies);
+        }
     });
 
     /* ── Save Email and Send Mail ── */
     $('#saveEmailBtn').on('click', function () {
-        const companyId = $('#main_company_id').val();
-        const email = $('#company_email').val();
+        let email = $('#companyEmail').val().trim();
+        let companyId = $('#modalCompanyId').val();
 
-        if (!email || email.trim() === '') {
-            Toast.fire({ icon: 'warning', title: 'Please enter an email address' });
+        if (!email) {
+            Toast.fire({ icon: 'error', title: 'Please enter an email address' });
             return;
         }
 
-        // Fetch full company data first
-        fetchData("{{ route('companymaster.edit', ['id' => ':id']) }}".replace(':id', companyId))
-            .then(response => {
-                const companyData = response.data;
-                companyData.email = email;
-
-                // Update company using main update API
-                return $.ajax({
-                    type: 'PUT',
-                    url: "{{ route('companymaster.update', ['id' => ':id']) }}".replace(':id', companyId),
-                    data: companyData,
-                    headers: {
-                        'Authorization': 'Bearer ' + API_TOKEN
-                    }
-                });
-            })
-            .then(response => {
-                $('#emailModal').modal('hide');
-                Toast.fire({ icon: 'success', title: 'Email saved successfully' });
-
-                // Reload and retry sending mail
-                $('#sendMailBtn').click();
-            })
-            .catch(error => {
-                console.error('Error saving email:', error);
+        loadershow();
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('companymaster.update', '__id__') }}".replace('__id__', companyId),
+            data: {
+                _token: $('input[name="_token"]').val(),
+                email: email,
+                token: API_TOKEN,
+                user_id: USER_ID,
+                company_id: COMPANY_ID
+            },
+            success: function(response) {
+                loaderhide();
+                if (response.status == 200) {
+                    $('#emailModal').modal('hide');
+                    Toast.fire({ icon: 'success', title: 'Email saved successfully' });
+                    // Retry sending mail
+                    $('#sendMailBtn').click();
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message || 'Failed to save email' });
+                }
+            },
+            error: function(xhr) {
+                loaderhide();
                 Toast.fire({ icon: 'error', title: 'Failed to save email' });
-            });
+            }
+        });
     });
 
     /* ── Send Mail to Companies ── */
     function sendMailToCompanies(companies) {
         const requestData = {
-            companies: companies,
-            dateFrom: $('#filter_order_date_from').val(),
-            dateTo: $('#filter_order_date_to').val(),
-            sampleStatus: $('#filter_sample_status').val(),
-            _token: $('input[name="_token"]').val()
+            _token: $('input[name="_token"]').val(),
+            token: API_TOKEN,
+            user_id: USER_ID,
+            company_id: COMPANY_ID,
+            companies: JSON.stringify(Object.values(companies))
         };
 
         loadershow();
@@ -611,6 +812,16 @@ $(document).ready(function () {
             success: function(response) {
                 loaderhide();
                 Toast.fire({ icon: 'success', title: response.message || 'Mail sent successfully' });
+
+                // Clear all selections after successful mail send
+                selectedRowIds.clear();
+                let table = $('#reportTable').DataTable();
+                table.rows().every(function() {
+                    let checkbox = $(this.node()).find('.row-checkbox');
+                    checkbox.prop('checked', false);
+                });
+                $('#selectAllRows').prop('checked', false);
+                updateSelectedCount();
             },
             error: function(xhr) {
                 loaderhide();
@@ -621,18 +832,28 @@ $(document).ready(function () {
     }
 
     /* ── Clear filters ── */
-    $('#clearBtn').on('click', function () {
+    $('#clearBtn, .clearbtn').on('click', function () {
         $('#filter_order_date_from, #filter_order_date_to, #filter_sample_date_from, #filter_sample_date_to').val('');
         $('#filter_sample_status').val('Pending').trigger('change');
         $('#filter_company').val(null).trigger('change');
         $('#filter_buyer').val(null).trigger('change');
+        $('#filter_company').select2('val', '');
+        $('#filter_buyer').select2('val', '');
+        $('#reportTableContainer').hide();
+        $('#generateBtn').show();
+        $('#sendMailBtn, #pdfBtn, #excelBtn, #clearBtn').hide();
+        $('.clearbtn').show();
+        $('.btn2').addClass('col-sm-3');
+        $('.btn2').removeClass('col-sm-2');
+        selectedRowIds.clear();
+        $('#selectAllRows').prop('checked', false);
+        updateSelectedCount();
         if (table) {
-            table.ajax.reload();
+            table.clear().draw();
         }
     });
 
     initialize();
-    loaddata();
     loaderhide();
 });
 </script>

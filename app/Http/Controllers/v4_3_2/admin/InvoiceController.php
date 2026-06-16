@@ -109,12 +109,15 @@ class InvoiceController extends Controller
     public function sendPromptReportMail(Request $request)
     {
         try {
-            \Log::info('Send Prompt Report Mail - Request received', $request->all());
+            \Log::info('Send Prompt Report Mail - Request received', [
+                'all_request_data' => $request->all(),
+                'buyers_raw' => $request->buyers,
+                'buyers_type' => gettype($request->buyers)
+            ]);
 
-            $buyers = $request->input('buyers', []);
-            $filter_payment_status = $request->input('paymentStatus');
-            $filter_company = $request->input('company');
-            $filter_credit_days = $request->input('creditDays');
+            $buyers = is_array($request->buyers) ? $request->buyers : json_decode($request->buyers, true);
+
+            \Log::info('Buyers data after decode', ['buyers' => $buyers, 'count' => count($buyers)]);
 
             if (empty($buyers)) {
                 return response()->json([
@@ -123,39 +126,24 @@ class InvoiceController extends Controller
                 ]);
             }
 
-            // Initialize API controller to get data
-            $apiController = new \App\Http\Controllers\v4_3_2\api\invoiceController(new Request([
-                'company_id' => session('company_id'),
-                'user_id' => session('user_id')
-            ]));
-
             $emailsSent = 0;
             $errors = [];
 
             foreach ($buyers as $buyer) {
                 try {
-                    // Fetch buyer-specific data using the API controller
-                    $reportData = $apiController->paymentReportList(
-                        new Request([
-                            'token' => session('api_token'),
-                            'user_id' => session('user_id'),
-                            'company_id' => session('company_id'),
-                            'filter_payment_status' => $filter_payment_status,
-                            'filter_company' => $filter_company,
-                            'filter_credit_days' => $filter_credit_days,
-                            'filter_buyer' => $buyer['id'],
-                        ])
-                    );
-                    $reportData = json_decode($reportData->getContent(), true);
+                    // Use selected rows from the buyer data
+                    $selectedRows = $buyer['rows'] ?? [];
 
-                    \Log::info('Buyer-specific prompt report data fetched for: ' . $buyer['name'], [
-                        'data_count' => count($reportData['data'] ?? [])
+                    \Log::info('Using selected rows for: ' . $buyer['name'], [
+                        'rows_count' => count($selectedRows),
+                        'buyer_data' => $buyer,
+                        'selected_rows' => $selectedRows
                     ]);
 
                     // Prepare invoice data for email
                     $invoices = [];
-                    $companyName = null;
-                    foreach ($reportData['data'] ?? [] as $row) {
+                    foreach ($selectedRows as $row) {
+                        \Log::info('Processing row', ['row' => $row]);
                         $invoices[] = [
                             'inv_no' => $row['inv_no'] ?? '-',
                             'inv_date' => $row['inv_date_formatted'] ?? '-',
@@ -168,16 +156,16 @@ class InvoiceController extends Controller
                             'expected_payment_date' => $row['expected_payment_date'] ?? '-',
                             'status' => $row['status'] ?? '-',
                         ];
-                        // Set company name if all invoices are from the same company
-                        if ($companyName === null) {
-                            $companyName = $row['garden_company_name'] ?? null;
-                        } elseif ($companyName !== ($row['garden_company_name'] ?? null)) {
-                            $companyName = null; // Multiple companies, don't show in details
-                        }
                     }
 
+                    \Log::info('Prepared invoices for email', [
+                        'buyer' => $buyer['name'],
+                        'invoices_count' => count($invoices),
+                        'invoices' => $invoices
+                    ]);
+
                     // Default message
-                    $message = $request->input('message') ?? 'Please find the payment reminder details above.';
+                    $message = 'Please find the selected payment reminder details for your review.';
 
                     // Get current user name using EmailLog model method
                     $sentByName = \App\Models\EmailLog::getUserName(session('user_id'));
@@ -200,7 +188,7 @@ class InvoiceController extends Controller
                         $buyer['email'],
                         $invoices,
                         $message,
-                        $companyName
+                        null
                     ));
 
                     // Update email log as success

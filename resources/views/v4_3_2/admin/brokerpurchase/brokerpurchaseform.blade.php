@@ -81,6 +81,24 @@
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
             // response status == 422 that means api has not got valid or required data
+            
+            /* ── Init Select2 helper ── */
+            function initSelect2(selector, placeholder, multiple = false) {
+                $(selector).select2({
+                    placeholder: placeholder,
+                    allowClear: true,
+                    width: '100%',
+                    ...(multiple ? {} : {}),
+                    templateResult: function (option) {
+                        if (!option.id) return option.text;
+                        const selected = $(selector).val();
+                        if (Array.isArray(selected) && selected.includes(option.id)) return null;
+                        if (selected == option.id) return null;
+                        return option.text;
+                    }
+                });
+            }
+
             let message = "{{ session('message') }}";
             if (message) {
                 Toast.fire({
@@ -129,11 +147,7 @@
                                     `<option value="${item.garden_id}">${item.garden_name}</option>`
                                 );
                             });
-                            $('#garden_id').select2({
-                                placeholder: "Select Gardens",
-                                width: '100%',
-                                search: true,
-                            });
+                            initSelect2('#garden_id', 'Select Gardens');
 
                             // Pre-select garden if provided
                             if (selectedGardenId) {
@@ -185,11 +199,7 @@
                                     `<option value="${item.invoice_no}">${item.invoice_no}</option>`
                                 );
                             });
-                            $('#invoice_no').select2({
-                                placeholder: "Select invoice(s)",
-                                width: '100%',
-                                allowClear: true
-                            });
+                            initSelect2('#invoice_no', 'Select invoice(s)', true);
 
                             // Pre-select invoices if available
                             if (window.preSelectInvoices && window.preSelectInvoices.length > 0) {
@@ -209,11 +219,7 @@
                     }
                 });
             }
-            $('#invoice_no').select2({
-                placeholder: "Select invoice(s)",
-                width: '100%',
-                allowClear: true
-            });
+            initSelect2('#invoice_no', 'Select invoice(s)', true);
             $('#invoice_no').on('change', function() {
                 let garden_id = $('#garden_id').val();
                 let invoice_nos = $(this).val(); // this is now an array
@@ -287,6 +293,19 @@
                 });
             }
 
+
+            /* ── Reset button handler ── */
+            $('button[type="reset"]').on('click', function() {
+                setTimeout(function() {
+                    // Reset Select2 dropdowns
+                    $('#garden_id').val(null).trigger('change');
+                    $('#invoice_no').val(null).trigger('change');
+                    // Clear the invoice details table
+                    $('#invoice-details-table tbody').empty();
+                    // Clear hidden inputs
+                    $('.invoice-details-inputs').remove();
+                }, 10);
+            });
 
             $('#cancelbtn').on('click', function() {
                 loadershow();

@@ -87,6 +87,10 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     justify-content: center;
     margin: 0px !important;
 }
+.btn-primary
+{
+    margin: 0 !important;
+}
 </style>
 @endsection
 
@@ -99,19 +103,19 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <input type="hidden" name="company_id" value="{{ session('company_id') }}">
 
     <div class="row" style="margin: 0 -6px;">
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 " style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Company</label>
             <select name="filter_company" class="f-ctrl select2" id="filter_company">
                 <option value="">Select Company</option>
             </select>
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 " style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Buyer</label>
             <select name="filter_buyer" class="f-ctrl select2" id="filter_buyer">
                 <option value="">Select Buyer</option>
             </select>
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Payment Status</label>
             <select name="filter_payment_status" class="f-ctrl select2" id="filter_payment_status">
                 <option value="">All</option>
@@ -122,7 +126,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 <option value="due">Over Due</option>
             </select>
         </div>
-        <div class="col-sm-2" style="padding: 0 6px; margin-bottom: 12px;">
+        <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
             <label class="f-label">Credit Days</label>
             <select name="filter_credit_days" class="f-ctrl select2" id="filter_credit_days">
                 <option value="">All</option>
@@ -134,22 +138,34 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                 <option value="90">90 Days</option>
             </select>
         </div>
+     <div class="col-sm-3 btn2" style="padding: 0 6px; margin-bottom: 12px;">
+            <button type="button" class="btn btn-secondary" id="clearBtn" style="margin-top:20px; width:100%; display: none;">Clear</button>
+        </div>
     </div>
 
-    <div class="btn-group">
-        <button type="button" class="btn btn-primary" id="pdfBtn">Generate PDF</button>
-        <button type="button" class="btn btn-success" id="excelBtn">Generate Excel</button>
-        <button type="button" class="btn btn-info" id="sendMailBtn">Send Mail</button>
-        <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-sm-12" id="buttonContainer1" style="text-align:center">
+                <button type="button" class="btn btn-secondary clearbtn mr-2" style="width: 120px;">Clear</button>
+                <button type="button" class="btn btn-primary" id="generateBtn" style="width: 120px;">Generate</button>
+            </div>
+            <div class="col-sm-12" id="buttonContainer2">
+                <button type="button" class="btn btn-info " id="sendMailBtn" style="display: none;">Send Mail <span id="selectedCount" style="display: none;">(0)</span></button>
+                <button type="button" class="btn btn-primary " id="pdfBtn" style="display: none; float: right; ">Generate PDF</button>
+                <button type="button" class="btn btn-success " id="excelBtn" style="display: none; float: right; margin-right: 10px !important; ">Generate Excel</button>
+            </div>
+        </div>
+    </div>
     </div>
 </form>
 
-<div id="reportTableContainer" style="margin-top: 20px;">
+<div id="reportTableContainer" style="margin-top: 20px; display: none;padding:20px !important;">
     <div class="card" style="border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-white);">
         <div class="card-body" style="padding: 15px;">
-            <table id="reportTable" class="table table-bordered table-striped" style="width: 100%; font-size: 12px;">
+            <table id="reportTable" class="table table-bordered table-striped" style="width: 100%; font-size: 13px;">
                 <thead>
                     <tr>
+                        <th><input type="checkbox" id="selectAllRows"></th>
                         <th>ID</th>
                         <th>Invoice No</th>
                         <th>Invoice Date</th>
@@ -255,21 +271,17 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Enter Buyer Email</h5>
+                <h5 class="modal-title">Add Email for Buyer: <span id="modalBuyerName"></span></h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Buyer Name: <span id="modalBuyerName"></span></label>
-                </div>
-                <div class="form-group">
-                    <label for="buyerEmail">Email Address *</label>
-                    <input type="email" class="form-control" id="buyerEmail" placeholder="Enter email address" required>
-                    <input type="hidden" id="modalBuyerId">
-                    <input type="hidden" id="modalInvNo">
-                    <input type="hidden" id="modalAmount">
-                    <input type="hidden" id="modalExpectedDate">
-                </div>
+                <form id="emailForm">
+                    <input type="hidden" id="modalBuyerId" name="modalBuyerId">
+                    <div class="form-group">
+                        <label for="buyerEmail">Buyer Email</label>
+                        <input type="email" class="form-control" id="buyerEmail" name="buyerEmail" required>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -346,8 +358,14 @@ $(document).ready(function () {
                     Toast.fire({ icon: 'error', title: 'Error loading data' });
                 }
             },
-            order: [[0, 'desc']],
+            order: [[1, 'desc']],
             columns: [
+                {
+                    data: 'id', name: 'id', orderable: false, searchable: false, defaultContent: '-',
+                    render: function (data, type, row) {
+                        return `<input type="checkbox" class="row-checkbox" data-row-id="${row.id}">`;
+                    }
+                },
                 { data: 'id', name: 'id', orderable: true, searchable: true, defaultContent: '-' },
                 { data: 'inv_no', name: 'inv_no', orderable: true, searchable: true, defaultContent: '-' },
                 { data: 'inv_date_formatted', name: 'inv_date_formatted', orderable: false, searchable: true, defaultContent: '-' },
@@ -407,19 +425,19 @@ $(document).ready(function () {
                         let receiptAllUrl = "{{ route('invoice.generaterecieptll', '__invoiceId__') }}".replace('__invoiceId__', row.id);
                         let actions = '';
                         if (row.status != 'paid') {
-                            actions += `<button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id="${row.id}" class="btn btn-sm btn-primary paymentformmodal" title="Add Payment"><i class="ri-paypal-fill"></i></button>`;
+                            actions += `<button data-toggle="modal" data-target="#paymentmodal" data-amount="${row.grand_total}" data-id="${row.id}" class="btn btn-sm btn-primary paymentformmodal" title="Add Payment" style="margin-right: 5px !important;"><i class="ri-paypal-fill"></i></button>`;
                         }
                         if (row.part_payment == 1 && row.status == 'paid' && row.pending_amount == 0) {
-                            actions += `<a href="${receiptAllUrl}" target="_blank"><button class="btn btn-sm btn-primary" title="Download Combined Receipt"><i class="ri-download-line"></i></button></a>`;
+                            actions += `<a href="${receiptAllUrl}" target="_blank"><button class="btn btn-sm btn-primary" title="Download Combined Receipt" style="margin-right: 5px !important;"><i class="ri-download-line"></i></button></a>`;
                         }
                         if (row.part_payment == 1) {
-                            actions += `<button data-id="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" class="btn btn-sm btn-info viewpayment" title="View All Receipt"><i class="ri-eye-fill"></i></button>`;
+                            actions += `<button data-id="${row.id}" data-toggle="modal" data-target="#exampleModalScrollable" class="btn btn-sm btn-info viewpayment" title="View All Receipt" style="margin-right: 5px !important;"><i class="ri-eye-fill"></i></button>`;
                         }
                         if (row.part_payment == 0 && row.status == 'paid') {
-                            actions += `<a href="${receiptAllUrl}" target="_blank"><button class="btn btn-sm btn-info" title="Download Single Receipt"><i class="ri-download-line"></i></button></a>`;
+                            actions += `<a href="${receiptAllUrl}" target="_blank"><button class="btn btn-sm btn-info" title="Download Single Receipt" style="margin-right: 5px !important;"><i class="ri-download-line"></i></button></a>`;
                         }
                         if (row.part_payment == 0 && row.status == 'paid' && row.paymentid) {
-                            actions += `<button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn" title="Delete Payment"><i class="ri-delete-bin-line"></i></button>`;
+                            actions += `<button data-id="${row.paymentid}" data-inv-id="${row.id}" class="btn btn-sm btn-outline-danger pay-del-btn" title="Delete Payment" style="margin-right: 5px !important;"><i class="ri-delete-bin-line"></i></button>`;
                         }
                         return actions || '-';
                     }
@@ -427,6 +445,16 @@ $(document).ready(function () {
             ],
             pagingType: 'full_numbers',
             drawCallback: function () {
+                // Restore checkbox state for selected rows
+                let table = $('#reportTable').DataTable();
+                table.rows().every(function() {
+                    let row = this.data();
+                    if (row && selectedRowIds.has(row.id)) {
+                        let checkbox = $(this.node()).find('.row-checkbox');
+                        checkbox.prop('checked', true);
+                    }
+                });
+
                 if ($('#jumpToPageWrapper').length === 0) {
                     $(".dt-paging").after(`
                         <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap:5px;">
@@ -472,7 +500,7 @@ $(document).ready(function () {
             initSelect2('#filter_payment_status', 'Select Status');
             initSelect2('#filter_credit_days', 'Select Credit Days');
 
-            loaddata();
+          
         } catch (e) {
             console.error('Initialization error:', e);
         }
@@ -501,9 +529,335 @@ $(document).ready(function () {
         });
     }
 
+    // Store selected row IDs
+    let selectedRowIds = new Set();
+
+    // Handle row checkbox clicks
+    $(document).on('change', '.row-checkbox', function() {
+        let rowId = $(this).data('row-id');
+        let table = $('#reportTable').DataTable();
+        let rowData = table.row($(this).closest('tr')).data();
+        
+        if ($(this).is(':checked')) {
+            // Check if row has valid buyer name
+            let buyerName = rowData.customer ? rowData.customer.trim() : '';
+            console.log(buyerName);
+            if (!buyerName || buyerName === '' || buyerName === '-') {
+                $(this).prop('checked', false);
+                Toast.fire({ icon: 'error', title: 'This row does not have a buyer' });
+                return;
+            }
+            selectedRowIds.add(rowId);
+        } else {
+            selectedRowIds.delete(rowId);
+        }
+        updateSelectedCount();
+    });
+
+    // Handle select all checkbox (only selects visible rows)
+    $('#selectAllRows').on('change', function() {
+        let isChecked = $(this).is(':checked');
+        let table = $('#reportTable').DataTable();
+        let skippedRows = [];
+
+        // Only process visible rows (respecting filters)
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            let rowId = row.id;
+            let buyerName = row.customer ? row.customer.trim() : '';
+
+            // Only select rows with valid buyer names
+            if (buyerName && buyerName !== '' && buyerName !== '-') {
+                if (isChecked) {
+                    selectedRowIds.add(rowId);
+                } else {
+                    selectedRowIds.delete(rowId);
+                }
+            } else {
+                // Always uncheck rows without valid buyer
+                selectedRowIds.delete(rowId);
+                if (isChecked) {
+                    skippedRows.push(rowId);
+                }
+            }
+        });
+
+        // Update checkboxes for visible rows
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            let checkbox = $(this.node()).find('.row-checkbox');
+            let buyerName = row.customer ? row.customer.trim() : '';
+
+            if (buyerName && buyerName !== '' && buyerName !== '-') {
+                checkbox.prop('checked', isChecked);
+            } else {
+                checkbox.prop('checked', false);
+            }
+        });
+
+        updateSelectedCount();
+
+        // Show message if any rows were skipped
+        if (isChecked && skippedRows.length > 0) {
+            let skippedIds = skippedRows.join(', ');
+            Toast.fire({ icon: 'warning', title: 'Row(s) skipped: ' + skippedIds + ' - no buyer assigned' });
+        }
+    });
+
+    // Update selected count display based on visible rows only
+    function updateSelectedCount() {
+        let table = $('#reportTable').DataTable();
+        let visibleSelectedCount = 0;
+
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            if (row && selectedRowIds.has(row.id)) {
+                visibleSelectedCount++;
+            }
+        });
+
+        $('#selectedCount').text('(' + visibleSelectedCount + ')');
+        if (visibleSelectedCount > 0) {
+            $('#selectedCount').show();
+        } else {
+            $('#selectedCount').hide();
+        }
+    }
+
+    /* ── Send Mail to Buyers ── */
+    $(document).off('click', '#sendMailBtn').on('click', '#sendMailBtn', function() {
+        console.log('Selected Row IDs:', Array.from(selectedRowIds));
+
+        let table = $('#reportTable').DataTable();
+
+        // Get only visible selected rows (respecting current filters)
+        let selectedRows = [];
+        table.rows({ search: 'applied' }).every(function() {
+            let row = this.data();
+            if (row && selectedRowIds.has(row.id)) {
+                selectedRows.push(row);
+            }
+        });
+
+        console.log('Visible selected rows:', selectedRows.length);
+
+        if (selectedRows.length === 0) {
+            Toast.fire({ icon: 'error', title: 'Please select at least one visible row' });
+            return;
+        }
+
+        // Group selected rows by buyer
+        let groupedData = {};
+        selectedRows.forEach(row => {
+            let buyerName = row.customer || 'Unknown';
+            let buyerEmail = row.customer_email || '';
+            
+            if (!groupedData[buyerName]) {
+                groupedData[buyerName] = {
+                    buyerName: buyerName,
+                    buyerEmail: buyerEmail,
+                    rows: []
+                };
+            }
+            groupedData[buyerName].rows.push(row);
+        });
+
+        // Convert to buyers object
+        let buyers = {};
+        Object.values(groupedData).forEach(group => {
+            let buyerKey = group.buyerName.toLowerCase().replace(/\s+/g, '_');
+            if (!buyers[buyerKey]) {
+                buyers[buyerKey] = {
+                    id: buyerKey,
+                    name: group.buyerName,
+                    email: group.buyerEmail,
+                    rows: group.rows
+                };
+            }
+        });
+
+        console.log('Buyers Object:', buyers);
+        console.log('Buyers Array:', Object.values(buyers));
+        console.log('Selected Rows Count:', selectedRows.length);
+
+        // Check if any buyer is missing email directly from grouped data
+        let missingEmailBuyers = Object.values(buyers).filter(b => !b.email || b.email.trim() === '');
+
+        if (missingEmailBuyers.length > 0) {
+            // Show modal for first buyer with missing email
+            let buyer = missingEmailBuyers[0];
+            $('#modalBuyerName').text(buyer.name);
+            $('#modalBuyerId').val(buyer.id);
+            $('#buyerEmail').val('');
+            $('#emailModal').modal('show');
+        } else {
+            // All buyers have emails, proceed to send mail
+            sendMailToBuyers(buyers);
+        }
+    });
+
+    /* ── Send Mail to Buyers ── */
+    function sendMailToBuyers(buyers) {
+        let buyersArray = Object.values(buyers);
+        console.log('=== sendMailToBuyers called ===');
+        console.log('Sending buyers to server:', buyersArray);
+        console.log('Total buyers:', buyersArray.length);
+        buyersArray.forEach((buyer, index) => {
+            console.log(`Buyer ${index}:`, buyer.name, 'Rows count:', buyer.rows.length);
+        });
+
+        let params = {
+            _token: $('input[name="_token"]').val(),
+            token: API_TOKEN,
+            user_id: USER_ID,
+            company_id: COMPANY_ID,
+            buyers: JSON.stringify(buyersArray)
+        };
+
+        console.log('AJAX params buyers string length:', params.buyers.length);
+
+        loadershow();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('admin.prompt_report_send_mail') }}",
+            data: params,
+            success: function(response) {
+                loaderhide();
+                console.log('Server response:', response);
+                Toast.fire({ icon: 'success', title: response.message || 'Mail sent successfully' });
+
+                // Clear all selections after successful mail send
+                selectedRowIds.clear();
+                let table = $('#reportTable').DataTable();
+                table.rows().every(function() {
+                    let checkbox = $(this.node()).find('.row-checkbox');
+                    checkbox.prop('checked', false);
+                });
+                $('#selectAllRows').prop('checked', false);
+                updateSelectedCount();
+            },
+            error: function(xhr) {
+                loaderhide();
+                console.log('Server error:', xhr);
+                const response = xhr.responseJSON || {};
+                Toast.fire({ icon: 'error', title: response.message || 'Failed to send mail' });
+            }
+        });
+    }
+
+    /* ── Save Email and Send Mail ── */
+    $(document).off('click', '#saveEmailBtn').on('click', '#saveEmailBtn', function () {
+        let email = $('#buyerEmail').val().trim();
+        let buyerId = $('#modalBuyerId').val();
+
+        if (!email) {
+            Toast.fire({ icon: 'error', title: 'Please enter an email address' });
+            return;
+        }
+
+        // Update the buyer email in the grouped data and retry
+        let table = $('#reportTable').DataTable();
+        let selectedRows = [];
+        selectedRowIds.forEach(id => {
+            let row = table.rows().indexes().filter(function(idx) {
+                return table.row(idx).data().id == id;
+            });
+            if (row.length > 0) {
+                selectedRows.push(table.row(row[0]).data());
+            }
+        });
+
+        // Group selected rows by buyer again with updated email
+        let groupedData = {};
+        selectedRows.forEach(row => {
+            let buyerName = row.customer || 'Unknown';
+            let buyerEmail = row.customer_email || '';
+            
+            if (!groupedData[buyerName]) {
+                groupedData[buyerName] = {
+                    buyerName: buyerName,
+                    buyerEmail: buyerEmail,
+                    rows: []
+                };
+            }
+            groupedData[buyerName].rows.push(row);
+        });
+
+        // Update the email for the specific buyer
+        let buyers = {};
+        Object.values(groupedData).forEach(group => {
+            let buyerKey = group.buyerName.toLowerCase().replace(/\s+/g, '_');
+            if (!buyers[buyerKey]) {
+                buyers[buyerKey] = {
+                    id: buyerKey,
+                    name: group.buyerName,
+                    email: group.buyerEmail,
+                    rows: group.rows
+                };
+            }
+        });
+
+        // Update the email for the buyer that was just saved
+        if (buyers[buyerId]) {
+            buyers[buyerId].email = email;
+        }
+
+        $('#emailModal').modal('hide');
+        Toast.fire({ icon: 'success', title: 'Email saved successfully' });
+        
+        // Send mail with updated buyers
+        sendMailToBuyers(buyers);
+    });
+
     $('#filter_company, #filter_buyer, #filter_payment_status, #filter_credit_days').on('change', function() {
         if (table) {
+            table.ajax.reload(function() {
+                // After reload, clear selections that are no longer visible
+                let visibleRowIds = new Set();
+                table.rows({ search: 'applied' }).every(function() {
+                    let row = this.data();
+                    if (row) {
+                        visibleRowIds.add(row.id);
+                    }
+                });
+
+                // Keep only selected rows that are still visible
+                let newSelectedRowIds = new Set();
+                selectedRowIds.forEach(id => {
+                    if (visibleRowIds.has(id)) {
+                        newSelectedRowIds.add(id);
+                    }
+                });
+                selectedRowIds = newSelectedRowIds;
+
+                // Update checkboxes and count
+                table.rows({ search: 'applied' }).every(function() {
+                    let row = this.data();
+                    let checkbox = $(this.node()).find('.row-checkbox');
+                    if (row && selectedRowIds.has(row.id)) {
+                        checkbox.prop('checked', true);
+                    } else {
+                        checkbox.prop('checked', false);
+                    }
+                });
+                $('#selectAllRows').prop('checked', false);
+                updateSelectedCount();
+            });
+        }
+    });
+
+    $('#generateBtn').on('click', function() {
+        $('#reportTableContainer').show();
+        $('.btn2').removeClass('col-sm-3');
+        $('.btn2').addClass('col-sm-2'); 
+        $('#generateBtn').hide();
+        $('.clearbtn').hide();
+        $('#sendMailBtn, #pdfBtn, #excelBtn, #clearBtn').show();
+        if (table) {
             table.ajax.reload();
+        } else {
+            loaddata();
         }
     });
 
@@ -540,13 +894,22 @@ $(document).ready(function () {
     $('#excelBtn').on('click', function () { generateReport('excel'); });
 
     /* ── Clear filters ── */
-    $('#clearBtn').on('click', function () {
+    $('#clearBtn, .clearbtn').on('click', function () {
         $('#filter_payment_status').val('').trigger('change');
         $('#filter_company').val('').trigger('change');
         $('#filter_buyer').val('').trigger('change');
         $('#filter_credit_days').val('').trigger('change');
+        $('#filter_company').select2('val', '');
+        $('#filter_buyer').select2('val', '');
+        $('#filter_credit_days').select2('val', '');
+        $('#reportTableContainer').hide();
+        $('#generateBtn').show();
+        $('#sendMailBtn, #pdfBtn, #excelBtn, #clearBtn').hide();
+        $('.clearbtn').show();
+        $('.btn2').addClass('col-sm-3');
+        $('.btn2').removeClass('col-sm-2'); 
         if (table) {
-            table.ajax.reload();
+            table.clear().draw();
         }
     });
 
@@ -779,158 +1142,6 @@ $(document).ready(function () {
             });
         }
     });
-
-    /* ── Send Mail Functionality ── */
-    $('#sendMailBtn').on('click', function () {
-        if (!global_response || !global_response.data || global_response.data.length === 0) {
-            Toast.fire({ icon: 'error', title: 'No data to send' });
-            return;
-        }
-
-        // Get unique buyers from the data
-        let buyers = {};
-        global_response.data.forEach(row => {
-            if (row.customer_id && row.customer) {
-                if (!buyers[row.customer_id]) {
-                    buyers[row.customer_id] = {
-                        id: row.customer_id,
-                        name: row.customer,
-                        email: row.customer_email || null,
-                        invoices: []
-                    };
-                }
-                buyers[row.customer_id].invoices.push({
-                    inv_no: row.inv_no,
-                    inv_date: row.inv_date_formatted,
-                    amount: row.grand_total,
-                    currency_symbol: row.currency_symbol,
-                    expected_payment_date: row.expected_payment_date,
-                    status: row.status
-                });
-            }
-        });
-
-        // Fetch buyer details to get emails
-        loadershow();
-        $.ajax({
-            type: 'GET',
-            url: "{{ route('party.index') }}",
-            data: {
-                token: API_TOKEN,
-                company_id: COMPANY_ID,
-                user_id: USER_ID
-            },
-            success: function (response) {
-                loaderhide();
-                if (response.status === 200 && response.data) {
-                    // Match buyers by ID and add email
-                    let buyersWithEmail = [];
-                    Object.values(buyers).forEach(buyer => {
-                        let matchedBuyer = response.data.find(b => b.id == buyer.id);
-                        if (matchedBuyer) {
-                            buyersWithEmail.push({
-                                id: matchedBuyer.id,
-                                name: buyer.name,
-                                email: matchedBuyer.email || null
-                            });
-                        }
-                    });
-
-                    // Check if any buyer is missing email
-                    let missingEmailBuyers = buyersWithEmail.filter(b => !b.email);
-
-                    if (missingEmailBuyers.length > 0) {
-                        // Show modal for first buyer with missing email
-                        let buyer = missingEmailBuyers[0];
-                        $('#modalBuyerName').text(buyer.name);
-                        $('#modalBuyerId').val(buyer.id);
-                        $('#buyerEmail').val('');
-                        $('#emailModal').modal('show');
-                    } else {
-                        // All buyers have emails, send mail directly
-                        sendMailToBuyers(buyersWithEmail);
-                    }
-                } else {
-                    Toast.fire({ icon: 'error', title: 'Failed to fetch buyer details' });
-                }
-            },
-            error: function (xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            }
-        });
-    });
-
-    /* ── Save Email and Send Mail ── */
-    $('#saveEmailBtn').on('click', function () {
-        let buyerId = $('#modalBuyerId').val();
-        let buyerEmail = $('#buyerEmail').val();
-
-        if (!buyerEmail) {
-            Toast.fire({ icon: 'error', title: 'Please enter email address' });
-            return;
-        }
-
-        // Update buyer email
-        loadershow();
-        $.ajax({
-            type: 'PUT',
-            url: "{{ route('party.update_email', '__id__') }}".replace('__id__', buyerId),
-            data: {
-                _token: "{{ csrf_token() }}",
-                user_id: USER_ID,
-                company_id: COMPANY_ID,
-                token: API_TOKEN,
-                email: buyerEmail
-            },
-            success: function (response) {
-                loaderhide();
-                if (response.status === 200) {
-                    $('#emailModal').modal('hide');
-                    Toast.fire({ icon: 'success', title: 'Email updated successfully' });
-                    // Reload data and trigger send mail again
-                    table.ajax.reload(function() {
-                        $('#sendMailBtn').click();
-                    });
-                } else {
-                    Toast.fire({ icon: 'error', title: response.message || 'Failed to update email' });
-                }
-            },
-            error: function (xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            }
-        });
-    });
-
-    /* ── Send Mail to Buyers ── */
-    function sendMailToBuyers(buyers) {
-        loadershow();
-        $.ajax({
-            type: 'POST',
-            url: "{{ route('admin.prompt_report_send_mail') }}",
-            data: {
-                _token: "{{ csrf_token() }}",
-                buyers: buyers,
-                paymentStatus: $('#filter_payment_status').val(),
-                company: $('#filter_company').val(),
-                creditDays: $('#filter_credit_days').val(),
-                message: 'Dear Customer,\n\nThis is a reminder for pending payments. Please find the invoice details below.\n\nPlease arrange for payment at your earliest convenience.\n\nThank you.'
-            },
-            success: function (response) {
-                loaderhide();
-                if (response.status == 200) {
-                    Toast.fire({ icon: 'success', title: response.message });
-                } else {
-                    Toast.fire({ icon: 'error', title: response.message || 'Failed to send mail' });
-                }
-            },
-            error: function (xhr) {
-                loaderhide();
-                handleAjaxError(xhr);
-            }
-        });
-    }
 
     initialize();
     loaderhide();
