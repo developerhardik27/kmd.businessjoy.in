@@ -1261,7 +1261,7 @@ $(document).ready(function () {
             $('#credit_days').select2({ placeholder: 'Select Credit Days', allowClear: true, width: '100%' });
             
             // Reset form on page load
-            $('#orderform')[0].reset();
+            // $('#orderform')[0].reset();
             $('#buyer_party').val(null).trigger('change');
             $('#reference').val(null).trigger('change');
             $('#transport').val(null).trigger('change');
