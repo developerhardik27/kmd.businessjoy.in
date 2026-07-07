@@ -543,8 +543,8 @@ $('document').ready(function () {
             $.ajax({
                 type: 'GET', url,
                 data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
-                success: r => { loaderhide(); resolve(r); },
-                error: xhr => { loaderhide(); handleAjaxError(xhr); reject(xhr); }
+                success: r => { resolve(r); },
+                error: xhr => { handleAjaxError(xhr); reject(xhr); }
             });
         });
     }
@@ -590,7 +590,6 @@ $('document').ready(function () {
                 $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('filterData');
-                loaderhide();
             } else {
                 resetFilters();
                 loaddata();
@@ -600,6 +599,7 @@ $('document').ready(function () {
     }
     /* ── Initialize all filters ── */
     async function initialize() {
+        loadershow(); // ⭐ single show — poore page load (filters + table) ke liye
         try {
             const [companyRes, transportRes, buyerRes, referenceRes, gardenRes, gradeRes] = await Promise.all([
                 fetchData("{{ route('companymaster.index') }}"),
@@ -609,51 +609,51 @@ $('document').ready(function () {
                 fetchData("{{ route('garden.index') }}"),
                 fetchData("{{ route('grade.index') }}")
             ]);
-            // Company
+
             if (companyRes.status == 200 && companyRes.data.length) {
                 companyRes.data.forEach(v => $('#filter_company').append(`<option value="${v.id}">${v.company_name}</option>`));
             }
             initSelect2('#filter_company', 'Select Company');
-            // Invoice Status
             initSelect2('#filter_invoice_status', 'Select Invoice Status');
             initSelect2('#filter_sample_status', 'Select Sample Status');
             initSelect2('#filter_dispatch_status', 'Select Status');
-            // Transport
+
             if (transportRes.status == 200 && transportRes.data.length) {
                 transportRes.data.forEach(v => $('#filter_transport').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_transport', 'Select Transport', true);
-            // Buyer
+
             if (buyerRes.status == 200 && buyerRes.data.length) {
                 buyerRes.data.forEach(v => $('#filter_buyer').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_buyer', 'Select Buyer');
-             if (referenceRes.status == 200 && referenceRes.data.length) {
+
+            if (referenceRes.status == 200 && referenceRes.data.length) {
                 referenceRes.data.forEach(v => $('#filter_reference').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_reference', 'Select Reference');
-            // Garden
+
             if (gardenRes.status == 200 && gardenRes.data.length) {
                 gardenRes.data.forEach(v => $('#filter_garden').append(`<option value="${v.id}">${v.garden_name}</option>`));
-
             }
             initSelect2('#filter_garden', 'Select Garden', true);
+
             if (gradeRes.status == 200 && gradeRes.data.length) {
                 gradeRes.data.forEach(v => $('#filter_grade').append(`<option value="${v.id}">${v.grade}</option>`));
             }
             initSelect2('#filter_grade', 'Select Grade', true);
-            loaderhide();
+
+            // ⭐ loaderhide() yahan se hata diya — table data load hone tak loader chalu rahega
             await loadFilters();
         } catch (e) {
             console.error(e);
             Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
-            loaderhide();
+            loaderhide(); // ⭐ sirf error case mein hide, warna table load complete hone tak wait
         }
     }
     initialize();
     let table = '';
     function loaddata() {
-        loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
             pageLength: 25,
@@ -848,17 +848,21 @@ $('document').ready(function () {
                                 </button></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.teadashboard.edit') == '1')
+                        if(row.brokerbill_no == null){
                             let editUrl = `{{ route('admin.orderupdateform', '__id__') }}`.replace('__id__', data);
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Order">
                                 <a href="${editUrl}">
                                     <button class="btn btn-success btn-rounded btn-sm my-0">Edit</button>
                                 </a></span>`;
+                        }
                         @endif
                         @if (session('user_permissions.teamodule.teadashboard.delete') == '1')
+                        if(row.brokerbill_no == null){
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Order">
                                 <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0">
                                     Delete
                                 </button></span>`;
+                        }
                         @endif
                         return btns;
                     }
@@ -1282,9 +1286,13 @@ $('document').ready(function () {
         });
     });
     /* ── Apply / Clear filters ── */
-    $('.applyfilters').on('click', function () { table.draw(); });
+    $('.applyfilters').on('click', function () {
+        loadershow();
+        table.draw();
+    });
     $('.removefilters').on('click', function () {
         resetFilters();
+        loadershow();
         table.draw();
     });
 });

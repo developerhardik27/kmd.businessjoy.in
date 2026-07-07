@@ -306,6 +306,27 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 
 @section('form-content')
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Updating this order will also update the bag details and any other related information. If an invoice has already been created, the invoice will also be updated with these changes. Do you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="okConfirmBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form id="orderupdateform">
     @csrf
     <input type="hidden" name="_method"    value="PUT">
@@ -452,6 +473,16 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
 <script src="{{ asset('admin/js/select2.min.js') }}"></script>
 <script>
 $(document).ready(function () {
+
+    // Handle Cancel button in confirmation modal
+    $('#cancelConfirmBtn').on('click', function() {
+        window.location.href = "{{ route('admin.order') }}";
+    });
+
+    // Handle OK button in confirmation modal
+    $('#okConfirmBtn').on('click', function() {
+        $('#confirmationModal').modal('hide');
+    });
 
     const EDIT_ID = @json($edit_id);
     let gardens = '', grades = '';
@@ -873,6 +904,7 @@ $(document).ready(function () {
             if (r.status == 200) {
                 const order         = r.orders.order;
                 const order_details = r.orders.order_details;
+                const warningMessage = r.orders.warning_message || '';
 
                 $('#buyer_party').val(order.buyer_party).trigger('change');
                 $('#transport').val(order.transport).trigger('change');
@@ -886,7 +918,13 @@ $(document).ready(function () {
                 order_details.forEach(detail => addNewRow(detail));
                 console.log(order_details);
                 calculateTotals();
-                
+
+                // Update modal message if warning exists
+                if (warningMessage) {
+                    $('#confirmationModal .modal-body p').text(warningMessage);
+                    $('#confirmationModal').modal('show');
+                }
+
             } else {
                 Toast.fire({ icon: 'error', title: r.message });
             }

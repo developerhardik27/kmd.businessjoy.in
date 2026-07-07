@@ -16,7 +16,7 @@ class invoiceController extends commonController
 
     public $userId, $companyId, $masterdbname, $rp, $invoiceModel,
         $tbl_invoice_columnModel, $invoice_other_settingModel, $invoice_number_patternModel,
-        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel, $order_detailModel, $gradesModel, $gardenModel, $companygardenModel;
+        $inventoryModel, $product_Model, $product_column_mappingModel, $payment_detailsModel, $partyModel, $companymastersModel, $mngcolModel, $brokerpurchaseModel, $order_detailModel, $orderModel, $gradesModel, $gardenModel, $companygardenModel;
 
     public function __construct(Request $request)
     {
@@ -48,6 +48,7 @@ class invoiceController extends commonController
         $this->brokerpurchaseModel = $this->getmodel('broker_purchase');
         $this->mngcolModel = $this->getmodel('mng_col');
         $this->order_detailModel = $this->getmodel('order_detail');
+        $this->orderModel = $this->getmodel('order');
         $this->gardenModel = $this->getmodel('garden');
         $this->gradesModel = $this->getmodel('grade');
         $this->companygardenModel = $this->getmodel('company_garden');
@@ -697,7 +698,6 @@ class invoiceController extends commonController
      */
     public function store(Request $request)
     {
-        
         return $this->executeTransaction(function () use ($request) {
 
             $data = $request->data; // invoice details
@@ -1014,6 +1014,39 @@ class invoiceController extends commonController
                                 ]);
 
                                 $id[] = $existing->id;
+
+                                // ✅ Update order_details with changed bag details
+                                $this->order_detailModel::where('id', $row['order_detail_id'])->update([
+                                    'bags'       => $row['No_Of_Pkags'],
+                                    'kg'         => $row['Net_Oty_Per_Pkg'],
+                                    'net_kg'     => $row['Net_Weight_Kgs'],
+                                    'rate'       => $row['Rate_per_kg'],
+                                    'amount'     => $row['amount'],
+                                ]);
+
+                                // ✅ Recalculate order totals
+                                $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                                if ($orderDetail) {
+                                    $allOrderDetails = $this->order_detailModel::where('order_id', $orderDetail->order_id)->get();
+                                    $totalNetKg = 0;
+                                    $totalAmount = 0;
+                                    foreach ($allOrderDetails as $od) {
+                                        $totalNetKg += $od->net_kg;
+                                        $totalAmount += $od->amount;
+                                    }
+                                    $order = $this->orderModel::find($orderDetail->order_id);
+                                    if ($order) {
+                                        $discount = $order->discount ?? 0;
+                                        $discountAmount = ($totalAmount * $discount) / 100;
+                                        $finalAmount = $totalAmount - $discountAmount;
+                                        $order->update([
+                                            'totalNetKg'     => $totalNetKg,
+                                            'totalAmount'    => $totalAmount,
+                                            'discountAmount' => $discountAmount,
+                                            'finalAmount'    => $finalAmount,
+                                        ]);
+                                    }
+                                }
                             } else {
                                 // Create new
                                 //  dd($get_borkrage);
@@ -1035,6 +1068,39 @@ class invoiceController extends commonController
                                 ]);
 
                                 $id[] = $new->id;
+
+                                // ✅ Update order_details with changed bag details
+                                $this->order_detailModel::where('id', $row['order_detail_id'])->update([
+                                    'bags'       => $row['No_Of_Pkags'],
+                                    'kg'         => $row['Net_Oty_Per_Pkg'],
+                                    'net_kg'     => $row['Net_Weight_Kgs'],
+                                    'rate'       => $row['Rate_per_kg'],
+                                    'amount'     => $row['amount'],
+                                ]);
+
+                                // ✅ Recalculate order totals
+                                $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                                if ($orderDetail) {
+                                    $allOrderDetails = $this->order_detailModel::where('order_id', $orderDetail->order_id)->get();
+                                    $totalNetKg = 0;
+                                    $totalAmount = 0;
+                                    foreach ($allOrderDetails as $od) {
+                                        $totalNetKg += $od->net_kg;
+                                        $totalAmount += $od->amount;
+                                    }
+                                    $order = $this->orderModel::find($orderDetail->order_id);
+                                    if ($order) {
+                                        $discount = $order->discount ?? 0;
+                                        $discountAmount = ($totalAmount * $discount) / 100;
+                                        $finalAmount = $totalAmount - $discountAmount;
+                                        $order->update([
+                                            'totalNetKg'     => $totalNetKg,
+                                            'totalAmount'    => $totalAmount,
+                                            'discountAmount' => $discountAmount,
+                                            'finalAmount'    => $finalAmount,
+                                        ]);
+                                    }
+                                }
                             }
                         }
 
@@ -1063,9 +1129,14 @@ class invoiceController extends commonController
                                 $dynamicdata[$column] = $row[$column];
                             }
 
+                            // ✅ Recalculate amount based on rate and net_kg
+                            $rate = $row['Rate_per_kg'] ?? 0;
+                            $netKg = $row['Net_Weight_Kgs'] ?? 0;
+                            $calculatedAmount = $rate * $netKg;
+
                             // Add additional columns and their values
                             $dynamicdata['invoice_id'] = $inv_id;
-                            $dynamicdata['amount'] = $row['amount'];
+                            $dynamicdata['amount'] = $calculatedAmount;
                             $dynamicdata['created_by'] = $data['user_id'];
                             $dynamicdata['order_detail_id'] = $row['order_detail_id'];
                             // Add more columns as needed
@@ -1394,8 +1465,13 @@ class invoiceController extends commonController
                         $dynamicdata[$column] = $row[$column] ?? null;
                     }
 
+                    // ✅ Recalculate amount based on rate and net_kg
+                    $rate = $row['Rate_per_kg'] ?? 0;
+                    $netKg = $row['Net_Weight_Kgs'] ?? 0;
+                    $calculatedAmount = $rate * $netKg;
+
                     $dynamicdata['invoice_id'] = $invoiceId; // ✅ Use $invoiceId not $id
-                    $dynamicdata['amount']     = $row['amount'];
+                    $dynamicdata['amount']     = $calculatedAmount;
                     $dynamicdata['order_detail_id'] = $row['order_detail_id'] ?? null;
                     $dynamicdata['updated_by'] = $data['user_id'];
 
@@ -1421,11 +1497,44 @@ class invoiceController extends commonController
                             'shortage'            => $row['shortage'],
                             'final_net_kg'        => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                             'rate'                => $row['Rate_per_kg'],
-                            'invoice_grand_total' => $row['amount'],
+                            'invoice_grand_total' => $calculatedAmount,
                             'brokerage'           => $get_brokrage,
                             'invoice_id'          => $invoiceId, // ✅ Fixed
                             'updated_by'          => $user_id,
                         ]);
+
+                        // ✅ Update order_details with changed bag details
+                        $this->order_detailModel::where('id', $row['order_detail_id'])->update([
+                            'bags'       => $row['No_Of_Pkags'],
+                            'kg'         => $row['Net_Oty_Per_Pkg'],
+                            'net_kg'     => $row['Net_Weight_Kgs'],
+                            'rate'       => $row['Rate_per_kg'],
+                            'amount'     => $calculatedAmount,
+                        ]);
+
+                        // ✅ Recalculate order totals
+                        $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                        if ($orderDetail) {
+                            $allOrderDetails = $this->order_detailModel::where('order_id', $orderDetail->order_id)->get();
+                            $totalNetKg = 0;
+                            $totalAmount = 0;
+                            foreach ($allOrderDetails as $od) {
+                                $totalNetKg += $od->net_kg;
+                                $totalAmount += $od->amount;
+                            }
+                            $order = $this->orderModel::find($orderDetail->order_id);
+                            if ($order) {
+                                $discount = $order->discount ?? 0;
+                                $discountAmount = ($totalAmount * $discount) / 100;
+                                $finalAmount = $totalAmount - $discountAmount;
+                                $order->update([
+                                    'totalNetKg'     => $totalNetKg,
+                                    'totalAmount'    => $totalAmount,
+                                    'discountAmount' => $discountAmount,
+                                    'finalAmount'    => $finalAmount,
+                                ]);
+                            }
+                        }
                     } else {
                         $this->brokerpurchaseModel::create([
                             'garden_id'           => $garden_id,
@@ -1436,13 +1545,46 @@ class invoiceController extends commonController
                             'shortage'            => $row['shortage'],
                             'final_net_kg'        => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                             'rate'                => $row['Rate_per_kg'],
-                            'invoice_grand_total' => $row['amount'],
+                            'invoice_grand_total' => $calculatedAmount,
                             'order_detail_id'     => $row['order_detail_id'],
                             'invoice_id'          => $invoiceId, // ✅ Fixed
                             'source'              => 'invoice',
                             'brokerage'           => $get_brokrage,
                             'created_by'          => $user_id,
                         ]);
+
+                        // ✅ Update order_details with changed bag details
+                        $this->order_detailModel::where('id', $row['order_detail_id'])->update([
+                            'bags'       => $row['No_Of_Pkags'],
+                            'kg'         => $row['Net_Oty_Per_Pkg'],
+                            'net_kg'     => $row['Net_Weight_Kgs'],
+                            'rate'       => $row['Rate_per_kg'],
+                            'amount'     => $calculatedAmount,
+                        ]);
+
+                        // ✅ Recalculate order totals
+                        $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                        if ($orderDetail) {
+                            $allOrderDetails = $this->order_detailModel::where('order_id', $orderDetail->order_id)->get();
+                            $totalNetKg = 0;
+                            $totalAmount = 0;
+                            foreach ($allOrderDetails as $od) {
+                                $totalNetKg += $od->net_kg;
+                                $totalAmount += $od->amount;
+                            }
+                            $order = $this->orderModel::find($orderDetail->order_id);
+                            if ($order) {
+                                $discount = $order->discount ?? 0;
+                                $discountAmount = ($totalAmount * $discount) / 100;
+                                $finalAmount = $totalAmount - $discountAmount;
+                                $order->update([
+                                    'totalNetKg'     => $totalNetKg,
+                                    'totalAmount'    => $totalAmount,
+                                    'discountAmount' => $discountAmount,
+                                    'finalAmount'    => $finalAmount,
+                                ]);
+                            }
+                        }
                     }
 
                     // ────────────── mng_col UPDATE OR INSERT ──────────────

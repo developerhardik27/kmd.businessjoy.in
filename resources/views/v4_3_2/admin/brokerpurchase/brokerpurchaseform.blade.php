@@ -11,6 +11,27 @@
 
 
 @section('form-content')
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Updating this order will also update the bag details and any other related information. If an invoice has already been created, the invoice will also be updated with these changes. Do you want to continue?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="okConfirmBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form id="brokerpurchaseform">
         @csrf
         <div class="form-group">
@@ -77,6 +98,18 @@
 @push('ajax')
     <script>
         $('document').ready(function() {
+            // Handle Cancel button in confirmation modal
+            $('#cancelConfirmBtn').on('click', function() {
+                $('#confirmationModal').modal('hide');
+            });
+
+            // Handle OK button in confirmation modal
+            $('#okConfirmBtn').on('click', function() {
+                $('#confirmationModal').modal('hide');
+                // Proceed with actual form submission
+                submitBrokerPurchaseForm();
+            });
+
             // companyId and userId both are required in every ajax request for all action *************
             // response status == 200 that means response succesfully recieved
             // response status == 500 that means database not found
@@ -260,13 +293,13 @@
                                     $color = 'red';
                                 }
                                 $('#invoice-details-table tbody').append(`
-                        <tr>
+                        <tr data-index="${index}">
                             <td style="color: ${$color};">${$buyername}</td>
                             <td>${item.invoice_no}</td>
                             <td>${item.grade_name}</td>
-                            <td>${item.bags}</td>
-                            <td>${item.net_kg}</td>
-                            <td>${item.rate}</td>
+                            <td><input type="number" class="form-control form-control-sm editable-bags" data-index="${index}" value="${item.bags}" min="0" style="width: 80px;"></td>
+                            <td><input type="number" class="form-control form-control-sm editable-net_kg" data-index="${index}" value="${item.net_kg}" min="0" step="0.01" style="width: 100px;"></td>
+                            <td><input type="number" class="form-control form-control-sm editable-rate" data-index="${index}" value="${item.rate}" min="0" step="0.01" style="width: 100px;"></td>
                         </tr>
                     `);
                                 $('#brokerpurchaseform').append(`
@@ -274,9 +307,9 @@
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][invoice_no]" value="${item.invoice_no}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][grade_name]" value="${item.grade_name}">
                             <input type="hidden" class="invoice-details-inputs" name="details[${index}][garde]" value="${item.grade_id}">
-                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][bags]" value="${item.bags}">
-                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][net_kg]" value="${item.net_kg}">
-                            <input type="hidden" class="invoice-details-inputs" name="details[${index}][rate]" value="${item.rate}">
+                            <input type="hidden" class="invoice-details-inputs hidden-bags" data-index="${index}" name="details[${index}][bags]" value="${item.bags}">
+                            <input type="hidden" class="invoice-details-inputs hidden-net_kg" data-index="${index}" name="details[${index}][net_kg]" value="${item.net_kg}">
+                            <input type="hidden" class="invoice-details-inputs hidden-rate" data-index="${index}" name="details[${index}][rate]" value="${item.rate}">
                         `);
                             });
                         } else {
@@ -292,6 +325,25 @@
                     }
                 });
             }
+
+            /* ── Update hidden inputs when editable fields change ── */
+            $(document).on('change', '.editable-bags', function() {
+                const index = $(this).data('index');
+                const value = $(this).val();
+                $(`.hidden-bags[data-index="${index}"]`).val(value);
+            });
+
+            $(document).on('change', '.editable-net_kg', function() {
+                const index = $(this).data('index');
+                const value = $(this).val();
+                $(`.hidden-net_kg[data-index="${index}"]`).val(value);
+            });
+
+            $(document).on('change', '.editable-rate', function() {
+                const index = $(this).data('index');
+                const value = $(this).val();
+                $(`.hidden-rate[data-index="${index}"]`).val(value);
+            });
 
 
             /* ── Reset button handler ── */
@@ -312,9 +364,15 @@
                 window.location.href = "{{ route('admin.brokerpurchase') }}";
             });
 
-            // submit brokerpurchase form
+            // Form submit handler - show confirmation modal
             $('#brokerpurchaseform').submit(function(event) {
                 event.preventDefault();
+                // Show confirmation modal
+                $('#confirmationModal').modal('show');
+            });
+
+            // Function to handle actual form submission
+            function submitBrokerPurchaseForm() {
                 loadershow();
                 $('.error-msg').text('');
 
@@ -333,7 +391,7 @@
                     return;
                 }
 
-                let formdata = $(this).serialize();
+                let formdata = $('#brokerpurchaseform').serialize();
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('brokerpurchase.store') }}",
@@ -357,14 +415,14 @@
                         loaderhide();
 
                     },
-                    error: function(xhr, status, error) { // if calling api request error 
+                    error: function(xhr, status, error) { // if calling api request error
                         loaderhide();
                         console.log(xhr
                             .responseText); // Log the full error response for debugging
                         handleAjaxError(xhr);
                     }
                 });
-            });
+            }
         });
     </script>
 @endpush

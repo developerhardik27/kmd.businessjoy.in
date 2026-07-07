@@ -450,8 +450,8 @@ $('document').ready(function () {
             $.ajax({
                 type: 'GET', url,
                 data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
-                success: r => { loaderhide(); resolve(r); },
-                error: xhr => { loaderhide(); handleAjaxError(xhr); reject(xhr); }
+                success: r => { resolve(r); },
+                error: xhr => { handleAjaxError(xhr); reject(xhr); }
             });
         });
     }
@@ -504,7 +504,6 @@ $('document').ready(function () {
                 $('#filter_company, #filter_buyer, #filter_garden').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('filterData');
-                loaderhide();
             } else {
                 resetFilters();
                 loaddata();
@@ -549,7 +548,6 @@ $('document').ready(function () {
             }
             initSingleSelect2('#filter_buyer', 'Select Buyer');
 
-            loaderhide();
             await loadFilters();
 
         } catch (e) {
@@ -565,7 +563,6 @@ $('document').ready(function () {
     let table = '';
 
     function loaddata() {
-        loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
             pageLength: 25,

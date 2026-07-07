@@ -307,6 +307,27 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
 
 @section('form-content')
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Updating this invoice will also update the bag details and any other related information. The order and sample purchase will also be updated with these changes. Do you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="okConfirmBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Bank Modal --}}
 <div class="modal fade" id="bankDetailModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -709,7 +730,8 @@ function buildCard(rowId, values, inventoryId, isLocked, showAction) {
         const cn     = col.column_name.replace(/\s+/g, '_');
         const val    = (values[cn] !== undefined && values[cn] !== null) ? values[cn] : (col.default_value || '');
         const hidden = col.is_hide === 1;
-         const lock   = (isLocked && cn !== 'shortage') ? 'disabled' : '';
+        const editableFields = ['No_Of_Pkags', 'Net_Oty_Per_Pkg', 'Total_Weights', 'shortage', 'Net_Weight_Kgs', 'Rate_per_kg'];
+        const lock   = (isLocked && !editableFields.includes(cn)) ? 'disabled' : '';
         console.log(isLocked ,cn);
         if (hidden) return `<input type="hidden" name="${cn}_${rowId}" id="${cn}_${rowId}" value="${val}" data-oldproduct-id="${values.id||''}">`;
         const lbl = col.column_name === 'shortage' ? `${col.column_name} <small>(kg)</small>` : col.column_name;
@@ -1003,6 +1025,19 @@ async function getoverduedays() {
 
 /* ── init ────────────────────────────────── */
 $(document).ready(async function() {
+    // Show confirmation modal on page load
+    $('#confirmationModal').modal('show');
+
+    // Handle Cancel button in confirmation modal
+    $('#cancelConfirmBtn').on('click', function() {
+        window.location.href = "{{ url('admin/invoice') }}";
+    });
+
+    // Handle OK button in confirmation modal
+    $('#okConfirmBtn').on('click', function() {
+        $('#confirmationModal').modal('hide');
+    });
+
     loadershow();
 
     ajaxRequest('GET', "{{ route('product.index') }}", { token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID })

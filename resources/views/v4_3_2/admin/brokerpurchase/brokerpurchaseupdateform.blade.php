@@ -9,6 +9,27 @@
     Update Sample Purchase
 @endsection
 @section('form-content')
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Updating this order will also update the bag details and any other related information. If an invoice has already been created, the invoice will also be updated with these changes. Do you want to continue?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="okConfirmBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form id="brokerpurchaseupdateform">
         @csrf
         <div class="form-group">
@@ -21,7 +42,7 @@
                     <input type="hidden" class="form-control requiredinput" name="grade" id="grade">
                     <input type="hidden" id="broker_purchase_id" value="{{ $brokerpurchase->id ?? '' }}">
                     <label for="garden_id">Select Garden</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name="garden_id" id="garden_id" style="height: 38px;">
+                    <select class="form-control requiredinput" name="garden_id" id="garden_id" style="height: 38px;" disabled>
                         <option selected disabled>Select your garden</option>
                     </select>
                     <span class="error-msg" id="error-garden_id" style="color: red"></span>
@@ -34,7 +55,7 @@
                 </div>
                 <div class="col-sm-4 mb-2">
                     <label for="invoice_no">Select Invoice No</label><span style="color:red;">*</span>
-                    <select class="form-control requiredinput" name="invoice_no" id="invoice_no" style="height: 38px;">
+                    <select class="form-control requiredinput" name="invoice_no" id="invoice_no" style="height: 38px;" disabled>
                         <option selected disabled>Select your Invoice No</option>
                     </select>
                     <span class="error-msg" id="error-invoice_no" style="color: red"></span>
@@ -48,13 +69,13 @@
                 <div class="col-sm-6 mb-2">
                     <label for="bags">No Of Bages</label>
                     <input type="text" class="form-control requiredinput" name="bags" id="bags"
-                        placeholder="Enter bags" readonly>
+                        placeholder="Enter bags" >
                     <span class="error-msg" id="error-bags" style="color: red"></span>
                 </div>
                 <div class="col-sm-6 mb-2">
                     <label for="net_kg">Net Weight</label>
                     <input type="text" class="form-control requiredinput" name="net_kg" id="net_kg"
-                        placeholder="Enter Net Weight" readonly>
+                        placeholder="Enter Net Weight" >
                     <span class="error-msg" id="error-net_kg" style="color: red"></span>
                 </div>
                 <input type="hidden" class="form-control requiredinput" name="rate" id="rate"
@@ -77,6 +98,16 @@
 @push('ajax')
     <script>
         $(document).ready(function() {
+            // Handle Cancel button in confirmation modal
+            $('#cancelConfirmBtn').on('click', function() {
+                window.location.href = "{{ route('admin.brokerpurchase') }}";
+            });
+
+            // Handle OK button in confirmation modal
+            $('#okConfirmBtn').on('click', function() {
+                $('#confirmationModal').modal('hide');
+            });
+
             let edit_id = @json($edit_id);
             let oldData = null;
 
@@ -252,6 +283,8 @@
                     success: function(response) {
                         if (response.status === 200) {
                             oldData = response.brokerpurchase;
+                            const warningMessage = oldData.warning_message || '';
+
                             $("#broker_purchase_id").val(oldData.id);
                             $("#sample_purchase_date").val(oldData.sample_purchase_date);
                             // Sequentially load gardens → invoices → order details
@@ -261,6 +294,12 @@
                                         .invoice_no);
                                 });
                             });
+
+                            // Update modal message if warning exists
+                            if (warningMessage) {
+                                $('#confirmationModal .modal-body p').text(warningMessage);
+                                $('#confirmationModal').modal('show');
+                            }
                         }
                     },
                     error: function(xhr) {

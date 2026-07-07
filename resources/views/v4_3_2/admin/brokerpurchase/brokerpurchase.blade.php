@@ -328,8 +328,8 @@ $('document').ready(function () {
             $.ajax({
                 type: 'GET', url,
                 data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
-                success: r => { loaderhide(); resolve(r); },
-                error: xhr => { loaderhide(); handleAjaxError(xhr); reject(xhr); }
+                success: r => { resolve(r); },
+                error: xhr => { handleAjaxError(xhr); reject(xhr); }
             });
         });
     }
@@ -371,7 +371,6 @@ $('document').ready(function () {
                 $('#filter_company, #filter_buyer, #filter_garden, #filter_grade').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('filterData');
-                loaderhide();
             } else {
                 resetFilters();
                 loaddata();
@@ -382,6 +381,7 @@ $('document').ready(function () {
 
     /* ── Initialize all filters ── */
     async function initialize() {
+        loadershow();
         try {
             const [companyRes, buyerRes, gardenRes, gradeRes] = await Promise.all([
                 fetchData("{{ route('companymaster.index') }}"),
@@ -414,10 +414,10 @@ $('document').ready(function () {
             }
             initMultiSelect2('#filter_grade', 'Select Grade');
 
-            loaderhide();
             await loadFilters();
 
         } catch (e) {
+            loaderhide();
             console.error(e);
             Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
             loaderhide();
@@ -522,7 +522,6 @@ $('document').ready(function () {
     let table = '';
 
     function loaddata() {
-        loadershow();
         table = $('#data').DataTable({
             language: { lengthMenu: '_MENU_ &nbsp;Entries per page' },
             pageLength: 25,
@@ -589,14 +588,18 @@ $('document').ready(function () {
                                     View</button></span>`;
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.edit') == '1')
+                        if(row.brokerbill_no == null){
                             let editUrl = `{{ route('admin.brokerpurchaseupdateform', '__id__') }}`.replace('__id__', data);
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Sample Purchase">
                                 <a href="${editUrl}"><button class="btn btn-success btn-rounded btn-sm my-0">Edit</button></a></span>`;
+                        }
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.delete') == '1')
+                        if(row.brokerbill_no == null){
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Delete">
                                 <button type="button" data-id="${data}" class="del-btn btn btn-danger btn-rounded btn-sm my-0 mr-2">
                                     Delete</span>`;
+                        }
                         @endif
                         @if (session('user_permissions.teamodule.brokerpurchase.view') == '1')
                             let sampleurl = `{{ route('admin.samplepurchase', '__id__') }}`.replace('__id__', data);
@@ -713,9 +716,13 @@ $('document').ready(function () {
     });
 
     /* ── Apply / Clear ── */
-    $('.applyfilters').on('click',  function () { table.draw(); });
+    $('.applyfilters').on('click', function () {
+        loadershow();
+        table.draw();
+    });
     $('.removefilters').on('click', function () {
         resetFilters();
+        loadershow();
         table.draw();
     });
 

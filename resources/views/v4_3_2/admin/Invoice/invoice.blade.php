@@ -516,7 +516,7 @@
                 $.ajax({
                     type: 'GET', url: "{{ route('companymaster.index') }}",
                     data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
-                    success: function (r) { loaderhide(); resolve(r); },
+                    success: r => { resolve(r); },
                     error  : function (xhr) { loaderhide(); handleAjaxError(xhr); reject(xhr); }
                 });
             });
@@ -527,7 +527,7 @@
                 $.ajax({
                     type: 'GET', url: "{{ route('buyer.index') }}",
                     data: { user_id: USER_ID, company_id: COMPANY_ID, token: API_TOKEN },
-                    success: function (r) { loaderhide(); resolve(r); },
+                    success: r => { resolve(r); },
                     error  : function (xhr) { loaderhide(); handleAjaxError(xhr); reject(xhr); }
                 });
             });
@@ -550,7 +550,6 @@
                     $('#filter_company, #filter_buyer').trigger('change');
                     loaddata();
                     sessionStorage.removeItem('filterData');
-                    loaderhide();
                     resolve();
                 } else {
                     resetFilters();
@@ -607,8 +606,6 @@
                 } else {
                     $('#filter_buyer').val('').select2({ search: true, placeholder: 'No buyer found', allowClear: true });
                 }
-
-                loaderhide();
                 await loadFilters();
             } catch (err) {
                 console.error('Init error:', err);
@@ -929,7 +926,6 @@
         var search = {!! json_encode($search) !!};
 
         function loaddata() {
-            loadershow();
             table = $('#data').DataTable({
                 language  : { lengthMenu: '_MENU_ &nbsp;Entries per page' },
                 pageLength: 25,
@@ -1145,7 +1141,7 @@
 
                             // Edit button
                             @if (session('user_permissions.invoicemodule.invoice.edit') == '1')
-                                if (row.is_editable == 1) {
+                                if(row.brokerbill_no == null){
                                     let editUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
                                     actionBtns += `
                                         <span>
@@ -1160,19 +1156,19 @@
                                         </span>`;
                                 }
                             @endif
-                            if(!row.brokerbill_no){
+                            if(row.brokerbill_no == null){
                             // Delete button
-                            @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
-                                actionBtns += `
-                                    <span>
-                                        <button type="button" data-id="${row.id}"
-                                            data-toggle="tooltip" data-placement="bottom"
-                                            data-original-title="Delete Invoice"
-                                            class="del-btn btn btn-danger btn-rounded btn-sm my-0">
-                                            Delete
-                                        </button>
-                                    </span>`;
-                            @endif
+                                @if (session('user_permissions.invoicemodule.invoice.delete') == '1')
+                                    actionBtns += `
+                                        <span>
+                                            <button type="button" data-id="${row.id}"
+                                                data-toggle="tooltip" data-placement="bottom"
+                                                data-original-title="Delete Invoice"
+                                                class="del-btn btn btn-danger btn-rounded btn-sm my-0">
+                                                Delete
+                                            </button>
+                                        </span>`;
+                                @endif
                             }
                             // Commission bill: Download if already generated; create button if not
                             @if (session('user_permissions.teamodule.brokeragebill.view') == '1')

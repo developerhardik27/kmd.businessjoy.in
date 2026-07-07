@@ -12,7 +12,7 @@ use App\Http\Controllers\v4_3_2\api\commonController;
 
 class orderController extends commonController
 {
-    public $userId, $companyId, $masterdbname, $rp, $orderModel, $order_detailModel ,$brokerPurchaseModel;
+    public $userId, $companyId, $masterdbname, $rp, $orderModel, $order_detailModel ,$brokerPurchaseModel, $invoiceModel, $mngcolModel, $invoice_other_settingModel, $payment_detailsModel;
 
     public function __construct(Request $request)
     {
@@ -33,6 +33,10 @@ class orderController extends commonController
         $this->orderModel = $this->getmodel('order');
         $this->order_detailModel = $this->getmodel('order_detail');
         $this->brokerPurchaseModel = $this->getmodel('broker_purchase');
+        $this->invoiceModel = $this->getmodel('invoice');
+        $this->mngcolModel = $this->getmodel('mng_col');
+        $this->invoice_other_settingModel = $this->getmodel('invoice_other_setting');
+        $this->payment_detailsModel = $this->getmodel('payment_details');
     }
     public function index(Request $request)
     {
@@ -161,6 +165,7 @@ class orderController extends commonController
                 'companymasters.company_name as company_name',
                 'broker_purchases.id as broker_purchase_id',
                 'broker_purchases.source as broker_purchase_source',
+                'broker_purchases.brokerbill_no as brokerbill_no',
             )
             ->get()
             ->groupBy('order_id')
@@ -206,6 +211,7 @@ class orderController extends commonController
                     'order_date'             => $first->order_date,
                     'invoice_status'         => $invoiceStatus,
                     'sample_status'          => $sampleStatus,
+                    'brokerbill_no'          => $first->brokerbill_no,
                     'company_names'          => $details
                         ->map(fn($item) => $item->company_name ?? '-')
                         ->unique()
@@ -404,13 +410,49 @@ class orderController extends commonController
         $order_details = $this->order_detailModel::where('order_id', $id)
             ->orderBy('id', 'desc')
             ->get();
+
+        // ✅ Check if order details have associated sample purchases or invoices
+        $hasSamplePurchase = false;
+        $hasInvoice = false;
+        $warningMessage = '';
+
+        foreach ($order_details as $detail) {
+            // Check for sample purchases
+            $samplePurchase = $this->brokerPurchaseModel::where('order_detail_id', $detail->id)
+                ->where('is_deleted', 0)
+                ->exists();
+            if ($samplePurchase) {
+                $hasSamplePurchase = true;
+            }
+
+            // Check for invoices
+            if ($detail->invoice_id) {
+                $hasInvoice = true;
+            }
+        }
+
+        // Build warning message
+        if ($hasSamplePurchase || $hasInvoice) {
+            $messages = [];
+            if ($hasSamplePurchase) {
+                $messages[] = 'sample purchases';
+            }
+            if ($hasInvoice) {
+                $messages[] = 'invoices';
+            }
+            $warningMessage = 'This order has associated ' . implode(' and ', $messages) . '. Updating this order will also update the bag details and any other related information. If an invoice has already been created, the invoice will also be updated with these changes.';
+        }
+
         $order = [
             'order' => $order,
-            'order_details' => $order_details
+            'order_details' => $order_details,
+            'has_sample_purchase' => $hasSamplePurchase,
+            'has_invoice' => $hasInvoice,
+            'warning_message' => $warningMessage
         ];
         return $this->successresponse(200, 'orders', $order);
     }
-   public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         if ($this->rp['teamodule']['order']['edit'] != 1) {
             return $this->successresponse(500, 'message', 'You are Unauthorized');
@@ -548,6 +590,103 @@ class orderController extends commonController
                         'net_kg'     => $row['net_kg'],
                         'rate'       => $row['rate'],
                     ]);
+
+                    // ✅ Update mng_col if order_detail_id exists
+                    $kgPerBag = $row['bags'] > 0 ? $row['net_kg'] / $row['bags'] : 0;
+                    $mngCol = $this->mngcolModel::where('order_detail_id', $row['order_detail_id'])->first();
+                    if ($mngCol) {
+                        $shortage = $mngCol->shortage ?? 0;
+                        $mngCol->update([
+                            'No_Of_Pkags'      => $row['bags'],
+                            'Rate_per_kg'      => $row['rate'],
+                            'Net_Weight_Kgs'   => $row['net_kg'],
+                            'Net_Oty_Per_Pkg'  => $kgPerBag,
+                            'shortage'         => $shortage,
+                            'discount'         => 0
+                        ]);
+
+                        // ✅ Update broker purchase with shortage
+                        $this->brokerPurchaseModel::where('order_detail_id', $row['order_detail_id'])->update([
+                            'shortage'     => $shortage,
+                            'final_net_kg' => $row['net_kg'] - $shortage,
+                        ]);
+                    }
+
+                    // ✅ Update invoice if order_detail has invoice_id
+                    if ($detail->invoice_id) {
+                        $invoice = $this->invoiceModel::where('id', $detail->invoice_id)->first();
+                        if ($invoice) {
+                            // Recalculate invoice totals from all order_details for this invoice
+                            $orderDetailsForInvoice = $this->order_detailModel::where('invoice_id', $detail->invoice_id)->get();
+
+                            $totalAmount = 0;
+                            foreach ($orderDetailsForInvoice as $od) {
+                                $totalAmount += ($od->net_kg * $od->rate);
+                            }
+
+                            // Calculate GST amounts using invoice_other_setting percentages
+                            if($invoice->sgst == 0.00 && $invoice->cgst == 0.00){
+                                // Inter-state - use IGST percentage
+                                $igst_per = $this->invoice_other_settingModel::value('igst') ?? 0;
+                                $igst = ($totalAmount * $igst_per) / 100;
+                                $sgst = 0;
+                                $cgst = 0;
+                            } else {
+                                // Intra-state - use CGST and SGST percentages
+                                $cgst_per = $this->invoice_other_settingModel::value('cgst') ?? 0;
+                                $sgst_per = $this->invoice_other_settingModel::value('sgst') ?? 0;
+                                $cgst = ($totalAmount * $cgst_per) / 100;
+                                $sgst = ($totalAmount * $sgst_per) / 100;
+                                $igst = 0;
+                            }
+
+                            $gst = $sgst + $cgst + $igst;
+                            $grandTotal = $totalAmount + $gst;
+
+                            $invoice->update([
+                                'total'       => $totalAmount,
+                                'sgst'        => $sgst,
+                                'cgst'        => $cgst,
+                                'igst'        => $igst,
+                                'gst'         => $gst,
+                                'grand_total' => $grandTotal
+                            ]);
+
+                            // ✅ Update brokerpurchase table with invoice_grand_total
+                            $this->brokerPurchaseModel::where('invoice_no', $invoice->invoice_no)
+                                ->where('is_deleted', 0)
+                                ->update(['invoice_grand_total' => $grandTotal]);
+
+                            // ✅ Handle payment status and payment_details when invoice total changes
+                            $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)
+                                ->where('is_deleted', 0)
+                                ->get();
+
+                            if ($paymentDetails && count($paymentDetails) > 0) {
+                                $totalPaidAmount = 0;
+                                foreach ($paymentDetails as $pay) {
+                                    $totalPaidAmount += ($pay->paid_amount + $pay->tds_amount);
+                                }
+
+                                // Calculate new pending amount
+                                $newPendingAmount = $grandTotal - $totalPaidAmount;
+
+                                // Update payment_details with new amounts
+                                foreach ($paymentDetails as $pay) {
+                                    $pay->amount = $grandTotal;
+                                    $pay->pending_amount = $newPendingAmount;
+                                    $pay->part_payment = ($newPendingAmount > 0) ? 1 : 0;
+                                    $pay->updated_by = $request->user_id;
+                                    $pay->save();
+                                }
+
+                                // Update invoice status based on payment
+                                $newInvoiceStatus = ($newPendingAmount <= 0) ? 'paid' : 'part_payment';
+                                $invoice->status = ($invoice->status != 'pending') ? $newInvoiceStatus : 'pending';
+                                $invoice->save();
+                            }
+                        }
+                    }
                 }
 
             } else {
@@ -565,6 +704,103 @@ class orderController extends commonController
                 ]);
 
                 $existingIds[] = $newDetail->id;
+
+                // ✅ Update mng_col if order_detail_id exists
+                $kgPerBag = $row['bags'] > 0 ? $row['net_kg'] / $row['bags'] : 0;
+                $mngCol = $this->mngcolModel::where('order_detail_id', $newDetail->id)->first();
+                if ($mngCol) {
+                    $shortage = $mngCol->shortage ?? 0;
+                    $mngCol->update([
+                        'No_Of_Pkags'      => $row['bags'],
+                        'Rate_per_kg'      => $row['rate'],
+                        'Net_Weight_Kgs'   => $row['net_kg'],
+                        'Net_Oty_Per_Pkg'  => $kgPerBag,
+                        'shortage'         => $shortage,
+                        'discount'         => 0
+                    ]);
+
+                    // ✅ Update broker purchase with shortage
+                    $this->brokerPurchaseModel::where('order_detail_id', $newDetail->id)->update([
+                        'shortage'     => $shortage,
+                        'final_net_kg' => $row['net_kg'] - $shortage,
+                    ]);
+                }
+
+                // ✅ Update invoice if order_detail has invoice_id
+                if ($newDetail->invoice_id) {
+                    $invoice = $this->invoiceModel::where('id', $newDetail->invoice_id)->first();
+                    if ($invoice) {
+                        // Recalculate invoice totals from all order_details for this invoice
+                        $orderDetailsForInvoice = $this->order_detailModel::where('invoice_id', $newDetail->invoice_id)->get();
+
+                        $totalAmount = 0;
+                        foreach ($orderDetailsForInvoice as $od) {
+                            $totalAmount += ($od->net_kg * $od->rate);
+                        }
+
+                        // Calculate GST amounts using invoice_other_setting percentages
+                        if($invoice->sgst == 0.00 && $invoice->cgst == 0.00){
+                            // Inter-state - use IGST percentage
+                            $igst_per = $this->invoice_other_settingModel::value('igst') ?? 0;
+                            $igst = ($totalAmount * $igst_per) / 100;
+                            $sgst = 0;
+                            $cgst = 0;
+                        } else {
+                            // Intra-state - use CGST and SGST percentages
+                            $cgst_per = $this->invoice_other_settingModel::value('cgst') ?? 0;
+                            $sgst_per = $this->invoice_other_settingModel::value('sgst') ?? 0;
+                            $cgst = ($totalAmount * $cgst_per) / 100;
+                            $sgst = ($totalAmount * $sgst_per) / 100;
+                            $igst = 0;
+                        }
+
+                        $gst = $sgst + $cgst + $igst;
+                        $grandTotal = $totalAmount + $gst;
+
+                        $invoice->update([
+                            'total'       => $totalAmount,
+                            'sgst'        => $sgst,
+                            'cgst'        => $cgst,
+                            'igst'        => $igst,
+                            'gst'         => $gst,
+                            'grand_total' => $grandTotal
+                        ]);
+
+                        // ✅ Update brokerpurchase table with invoice_grand_total
+                        $this->brokerPurchaseModel::where('invoice_no', $invoice->invoice_no)
+                            ->where('is_deleted', 0)
+                            ->update(['invoice_grand_total' => $grandTotal]);
+
+                        // ✅ Handle payment status and payment_details when invoice total changes
+                        $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)
+                            ->where('is_deleted', 0)
+                            ->get();
+
+                        if ($paymentDetails && count($paymentDetails) > 0) {
+                            $totalPaidAmount = 0;
+                            foreach ($paymentDetails as $pay) {
+                                $totalPaidAmount += ($pay->paid_amount + $pay->tds_amount);
+                            }
+
+                            // Calculate new pending amount
+                            $newPendingAmount = $grandTotal - $totalPaidAmount;
+
+                            // Update payment_details with new amounts
+                            foreach ($paymentDetails as $pay) {
+                                $pay->amount = $grandTotal;
+                                $pay->pending_amount = $newPendingAmount;
+                                $pay->part_payment = ($newPendingAmount > 0) ? 1 : 0;
+                                $pay->updated_by = $request->user_id;
+                                $pay->save();
+                            }
+
+                            // Update invoice status based on payment
+                            $newInvoiceStatus = ($newPendingAmount <= 0) ? 'paid' : 'part_payment';
+                            $invoice->status = ($invoice->status != 'pending') ? $newInvoiceStatus : 'pending';
+                            $invoice->save();
+                        }
+                    }
+                }
             }
         }
 
