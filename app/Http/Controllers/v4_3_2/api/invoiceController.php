@@ -984,6 +984,11 @@ class invoiceController extends commonController
                         //  dd($itemdata);
                         foreach ($itemdata as $row) {
                             // dd($itemdata);
+                            // ✅ Calculate amount based on rate and net_kg
+                            $rate = $row['Rate_per_kg'] ?? 0;
+                            $netKg = $row['Net_Weight_Kgs'] ?? 0;
+                            $calculatedAmount = $rate * $netKg;
+
                             $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted', 0)->value('id');
                             $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted', 0)->value('id');
 
@@ -1007,7 +1012,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
-                                    'invoice_grand_total' => $row['amount'],
+                                    'invoice_grand_total' => $calculatedAmount,
                                     'brokerage' => $get_borkrage,
                                     'invoice_id'   => $invoice,
                                     'updated_by'   => $user_id,
@@ -1021,7 +1026,7 @@ class invoiceController extends commonController
                                     'kg'         => $row['Net_Oty_Per_Pkg'],
                                     'net_kg'     => $row['Net_Weight_Kgs'],
                                     'rate'       => $row['Rate_per_kg'],
-                                    'amount'     => $row['amount'],
+                                    'amount'     => $calculatedAmount,
                                 ]);
 
                                 // ✅ Recalculate order totals
@@ -1059,7 +1064,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
-                                    'invoice_grand_total' => $row['amount'],
+                                    'invoice_grand_total' => $calculatedAmount,
                                     'order_detail_id' => $row['order_detail_id'],
                                     'invoice_id'   => $invoice,
                                     'source'       => 'invoice',
@@ -1075,7 +1080,7 @@ class invoiceController extends commonController
                                     'kg'         => $row['Net_Oty_Per_Pkg'],
                                     'net_kg'     => $row['Net_Weight_Kgs'],
                                     'rate'       => $row['Rate_per_kg'],
-                                    'amount'     => $row['amount'],
+                                    'amount'     => $calculatedAmount,
                                 ]);
 
                                 // ✅ Recalculate order totals

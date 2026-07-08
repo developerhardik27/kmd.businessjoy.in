@@ -602,12 +602,13 @@ class brokerPurchaseController extends commonController
             if ($orderDetail) {
                 $orderId = $orderDetail->order_id;
                 $kgPerBag = $detail['bags'] > 0 ? $detail['net_kg'] / $detail['bags'] : 0;
-                
+                $calculatedAmount = $detail['net_kg'] * $detail['rate'];
+
                 $orderDetail->update([
                     'bags'   => $detail['bags'],
                     'net_kg' => $detail['net_kg'],
                     'rate'   => $detail['rate'],
-                    'amount' => $detail['net_kg'] * $detail['rate'],
+                    'amount' => $calculatedAmount,
                     'kg'     => $kgPerBag
                 ]);
 
@@ -619,7 +620,8 @@ class brokerPurchaseController extends commonController
                         'Rate_per_kg'      => $detail['rate'],
                         'Net_Weight_Kgs'   => $detail['net_kg'],
                         'Net_Oty_Per_Pkg'  => $kgPerBag,
-                        'discount'         => $detail['discount'] ?? 0
+                        'discount'         => $detail['discount'] ?? 0,
+                        'amount'           => $calculatedAmount
                     ]);
                 }
 
@@ -663,9 +665,13 @@ class brokerPurchaseController extends commonController
                         ]);
 
                         // ── Update brokerpurchase table with invoice_grand_total ──
-                        $this->brokerpurchaseModel::where('invoice_no', $invoice->invoice_no)
+                        $this->brokerpurchaseModel::where('order_detail_id', $detail['order_detail_id'])
                             ->where('is_deleted', 0)
                             ->update(['invoice_grand_total' => $grandTotal]);
+
+                        // ── Update broker purchase amount for current order_detail ──
+                        $this->brokerpurchaseModel::where('order_detail_id', $detail['order_detail_id'])
+                            ->update(['amount' => $calculatedAmount]);
 
                         // ── Handle payment status and payment_details when invoice total changes ──
                         $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)
@@ -805,11 +811,12 @@ class brokerPurchaseController extends commonController
             $kgPerBag = $request->bags > 0 ? $request->net_kg / $request->bags : 0;
             
             // ── Update order_details ──
+            $calculatedAmount = $request->net_kg * $request->rate;
             $orderDetail->update([
                 'bags'   => $request->bags,
                 'net_kg' => $request->net_kg,
                 'rate'   => $request->rate,
-                'amount' => $request->net_kg * $request->rate,
+                'amount' => $calculatedAmount,
                 'kg'     => $kgPerBag
             ]);
 
@@ -821,7 +828,8 @@ class brokerPurchaseController extends commonController
                     'Rate_per_kg'      => $request->rate,
                     'Net_Weight_Kgs'   => $request->net_kg,
                     'Net_Oty_Per_Pkg'  => $kgPerBag,
-                    'discount'         => 0
+                    'discount'         => 0,
+                    'amount'           => $calculatedAmount
                 ]);
             }
 
@@ -864,10 +872,14 @@ class brokerPurchaseController extends commonController
                         'grand_total' => $grandTotal
                     ]);
 
-                    // ── Update brokerpurchase table with invoice_grand_total ──
-                    $this->brokerpurchaseModel::where('invoice_no', $invoice->invoice_no)
+                    // ── Update brokerpurchase table with invoice_grand_total and amount ──
+                    $this->brokerpurchaseModel::where('order_detail_id', $detail['order_detail_id'])
                         ->where('is_deleted', 0)
                         ->update(['invoice_grand_total' => $grandTotal]);
+
+                    // ── Update current broker purchase amount ──
+                    $this->brokerpurchaseModel::where('id', $id)
+                        ->update(['amount' => $calculatedAmount]);
 
                     // ── Handle payment status and payment_details when invoice total changes ──
                     $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)

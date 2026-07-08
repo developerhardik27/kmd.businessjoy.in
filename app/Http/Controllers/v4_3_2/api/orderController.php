@@ -602,13 +602,15 @@ class orderController extends commonController
                             'Net_Weight_Kgs'   => $row['net_kg'],
                             'Net_Oty_Per_Pkg'  => $kgPerBag,
                             'shortage'         => $shortage,
-                            'discount'         => 0
+                            'discount'         => 0,
+                            'amount'           => $row['amount']
                         ]);
 
-                        // ✅ Update broker purchase with shortage
+                        // ✅ Update broker purchase with shortage and invoice_grand_total
                         $this->brokerPurchaseModel::where('order_detail_id', $row['order_detail_id'])->update([
-                            'shortage'     => $shortage,
-                            'final_net_kg' => $row['net_kg'] - $shortage,
+                            'shortage'            => $shortage,
+                            'final_net_kg'        => $row['net_kg'] - $shortage,
+                            'invoice_grand_total' => $row['amount'],
                         ]);
                     }
 
@@ -716,13 +718,15 @@ class orderController extends commonController
                         'Net_Weight_Kgs'   => $row['net_kg'],
                         'Net_Oty_Per_Pkg'  => $kgPerBag,
                         'shortage'         => $shortage,
-                        'discount'         => 0
+                        'discount'         => 0,
+                        'amount'           => $row['amount']
                     ]);
 
-                    // ✅ Update broker purchase with shortage
+                    // ✅ Update broker purchase with shortage and invoice_grand_total
                     $this->brokerPurchaseModel::where('order_detail_id', $newDetail->id)->update([
-                        'shortage'     => $shortage,
-                        'final_net_kg' => $row['net_kg'] - $shortage,
+                        'shortage'            => $shortage,
+                        'final_net_kg'        => $row['net_kg'] - $shortage,
+                        'invoice_grand_total' => $row['amount'],
                     ]);
                 }
 
