@@ -669,9 +669,6 @@ class brokerPurchaseController extends commonController
                             ->where('is_deleted', 0)
                             ->update(['invoice_grand_total' => $grandTotal]);
 
-                        // ── Update broker purchase amount for current order_detail ──
-                        $this->brokerpurchaseModel::where('order_detail_id', $detail['order_detail_id'])
-                            ->update(['amount' => $calculatedAmount]);
 
                         // ── Handle payment status and payment_details when invoice total changes ──
                         $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)
@@ -877,9 +874,6 @@ class brokerPurchaseController extends commonController
                         ->where('is_deleted', 0)
                         ->update(['invoice_grand_total' => $grandTotal]);
 
-                    // ── Update current broker purchase amount ──
-                    $this->brokerpurchaseModel::where('id', $id)
-                        ->update(['amount' => $calculatedAmount]);
 
                     // ── Handle payment status and payment_details when invoice total changes ──
                     $paymentDetails = $this->payment_detailsModel::where('inv_id', $invoice->id)
