@@ -271,6 +271,18 @@ class orderController extends commonController
         }
 
         // -------------------------------------------------------
+        // Calculate totals
+        // -------------------------------------------------------
+        $totalOrders = $orderData->count();
+        $totalBags = $orderData->sum(function ($order) {
+            return collect($order['details'])->sum('bags');
+        });
+        $totalNetKg = $orderData->sum(function ($order) {
+            return collect($order['details'])->sum('net_kg');
+        });
+        $totalAmount = $orderData->sum('final_amount');
+
+        // -------------------------------------------------------
         // Return via DataTables
         // -------------------------------------------------------
         if ($orderData->isEmpty()) {
@@ -278,6 +290,12 @@ class orderController extends commonController
                 ->with([
                     'status'  => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_orders' => 0,
+                        'total_bags' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -285,6 +303,12 @@ class orderController extends commonController
         return DataTables::of($orderData)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_orders' => $totalOrders,
+                    'total_bags' => $totalBags,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }

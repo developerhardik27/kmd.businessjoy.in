@@ -148,10 +148,6 @@
             if (orderId && gardenId) {
                 // Load gardens first, then select the specific garden
                 loadGardens(gardenId, invoiceNos ? JSON.parse(invoiceNos) : null);
-                // Clear sessionStorage after use
-                sessionStorage.removeItem('sample_purchase_order_id');
-                sessionStorage.removeItem('sample_purchase_garden_id');
-                sessionStorage.removeItem('sample_purchase_invoice_nos');
             } else {
                 loadGardens();
             }
@@ -361,7 +357,16 @@
 
             $('#cancelbtn').on('click', function() {
                 loadershow();
-                window.location.href = "{{ route('admin.brokerpurchase') }}";
+                // Check if coming from order view
+                const orderId = sessionStorage.getItem('sample_purchase_order_id');
+                if (orderId) {
+                    window.location.href = "{{ route('admin.order') }}";
+                } else {
+                    window.location.href = "{{ route('admin.brokerpurchase') }}";
+                }
+                sessionStorage.removeItem('sample_purchase_order_id');
+                sessionStorage.removeItem('sample_purchase_garden_id');
+                sessionStorage.removeItem('sample_purchase_invoice_nos');
             });
 
             // Form submit handler - show confirmation modal
@@ -403,8 +408,16 @@
                                 icon: "success",
                                 title: response.message
                             });
-                            window.location.href =
-                                "{{ route('admin.brokerpurchase') }}"; // redirect on brokerpurchase list page
+                            // Check if coming from order view
+                            const orderId = sessionStorage.getItem('sample_purchase_order_id');
+                            if (orderId) {
+                                window.location.href = "{{ route('admin.order') }}";
+                            } else {
+                                window.location.href = "{{ route('admin.brokerpurchase') }}";
+                            }
+                            sessionStorage.removeItem('sample_purchase_order_id');
+                            sessionStorage.removeItem('sample_purchase_garden_id');
+                            sessionStorage.removeItem('sample_purchase_invoice_nos');
 
                         } else {
                             Toast.fire({

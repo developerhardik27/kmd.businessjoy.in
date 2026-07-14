@@ -420,6 +420,23 @@ class invoiceController extends commonController
         // -------------------
         // 8️⃣ Get Final Data
         $invoice = $invoiceres->get();
+
+        // Calculate totals from mngcol and invoices
+        $invoiceIds = $invoice->pluck('id');
+        $mngcolTotals = DB::connection('dynamic_connection')->table('mng_col')
+            ->whereIn('invoice_id', $invoiceIds)
+            ->where('is_deleted', 0)
+            ->select(
+                DB::raw("SUM(No_Of_Pkags) as total_bags"),
+                DB::raw("SUM(Net_Weight_Kgs) as total_net_kg")
+            )
+            ->first();
+
+        $totalInvoices = $invoice->count();
+        $totalBags = $mngcolTotals->total_bags ?? 0;
+        $totalNetKg = $mngcolTotals->total_net_kg ?? 0;
+        $totalAmount = $invoice->sum('grand_total');
+
         // dd($invoice);
         if ($invoice->isEmpty()) {
             return DataTables::of($invoice)
@@ -427,6 +444,12 @@ class invoiceController extends commonController
                     'status' => 404,
                     'message' => 'No Data Found',
                     'recordsTotal' => $totalcount, // Total records count
+                    'totals' => [
+                        'total_invoices' => 0,
+                        'total_bags' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -435,7 +458,13 @@ class invoiceController extends commonController
             ->with([
                 'status' => 200,
                 'recordsTotal' => $totalcount, // Total records count
-                'company_details_id' => $company_detials
+                'company_details_id' => $company_detials,
+                'totals' => [
+                    'total_invoices' => $totalInvoices,
+                    'total_bags' => $totalBags,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }
@@ -1045,10 +1074,12 @@ class invoiceController extends commonController
                                         $discountAmount = ($totalAmount * $discount) / 100;
                                         $finalAmount = $totalAmount - $discountAmount;
                                         $order->update([
-                                            'totalNetKg'     => $totalNetKg,
-                                            'totalAmount'    => $totalAmount,
-                                            'discountAmount' => $discountAmount,
-                                            'finalAmount'    => $finalAmount,
+                                            'totalNetKg'          => $totalNetKg,
+                                            'totalAmount'         => $totalAmount,
+                                            'discountAmount'      => $discountAmount,
+                                            'finalAmount'         => $finalAmount,
+                                            'expected_dispatch_date' => $data['invoice_date'] ?? null,
+                                            'dispatch_status'     => 'Completed',
                                         ]);
                                     }
                                 }
@@ -1099,10 +1130,12 @@ class invoiceController extends commonController
                                         $discountAmount = ($totalAmount * $discount) / 100;
                                         $finalAmount = $totalAmount - $discountAmount;
                                         $order->update([
-                                            'totalNetKg'     => $totalNetKg,
-                                            'totalAmount'    => $totalAmount,
-                                            'discountAmount' => $discountAmount,
-                                            'finalAmount'    => $finalAmount,
+                                            'totalNetKg'          => $totalNetKg,
+                                            'totalAmount'         => $totalAmount,
+                                            'discountAmount'      => $discountAmount,
+                                            'finalAmount'         => $finalAmount,
+                                            'expected_dispatch_date' => $data['invoice_date'] ?? null,
+                                            'dispatch_status'     => 'Completed',
                                         ]);
                                     }
                                 }
@@ -1789,7 +1822,7 @@ class invoiceController extends commonController
     // check invoice number exist or not
     public function checkinvoicenumber(Request $request)
     {
-        $existsinvoice = $this->invoiceModel::where('inv_no', $request->inv_number)->where('is_deleted', 0);
+        $existsinvoice = $this->invoiceModel::where('inv_no', $request->inv_number)->where('company_details_id',$request->company_details_id)->where('is_deleted', 0);
 
         if ($request->searchtype == 'update') {
             $existsinvoice->whereNot('id', $request->inv_id);

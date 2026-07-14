@@ -301,6 +301,24 @@
     </thead>
     <tbody id="tabledata"></tbody>
 </table>
+<table id="totals_table" class="table table-bordered table-striped w-100 mt-3">
+    <thead>
+        <tr>
+            <th>Total Commission Bills</th>
+            <th>Total Bags</th>
+            <th>Total Net Kg</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="total_commission_bills">-</td>
+            <td id="total_bags">-</td>
+            <td id="total_net_kg">-</td>
+            <td id="total_amount">-</td>
+        </tr>
+    </tbody>
+</table>
 
 {{-- ── Payment Modal ── --}}
 <div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle" aria-hidden="true">
@@ -444,6 +462,21 @@ $('document').ready(function () {
     let getgardenname = [], getcompanyname = [], getbuyername = [];
     var global_response = '';
 
+    /* ── Detect actual browser reload (F5 / Ctrl+R / reload button) ── */
+    function isPageReload() {
+        try {
+            const navEntries = performance.getEntriesByType('navigation');
+            if (navEntries.length > 0) {
+                return navEntries[0].type === 'reload';
+            }
+            // fallback for old browsers
+            if (performance.navigation) {
+                return performance.navigation.type === 1;
+            }
+        } catch (e) {}
+        return false;
+    }
+
     /* ── Shared fetch helper ── */
     function fetchData(url) {
         return new Promise((resolve, reject) => {
@@ -487,7 +520,7 @@ $('document').ready(function () {
     function resetFilters() {
         // Reset date inputs
         $('#filter_date_from, #filter_date_to').val('');
-        
+
         // Reset Select2 dropdowns
         $('#filter_payment_status').val(null).trigger('change');
         $('#filter_company').val(null).trigger('change');
@@ -495,15 +528,28 @@ $('document').ready(function () {
         $('#filter_garden').val(null).trigger('change');
     }
 
+    /* ── Save current filters to sessionStorage ── */
+    function saveFilters() {
+        const filterData = {
+            filter_payment_status: $('#filter_payment_status').val(),
+            filter_garden: $('#filter_garden').val(),
+            filter_company: $('#filter_company').val(),
+            filter_buyer: $('#filter_buyer').val(),
+            filter_date_from: $('#filter_date_from').val(),
+            filter_date_to: $('#filter_date_to').val()
+        };
+        sessionStorage.setItem('brokerageBillFilterData', JSON.stringify(filterData));
+    }
+
     /* ── Load saved filters ── */
     function loadFilters() {
         return new Promise(resolve => {
-            var fd = JSON.parse(sessionStorage.getItem('filterData'));
+            var fd = JSON.parse(sessionStorage.getItem('brokerageBillFilterData'));
             if (fd) {
-                $.each(fd, function (k, v) { if (v != ' ') $('#' + k).val(v); });
+                $.each(fd, function (k, v) { if (v != ' ' && v != null && v != '') $('#' + k).val(v); });
                 $('#filter_company, #filter_buyer, #filter_garden').trigger('change');
                 loaddata();
-                sessionStorage.removeItem('filterData');
+                sessionStorage.removeItem('brokerageBillFilterData');
             } else {
                 resetFilters();
                 loaddata();
@@ -548,7 +594,19 @@ $('document').ready(function () {
             }
             initSingleSelect2('#filter_buyer', 'Select Buyer');
 
-            await loadFilters();
+            // Add event listeners to save filters when changed
+            $('.filter').on('change', function() {
+                saveFilters();
+            });
+
+            if (isPageReload()) {
+                sessionStorage.removeItem('brokerageBillFilterData');
+                resetFilters();
+                loaddata();
+            } else {
+                // normal navigation (e.g. redirect back from Edit page) — filters restore karo
+                await loadFilters();
+            }
 
         } catch (e) {
             console.error(e);
@@ -589,6 +647,15 @@ $('document').ready(function () {
                         $('#excelBtn').addClass('d-none');
                     }
                     global_response = json;
+
+                    // Update totals
+                    if (json.totals) {
+                        $('#total_commission_bills').text(json.totals.total_commission_bills || 0);
+                        $('#total_bags').text(json.totals.total_bags || 0);
+                        $('#total_net_kg').text(json.totals.total_net_kg || 0);
+                        $('#total_amount').text(parseFloat(json.totals.total_amount || 0).toFixed(2));
+                    }
+
                     return json.data;
                 },
                 complete: () => loaderhide(),
@@ -916,7 +983,7 @@ $('document').ready(function () {
     });
 
     /* ── Apply / Clear ── */
-    $('.applyfilters').on('click',  function () { table.draw(); });
+    $('.applyfilters').on('click',  function () { saveFilters(); table.draw(); });
     $('.removefilters').on('click', function () {
         resetFilters();
         table.draw();

@@ -713,6 +713,7 @@ let sgst, cgst, igst, gst;
 let currentcurrency, currentcurrencysymbol;
 let buyer_state_id, company_state_id;
 let addname = 0;
+let redirectType = null;
 
 /* helpers */
 function ajaxPromise(m, url, data={}) {
@@ -878,6 +879,7 @@ async function setdata() {
         await transports(invoice_data.line_items[0].transport_id);
         await companymaster(invoice_data.maindata.companymaster_id[0]);
     } else {
+        redirectType = lot_no_invoice_data.type;
         productdetails   = lot_no_invoice_data.line_items;
         $("#invoice_data").val(lot_no_invoice_data.maindata.invoice_no.join(','));
         $("#order_details_id").val(lot_no_invoice_data.maindata.orderDetailIds.join(','));
@@ -919,7 +921,7 @@ async function transports(tid = 0) {
                     return option.text;
                 }
             });
-            if (tid) $('#transport_id').prop('disabled', true);
+            if (tid && tid != 0) $('#transport_id').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -942,7 +944,7 @@ async function customers(cid = 0) {
                     return option.text;
                 }
             });
-            if (cid) $('#customer').prop('disabled', true);
+            if (cid && cid != 0) $('#customer').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -964,7 +966,7 @@ async function companymaster(mid = 0) {
                 }
             });
             company_state_id = $('#companymaster_id').find('option:selected').data('state_id');
-            if (mid) $('#companymaster_id').prop('disabled', true);
+            if (mid && mid != 0) $('#companymaster_id').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -1126,7 +1128,11 @@ $(function() {
 
     // Handle Cancel button in confirmation modal
     $('#cancelConfirmBtn').on('click', function() {
-        window.location.href = "{{ url('admin/invoice') }}";
+        if (redirectType === 'order') {
+            window.location.href = "{{ route('admin.order') }}";
+        } else {
+            window.location.href = "{{ route('admin.invoice') }}";
+        }
     });
 
     // Handle OK button in confirmation modal
@@ -1136,7 +1142,13 @@ $(function() {
 
     if (performance.getEntriesByType("navigation")[0].type === "reload") {
         Swal.fire({ icon:'warning', title:'Page Reloaded!', text:'Redirecting to invoice list.', confirmButtonText:'OK' })
-            .then(() => { window.location.href = "{{ url('admin/invoice') }}"; });
+            .then(() => {
+                if (redirectType === 'order') {
+                    window.location.href = "{{ route('admin.order') }}";
+                } else {
+                    window.location.href = "{{ route('admin.invoice') }}";
+                }
+            });
     }
 
     $(document).on('focus', '.calculation', function() { if ($(this).val() == '0') $(this).val(''); });
@@ -1432,13 +1444,20 @@ $(function() {
             data: collectInvoiceDetails(), iteam_data: collectRowData(),
             token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID
         }).done(function(r) {
-            if (r.status === 200) { Toast.fire({icon:"success",title:r.message}); window.location = "{{ route('admin.invoice') }}"; }
+            if (r.status === 200) {
+                Toast.fire({icon:"success",title:r.message});
+                if (redirectType === 'order') {
+                    window.location = "{{ route('admin.order') }}";
+                } else {
+                    window.location = "{{ route('admin.invoice') }}";
+                }
+            }
             else { Toast.fire({icon:"error",title:r.message}); loaderhide(); }
         }).fail(xhr => { loaderhide(); handleAjaxError(xhr); });
     });
 
     $('#inv_number').on('blur', function() {
-        ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", { inv_number: $(this).val(), token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID })
+        ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", { inv_number: $(this).val(), token: API_TOKEN, company_id: COMPANY_ID, user_id: USER_ID ,company_details_id:$('#companymaster_id').val()})
             .fail(xhr => { loaderhide(); handleAjaxError(xhr); });
     });
 
@@ -1455,7 +1474,14 @@ $(function() {
         }, 10);
     });
 
-    $('#cancelbtn').on('click', () => { loadershow(); window.location.href = "{{ route('admin.invoice') }}"; });
+    $('#cancelbtn').on('click', () => {
+        loadershow();
+        if (redirectType === 'order') {
+            window.location.href = "{{ route('admin.order') }}";
+        } else {
+            window.location.href = "{{ route('admin.invoice') }}";
+        }
+    });
 
     /* ── Customer modal location ── */
     ajaxRequest('GET', "{{ route('country.index') }}", { token: API_TOKEN })

@@ -40,7 +40,7 @@
                     <input type="hidden" value="{{ session('user_id') }}" class="form-control" name="user_id">
                     <input type="hidden" value="{{ session('company_id') }}" class="form-control" name="company_id">
                     <input type="hidden" class="form-control requiredinput" name="grade" id="grade">
-                    <input type="hidden" id="broker_purchase_id" value="{{ $brokerpurchase->id ?? '' }}">
+                    <input type="hidden" id="broker_purchase_id" value="{{ $edit_id ?? '' }}">
                     <label for="garden_id">Select Garden</label><span style="color:red;">*</span>
                     <select class="form-control requiredinput" name="garden_id" id="garden_id" style="height: 38px;" disabled>
                         <option selected disabled>Select your garden</option>

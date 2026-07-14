@@ -383,6 +383,24 @@
         </thead>
         <tbody id="tabledata"></tbody>
     </table>
+    <table id="totals_table" class="table table-bordered table-striped w-100 mt-3">
+        <thead>
+            <tr>
+                <th>Total Invoice</th>
+                <th>Total Bags</th>
+                <th>Total Net Kg</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="total_invoices">-</td>
+                <td id="total_bags">-</td>
+                <td id="total_net_kg">-</td>
+                <td id="total_amount">-</td>
+            </tr>
+        </tbody>
+    </table>
 
     {{-- ── Payment Modal ────────────────────────────────────────────────────────── --}}
     <div class="modal fade" id="paymentmodal" tabindex="-1" role="dialog" aria-labelledby="viewpaymentmodalTitle" aria-hidden="true">
@@ -490,6 +508,21 @@
         const COMPANY_ID = "{{ session()->get('company_id') }}";
         const USER_ID    = "{{ session()->get('user_id') }}";
 
+        /* ── Detect actual browser reload (F5 / Ctrl+R / reload button) ── */
+        function isPageReload() {
+            try {
+                const navEntries = performance.getEntriesByType('navigation');
+                if (navEntries.length > 0) {
+                    return navEntries[0].type === 'reload';
+                }
+                // fallback for old browsers
+                if (performance.navigation) {
+                    return performance.navigation.type === 1;
+                }
+            } catch (e) {}
+            return false;
+        }
+
         // ────────────────────────────────────────────────────────────────────────────
         // Sidebar filter selects
         // ────────────────────────────────────────────────────────────────────────────
@@ -542,15 +575,25 @@
             $('#filter_buyer').val(null).trigger('change');
         }
 
+        /* ── Save current filters to sessionStorage ── */
+        function saveFilters() {
+            const filterData = {
+                filter_payment_status: $('#filter_payment_status').val(),
+                filter_commission_bill_status: $('#filter_commission_bill_status').val(),
+                filter_company: $('#filter_company').val(),
+                filter_buyer: $('#filter_buyer').val()
+            };
+            sessionStorage.setItem('invoiceFilterData', JSON.stringify(filterData));
+        }
+
         function loadFilters() {
             return new Promise(resolve => {
-                var fd = JSON.parse(sessionStorage.getItem('filterData'));
+                var fd = JSON.parse(sessionStorage.getItem('invoiceFilterData'));
                 if (fd) {
-                    $.each(fd, function (k, v) { if (v != ' ') { $('#' + k).val(v); } });
+                    $.each(fd, function (k, v) { if (v != ' ' && v != null && v != '') { $('#' + k).val(v); } });
                     $('#filter_company, #filter_buyer').trigger('change');
                     loaddata();
-                    sessionStorage.removeItem('filterData');
-                    resolve();
+                    sessionStorage.removeItem('invoiceFilterData');
                 } else {
                     resetFilters();
                     resolve();
@@ -606,7 +649,14 @@
                 } else {
                     $('#filter_buyer').val('').select2({ search: true, placeholder: 'No buyer found', allowClear: true });
                 }
-                await loadFilters();
+                if (isPageReload()) {
+                    sessionStorage.removeItem('invoiceFilterData');
+                    resetFilters();
+                    loaddata();
+                } else {
+                    // normal navigation (e.g. redirect back from Edit page) — filters restore karo
+                    await loadFilters();
+                }
             } catch (err) {
                 console.error('Init error:', err);
                 Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
@@ -767,7 +817,7 @@
             }
         });
 
-        $(document).on("click", ".generate-invoice", function () { companymaster(); $('#generateinvoiceModal').modal('show'); });
+        $(document).on("click", ".generate-invoice", function () { companymaster(); $('#generateinvoiceModal').modal('show'); saveFilters();});
 
         // ════════════════════════════════════════════════════════════════════════════
         // CHECKBOX SELECTION — same-company validation + bulk button
@@ -954,6 +1004,15 @@
                             $('#excelBtn').addClass('d-none');
                         }
                         global_response = json;
+
+                        // Update totals
+                        if (json.totals) {
+                            $('#total_invoices').text(json.totals.total_invoices || 0);
+                            $('#total_bags').text(json.totals.total_bags || 0);
+                            $('#total_net_kg').text(json.totals.total_net_kg || 0);
+                            $('#total_amount').text(parseFloat(json.totals.total_amount || 0).toFixed(2));
+                        }
+
                         return json.data;
                     },
                     complete: function () { companymaster(); loaderhide(); },
@@ -1145,7 +1204,7 @@
                                     let editUrl = "{{ route('admin.editinvoice', '__invoiceId__') }}".replace('__invoiceId__', row.id);
                                     actionBtns += `
                                         <span>
-                                            <a href="${editUrl}">
+                                            <a href="${editUrl}" onclick="saveFilters();">
                                                 <button type="button" data-id="${row.id}"
                                                     data-toggle="tooltip" data-placement="bottom"
                                                     data-original-title="Edit Invoice"
@@ -1471,7 +1530,7 @@
         });
 
         // ── Sidebar filter buttons ────────────────────────────────────────────────
-        $('.applyfilters').on('click',  function () { table.draw(); hideOffCanvass(); });
+        $('.applyfilters').on('click',  function () { saveFilters(); table.draw(); hideOffCanvass(); });
         $('.removefilters').on('click', function () {
             resetFilters();
             table.draw();

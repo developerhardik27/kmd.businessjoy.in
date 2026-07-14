@@ -443,6 +443,24 @@
     </thead>
     <tbody id="tabledata"></tbody>
 </table>
+<table id="totals_table" class="table table-bordered table-striped w-100 mt-3">
+    <thead>
+        <tr>
+            <th>Total Order</th>
+            <th>Total Bags</th>
+            <th>Total Net Kg</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="total_orders">-</td>
+            <td id="total_bags">-</td>
+            <td id="total_net_kg">-</td>
+            <td id="total_amount">-</td>
+        </tr>
+    </tbody>
+</table>
 {{-- ── Dispatch Status Modal ── --}}
 <div class="modal fade" id="dispatchStatusModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -538,6 +556,20 @@ $('document').ready(function () {
     const COMPANY_ID = "{{ session()->get('company_id') }}";
     const USER_ID    = "{{ session()->get('user_id') }}";
     /* ── Data fetchers ── */
+    /* ── Detect actual browser reload (F5 / Ctrl+R / reload button) ── */
+    function isPageReload() {
+        try {
+            const navEntries = performance.getEntriesByType('navigation');
+            if (navEntries.length > 0) {
+                return navEntries[0].type === 'reload';
+            }
+            // fallback for old browsers
+            if (performance.navigation) {
+                return performance.navigation.type === 1;
+            }
+        } catch (e) {}
+        return false;
+    }
     function fetchData(url) {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -568,7 +600,7 @@ $('document').ready(function () {
     function resetFilters() {
         // Reset text/number/date inputs
         $('#filter_final_amount_from, #filter_final_amount_to, #filter_credit_days_from, #filter_credit_days_to, #filter_date_from, #filter_date_to, #filter_expected_dispatch_date_from, #filter_expected_dispatch_date_to').val('');
-        
+
         // Reset Select2 dropdowns
         $('#filter_company').val(null).trigger('change');
         $('#filter_invoice_status').val(null).trigger('change');
@@ -581,15 +613,39 @@ $('document').ready(function () {
         $('#filter_dispatch_status').val(null).trigger('change');
     }
 
+    /* ── Save current filters to sessionStorage ── */
+    function saveFilters() {
+        const filterData = {
+            filter_company: $('#filter_company').val(),
+            filter_invoice_status: $('#filter_invoice_status').val(),
+            filter_sample_status: $('#filter_sample_status').val(),
+            filter_buyer: $('#filter_buyer').val(),
+            filter_reference: $('#filter_reference').val(),
+            filter_garden: $('#filter_garden').val(),
+            filter_transport: $('#filter_transport').val(),
+            filter_grade: $('#filter_grade').val(),
+            filter_dispatch_status: $('#filter_dispatch_status').val(),
+            filter_date_from: $('#filter_date_from').val(),
+            filter_date_to: $('#filter_date_to').val(),
+            filter_expected_dispatch_date_from: $('#filter_expected_dispatch_date_from').val(),
+            filter_expected_dispatch_date_to: $('#filter_expected_dispatch_date_to').val(),
+            filter_credit_days_from: $('#filter_credit_days_from').val(),
+            filter_credit_days_to: $('#filter_credit_days_to').val(),
+            filter_final_amount_from: $('#filter_final_amount_from').val(),
+            filter_final_amount_to: $('#filter_final_amount_to').val()
+        };
+        sessionStorage.setItem('orderFilterData', JSON.stringify(filterData));
+    }
+
     /* ── Load saved filters from sessionStorage ── */
     function loadFilters() {
         return new Promise(resolve => {
-            var fd = JSON.parse(sessionStorage.getItem('filterData'));
+            var fd = JSON.parse(sessionStorage.getItem('orderFilterData'));
             if (fd) {
-                $.each(fd, function (k, v) { if (v != ' ') $('#' + k).val(v); });
-                $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status').trigger('change');
+                $.each(fd, function (k, v) { if (v != ' ' && v != null && v != '') $('#' + k).val(v); });
+                $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status,#filter_dispatch_status').trigger('change');
                 loaddata();
-                sessionStorage.removeItem('filterData');
+                sessionStorage.removeItem('orderFilterData');
             } else {
                 resetFilters();
                 loaddata();
@@ -643,8 +699,23 @@ $('document').ready(function () {
             }
             initSelect2('#filter_grade', 'Select Grade', true);
 
+            // Add event listeners to save filters when changed
+            // $('.filter').on('change', function() {
+            //     saveFilters();
+            // });
+            // $('#filter_date_from, #filter_date_to, #filter_expected_dispatch_date_from, #filter_expected_dispatch_date_to, #filter_credit_days_from, #filter_credit_days_to, #filter_final_amount_from, #filter_final_amount_to').on('change', function() {
+            //     saveFilters();
+            // });
+
             // ⭐ loaderhide() yahan se hata diya — table data load hone tak loader chalu rahega
-            await loadFilters();
+            if (isPageReload()) {
+                sessionStorage.removeItem('orderFilterData');
+                resetFilters();
+                loaddata();
+            } else {
+                // normal navigation (e.g. redirect back from Edit page) — filters restore karo
+                await loadFilters();
+            }
         } catch (e) {
             console.error(e);
             Toast.fire({ icon: 'error', title: 'An error occurred while initializing' });
@@ -695,6 +766,15 @@ $('document').ready(function () {
                         $('#excelBtn').addClass('d-none');
                     }
                     global_response = json;
+
+                    // Update totals
+                    if (json.totals) {
+                        $('#total_orders').text(json.totals.total_orders || 0);
+                        $('#total_bags').text(json.totals.total_bags || 0);
+                        $('#total_net_kg').text(json.totals.total_net_kg || 0);
+                        $('#total_amount').text(parseFloat(json.totals.total_amount || 0).toFixed(2));
+                    }
+
                     return json.data;
                 },
                 complete: () => loaderhide(),
@@ -851,7 +931,7 @@ $('document').ready(function () {
                         if(row.brokerbill_no == null){
                             let editUrl = `{{ route('admin.orderupdateform', '__id__') }}`.replace('__id__', data);
                             btns += `<span data-toggle="tooltip" data-placement="bottom" data-original-title="Edit Order">
-                                <a href="${editUrl}">
+                                <a href="${editUrl}" onclick="saveFilters();">
                                     <button class="btn btn-success btn-rounded btn-sm my-0">Edit</button>
                                 </a></span>`;
                         }
@@ -996,6 +1076,7 @@ $('document').ready(function () {
     });
     /* ── Dispatch Status Modal ── */
     $(document).on('click', '.dispatch-status-btn', function () {
+        saveFilters();
         const orderId = $(this).data('order-id');
         const currentStatus = $(this).data('current-status');
         const expectedDate = $(this).data('expected-date');
@@ -1048,7 +1129,7 @@ $('document').ready(function () {
         const orderId = $(this).data('order-id');
         $('#sample_order_id').val(orderId);
         $('#sample_garden_select').empty().append('<option value="">Select a garden</option>');
-        // Fetch gardens for this order
+        saveFilters();
         loadershow();
         $.ajax({
             type: 'GET',
@@ -1114,6 +1195,7 @@ $('document').ready(function () {
     // Invoice status button click handler
     $(document).on('click', '.invoice-status-btn', function () {
         const orderId = $(this).data('order-id');
+        saveFilters();
         loadershow();
         $.ajax({
             type: 'GET',
@@ -1172,7 +1254,8 @@ $('document').ready(function () {
                 order_detail_ids: orderDetailIds,
                 user_id: USER_ID,
                 company_id: COMPANY_ID,
-                token: API_TOKEN
+                token: API_TOKEN,
+                type:'order'
             },
             success: function (response) {
                     if (response.status === 200) {
@@ -1287,6 +1370,7 @@ $('document').ready(function () {
     });
     /* ── Apply / Clear filters ── */
     $('.applyfilters').on('click', function () {
+        saveFilters();
         loadershow();
         table.draw();
     });

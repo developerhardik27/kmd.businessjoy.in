@@ -281,17 +281,47 @@ class brokeragebillController extends commonController
             )
             ->get();
 
+        // Calculate totals from broker_purchases linked to these bills
+        $billIds = $data->pluck('id');
+        $purchaseTotals = DB::connection('dynamic_connection')->table('broker_purchases')
+            ->whereIn('brokerbill_no', $billIds)
+            ->where('is_deleted', 0)
+            ->select(
+                DB::raw("SUM(bags) as total_bags"),
+                DB::raw("SUM(net_kg) as total_net_kg"),
+            )
+            ->first();
+
+        $totalCommissionBills = $data->count();
+        $totalBags = $purchaseTotals->total_bags ?? 0;
+        $totalNetKg = $purchaseTotals->total_net_kg ?? 0;
+        $totalAmount = $data->sum('grand_total');
+
         if ($data->isEmpty()) {
             return DataTables::of($data)
                 ->with([
                     'status'  => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_commission_bills' => 0,
+                        'total_bags' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
 
         return DataTables::of($data)
-            ->with(['status' => 200])
+            ->with([
+                'status' => 200,
+                'totals' => [
+                    'total_commission_bills' => $totalCommissionBills,
+                    'total_bags' => $totalBags,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
+            ])
             ->make(true);
     }
     public function index()
@@ -314,18 +344,34 @@ class brokeragebillController extends commonController
             ->where('broker_purchases.brokerage', '!=', 0)
             ->groupBy('broker_purchases.garden_id', 'gardens.garden_name', 'broker_bill_invoice.garden_id')
             ->get();
+
+        // Calculate overall totals
+        $totalBags = $brokerpurchase->sum('total_bags');
+        $totalNetKg = $brokerpurchase->sum('total_net_kg');
+        $totalBrokerage = $brokerpurchase->sum('total_brokerage');
+
         // dd($brokerpurchase);
         if ($brokerpurchase->isEmpty()) {
             return DataTables::of($brokerpurchase)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_bags' => 0,
+                        'total_net_kg' => 0,
+                        'total_brokerage' => 0,
+                    ],
                 ])
                 ->make(true);
         }
         return DataTables::of($brokerpurchase)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_bags' => $totalBags,
+                    'total_net_kg' => $totalNetKg,
+                    'total_brokerage' => $totalBrokerage,
+                ],
             ])
             ->make(true);
     }

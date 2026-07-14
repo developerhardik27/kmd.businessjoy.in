@@ -335,7 +335,8 @@ class brokerPurchaseController extends commonController
                 'invoice_no'       => $invoice_no,
                 'orderDetailIds' => $orderDetailIds,
             ],
-            'line_items' => $data1
+            'line_items' => $data1,
+            'type' => $request->type ?? 'default'
         ];
 
 
@@ -415,12 +416,32 @@ class brokerPurchaseController extends commonController
                 'transporter.name as transport_name'
             )
             ->get();
+
+        // Calculate totals
+        $totalSamples = $brokerpurchase->count();
+        $totalBags = $brokerpurchase->sum('bags');
+        $totalNetKg = $brokerpurchase->sum(function ($item) {
+            $shortage = $item->shortage ?? 0;
+            return $item->net_kg - $shortage;
+        });
+        $totalAmount = $brokerpurchase->sum(function ($item) {
+            $shortage = $item->shortage ?? 0;
+            $finalNetKg = $item->net_kg - $shortage;
+            return $finalNetKg * $item->rate;
+        });
+
         // dd($brokerpurchase);
         if ($brokerpurchase->isEmpty()) {
             return DataTables::of($brokerpurchase)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_samples' => 0,
+                        'total_bags' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -428,6 +449,12 @@ class brokerPurchaseController extends commonController
         return DataTables::of($brokerpurchase)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_samples' => $totalSamples,
+                    'total_bags' => $totalBags,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }
@@ -870,7 +897,7 @@ class brokerPurchaseController extends commonController
                     ]);
 
                     // ── Update brokerpurchase table with invoice_grand_total and amount ──
-                    $this->brokerpurchaseModel::where('order_detail_id', $detail['order_detail_id'])
+                    $this->brokerpurchaseModel::where('order_detail_id', $orderDetail->id)
                         ->where('is_deleted', 0)
                         ->update(['invoice_grand_total' => $grandTotal]);
 
@@ -943,7 +970,9 @@ class brokerPurchaseController extends commonController
             'updated_by' => $request->user_id,
         ]);
 
-        if ($update) {
+        // Update successful even if no rows were affected (data was already the same)
+        // update() returns number of affected rows (0 if no change, false on error)
+        if ($update !== false) {
             return $this->successresponse(200, 'message', 'Sample Purchase succesfully update');
         } else {
             return $this->successresponse(500, 'message', 'Sample Purchase not succesfully update !');

@@ -879,6 +879,7 @@ async function transports(tid = 0) {
                     return option.text;
                 }
             });
+            if (tid && tid != 0) $('#transport_id').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -901,6 +902,7 @@ async function customers(cid = 0) {
                     return option.text;
                 }
             });
+            if (cid && cid != 0) $('#customer').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -922,6 +924,7 @@ async function companymaster(mid = 0) {
                 }
             });
             company_state_id = $('#companymaster_id').find('option:selected').data('state_id');
+            if (mid && mid != 0) $('#companymaster_id').prop('disabled', true);
         }
     } catch(e) { handleAjaxError(e); }
 }
@@ -1321,7 +1324,7 @@ $(function() {
     $('#inv_number').on('blur', function() {
         ajaxRequest('GET', "{{ route('invoice.checkinvoicenumber') }}", {
             inv_number:$(this).val(), inv_id:EDIT_ID, searchtype:'update',
-            token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID
+            token:API_TOKEN, company_id:COMPANY_ID, user_id:USER_ID,company_details_id:$('#companymaster_id').val()
         }).fail(xhr=>{ loaderhide(); handleAjaxError(xhr); });
     });
 
