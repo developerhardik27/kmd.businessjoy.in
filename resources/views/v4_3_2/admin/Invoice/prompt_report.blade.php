@@ -180,6 +180,20 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                     </tr>
                 </thead>
             </table>
+            <table id="totals_table" class="table table-bordered table-striped mt-3" style="width: 100%; font-size: 13px;">
+                <thead>
+                    <tr>
+                        <th>Total Records</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="total_records">-</td>
+                        <td id="total_amount">-</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -349,6 +363,13 @@ $(document).ready(function () {
                         Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
                     }
                     global_response = json;
+
+                    // Update totals
+                    if (json.totals) {
+                        $('#total_records').text(json.totals.total_records || 0);
+                        $('#total_amount').text(parseFloat(json.totals.total_amount || 0).toFixed(2));
+                    }
+
                     return json.data;
                 },
                 complete: () => loaderhide(),

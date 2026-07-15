@@ -667,12 +667,20 @@ class invoiceController extends commonController
             return $item;
         });
 
+        // Calculate totals
+        $totalRecords = $invoice->count();
+        $totalAmount = $invoice->sum('grand_total');
+
         if ($invoice->isEmpty()) {
             return DataTables::of($invoice)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
                     'recordsTotal' => $totalcount,
+                    'totals' => [
+                        'total_records' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -681,7 +689,11 @@ class invoiceController extends commonController
             ->with([
                 'status' => 200,
                 'recordsTotal' => $totalcount,
-                'company_details_id' => $company_detials
+                'company_details_id' => $company_detials,
+                'totals' => [
+                    'total_records' => $totalRecords,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }

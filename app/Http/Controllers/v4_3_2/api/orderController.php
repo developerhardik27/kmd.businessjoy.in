@@ -1213,12 +1213,22 @@ class orderController extends commonController
             })
             ->values();
 
+        // Calculate totals
+        $totalRecords = $orderData->count();
+        $totalNetKg = $orderData->sum('net_kg');
+        $totalAmount = $orderData->sum('amount');
+
         // Return via DataTables
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_records' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -1226,6 +1236,11 @@ class orderController extends commonController
         return DataTables::of($orderData)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_records' => $totalRecords,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }
@@ -1416,12 +1431,22 @@ class orderController extends commonController
             ->filter() // Remove null values from invoice status filter
             ->values();
 
+        // Calculate totals
+        $totalRecords = $orderData->count();
+        $totalNetKg = $orderData->sum('net_kg');
+        $totalAmount = $orderData->sum('amount');
+
         // Return via DataTables
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_records' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -1429,6 +1454,11 @@ class orderController extends commonController
         return DataTables::of($orderData)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_records' => $totalRecords,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }
@@ -1585,12 +1615,22 @@ class orderController extends commonController
             ->filter() // Remove null values from sample status filter
             ->values();
 
+        // Calculate totals
+        $totalRecords = $orderData->count();
+        $totalNetKg = $orderData->sum('net_kg');
+        $totalAmount = $orderData->sum('amount');
+
         // Return via DataTables
         if ($orderData->isEmpty()) {
             return DataTables::of($orderData)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_records' => 0,
+                        'total_net_kg' => 0,
+                        'total_amount' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -1598,6 +1638,11 @@ class orderController extends commonController
         return DataTables::of($orderData)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_records' => $totalRecords,
+                    'total_net_kg' => $totalNetKg,
+                    'total_amount' => $totalAmount,
+                ],
             ])
             ->make(true);
     }
@@ -1653,12 +1698,20 @@ class orderController extends commonController
                 ];
             });
 
+        // Calculate totals
+        $totalRecords = $turnoverData->count();
+        $totalNetKg = $turnoverData->sum('total_net_kg');
+
         // Return via DataTables
         if ($turnoverData->isEmpty()) {
             return DataTables::of($turnoverData)
                 ->with([
                     'status' => 404,
                     'message' => 'No Data Found',
+                    'totals' => [
+                        'total_records' => 0,
+                        'total_net_kg' => 0,
+                    ],
                 ])
                 ->make(true);
         }
@@ -1666,6 +1719,10 @@ class orderController extends commonController
         return DataTables::of($turnoverData)
             ->with([
                 'status' => 200,
+                'totals' => [
+                    'total_records' => $totalRecords,
+                    'total_net_kg' => $totalNetKg,
+                ],
             ])
             ->make(true);
     }

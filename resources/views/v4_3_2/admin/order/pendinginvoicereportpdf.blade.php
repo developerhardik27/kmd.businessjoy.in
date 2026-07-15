@@ -249,6 +249,24 @@
             @endforelse
         </tbody>
     </table>
+
+    {{-- Totals Table --}}
+    <table style="margin-top: 20px; border: 1px solid #002060;">
+        <thead>
+            <tr>
+                <th style="background-color: #002060; color: #fff; padding: 8px;">Total Records</th>
+                <th style="background-color: #002060; color: #fff; padding: 8px;">Total Net Kg</th>
+                <th style="background-color: #002060; color: #fff; padding: 8px;">Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 8px; font-weight: bold;">{{ $totalRecords ?? 0 }}</td>
+                <td style="padding: 8px; font-weight: bold;">{{ $totalNetKg ?? 0 }}</td>
+                <td style="padding: 8px; font-weight: bold;">{{ number_format($totalAmount ?? 0, 2) }}</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 
 </html>

@@ -2363,6 +2363,10 @@ class PdfController extends commonController
          return $item;
       });
 
+      // Calculate totals
+      $totalRecords = $invoices->count();
+      $totalAmount = $invoices->sum('grand_total');
+
       if ($invoices->isEmpty()) {
          return $this->successresponse(500, 'message', 'No data found for export!');
       }
@@ -2374,7 +2378,7 @@ class PdfController extends commonController
                'isRemoteEnabled'     => true,
          ];
          $pdf = PDF::setOptions($options)
-               ->loadView($this->version . '.admin.PDF.prompt_report', ["invoices" => $invoices])
+               ->loadView($this->version . '.admin.PDF.prompt_report', ["invoices" => $invoices, "totalRecords" => $totalRecords, "totalAmount" => $totalAmount])
                ->setPaper('a4', 'portrait');
 
          // return $pdf->stream('Prompt_Report' . date('Y-m-d_H-i-s') . '.pdf');
@@ -2382,46 +2386,77 @@ class PdfController extends commonController
       }
 
       if ($request->type === 'excel') {
-         $filename = 'Prompt_Report-' . date('Y-m-d') . '.xls';
+         // Excel export using PhpSpreadsheet
+         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+         $sheet = $spreadsheet->getActiveSheet();
 
-         $html  = '<table border="1" cellspacing="0" cellpadding="5">';
-         $html .= '<tr>
-            <th colspan="9" style="font-size:30px; font-weight:bold; text-align:center;">
-               PROMPT REPORT - Date: '.date('d-m-Y').'
-            </th>
-         </tr>';
-         // Header Row
-         $html .= '<tr>
-            <th>ID</th>
-            <th>Invoice No</th>
-            <th>Invoice Date</th>
-            <th>Company Name</th>
-            <th>Buyer Name</th>
-            <th>Amount</th>
-            <th>Credit Days</th>
-            <th>Expected Payment Date</th>
-            <th>Status</th>
-         </tr>';
+         // Report title
+         $sheet->setCellValue('A1', 'Prompt Report');
+         $sheet->mergeCells('A1:I1');
+         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-         foreach ($invoices as $invoice) {
-            $html .= '<tr>
-               <td>' . ($invoice->id ?? '-') . '</td>
-               <td>' . ($invoice->inv_no ?? '-') . '</td>
-               <td>' . ($invoice->inv_date_formatted ?? '-') . '</td>
-               <td>' . ($invoice->garden_company_name ?? '-') . '</td>
-               <td>' . ($invoice->customer ?? '-') . '</td>
-               <td>' . number_format($invoice->grand_total ?? 0, 2) . '</td>
-               <td>' . ($invoice->credit_days ?? '-') . '</td>
-               <td>' . ($invoice->expected_payment_date ?? '-') . '</td>
-               <td>' . ucfirst($invoice->status ?? '-') . '</td>
-            </tr>';
+         $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
+         $sheet->setCellValue('I2', 'Total Records: ' . $totalRecords);
+
+         // Set headers
+         $headers = ['ID', 'Invoice No', 'Invoice Date', 'Company Name', 'Buyer Name', 'Amount', 'Credit Days', 'Expected Payment Date', 'Status'];
+         $col = 'A';
+         foreach ($headers as $header) {
+            $sheet->setCellValue($col . '3', $header);
+            $col++;
          }
 
-         $html .= '</table>';
+         // Set data
+         $row = 4;
+         foreach ($invoices as $invoice) {
+            $sheet->setCellValue('A' . $row, $invoice->id ?? ' ');
+            $sheet->setCellValue('B' . $row, $invoice->inv_no ?? ' ');
+            $sheet->setCellValue('C' . $row, $invoice->inv_date_formatted ?? ' ');
+            $sheet->setCellValue('D' . $row, $invoice->garden_company_name ?? ' ');
+            $sheet->setCellValue('E' . $row, $invoice->customer ?? ' ');
+            $sheet->setCellValue('F' . $row, $invoice->grand_total ?? ' ');
+            $sheet->setCellValue('G' . $row, $invoice->credit_days ?? ' ');
+            $sheet->setCellValue('H' . $row, $invoice->expected_payment_date ?? ' ');
+            $sheet->setCellValue('I' . $row, ucfirst($invoice->status ?? ' '));
+            $row++;
+         }
 
-         return response($html)
-               ->header('Content-Type', 'application/vnd.ms-excel')
-               ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+         // Add totals row
+         $sheet->mergeCells('A' . $row . ':E' . $row);
+         $sheet->setCellValue('A' . $row, 'TOTALS');
+         $sheet->getStyle('A' . $row . ':E' . $row)->getFont()->setBold(true);
+         $sheet->getStyle('A' . $row . ':E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+         $sheet->setCellValue('F' . $row, $totalAmount);
+         $sheet->getStyle('F' . $row)->getFont()->setBold(true);
+         $sheet->setCellValue('G' . $row, '-');
+         $sheet->setCellValue('H' . $row, '-');
+         $sheet->setCellValue('I' . $row, '-');
+
+         // Style headers
+         $sheet->getStyle("A3:I3")
+            ->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+         $sheet->getStyle("A3:I3")
+            ->getFont()->setBold(true);
+
+         // Auto-size columns
+         foreach (range('A', 'I') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+         }
+
+         // Download
+         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+         $filename = 'Prompt_Report_' . date('Ymd_His') . '.xlsx';
+         ob_start();
+         $writer->save('php://output');
+         $excelOutput = ob_get_clean();
+
+         return response($excelOutput, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Cache-Control' => 'max-age=0',
+            'Pragma' => 'public',
+         ]);
       }
 
       return $this->successresponse(500, 'message', 'Invalid export type!');
@@ -2887,6 +2922,11 @@ class PdfController extends commonController
    {
       $data = $this->getExpectedDispatchReportQuery($request);
 
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
+
       // Resolve filter IDs to names
       $filterNames = [];
       if ($request->filter_company) {
@@ -2904,10 +2944,10 @@ class PdfController extends commonController
          'isRemoteEnabled' => true,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'))->setPaper('a4', 'landscape');
       return $pdf->download('expected_dispatch_report_' . date('Ymd_His') . '.pdf');
       // return $pdf->stream('expected_dispatch_report_' . date('Ymd_His') . '.pdf');
-      return view($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames'));
+      return view($this->version . '.admin.order.expecteddispatchreportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'));
    }
 
    public function expectedDispatchReportExcel(Request $request)
@@ -2926,6 +2966,11 @@ class PdfController extends commonController
 
       $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
       $sheet->setCellValue('P2', 'Total Records: ' . $data->count());
+
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
 
       // Filters
       $filterText = '';
@@ -2983,6 +3028,17 @@ class PdfController extends commonController
          $row++;
       }
 
+      // Add totals row
+      $sheet->mergeCells('A' . $row . ':L' . $row);
+      $sheet->setCellValue('A' . $row, 'TOTALS');
+      $sheet->getStyle('A' . $row . ':L' . $row)->getFont()->setBold(true);
+      $sheet->getStyle('A' . $row . ':L' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->setCellValue('M' . $row, $totalNetKg);
+      $sheet->setCellValue('N' . $row, '-');
+      $sheet->setCellValue('O' . $row, $totalAmount);
+      $sheet->setCellValue('P' . $row, '-');
+      $sheet->getStyle('M' . $row . ':P' . $row)->getFont()->setBold(true);
+
       // Style headers
       $highestCol = $sheet->getHighestColumn();
       $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
@@ -3015,6 +3071,11 @@ class PdfController extends commonController
    {
       $data = $this->getExpectedDispatchReportQuery($request);
 
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
+
       // Resolve filter IDs to names
       $filterNames = [];
       if ($request->filter_company) {
@@ -3036,15 +3097,20 @@ class PdfController extends commonController
          'isRemoteEnabled' => true,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'))->setPaper('a4', 'landscape');
       return $pdf->download('pending_invoice_report_' . date('Ymd_His') . '.pdf');
       // return $pdf->stream('pending_invoice_report_' . date('Ymd_His') . '.pdf');
-      return view($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames'));
+      return view($this->version . '.admin.order.pendinginvoicereportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'));
    }
 
    public function pendingInvoiceReportExcel(Request $request)
    {
       $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
 
       // Excel export using PhpSpreadsheet
       $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -3056,9 +3122,8 @@ class PdfController extends commonController
       $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
       $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-      // Report date
       $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
-      $sheet->mergeCells('A2:P2');
+      $sheet->setCellValue('P2', 'Total Records: ' . $data->count());
 
       // Filters
       $filterText = '';
@@ -3124,6 +3189,17 @@ class PdfController extends commonController
          $row++;
       }
 
+      // Add totals row
+      $sheet->mergeCells('A' . $row . ':L' . $row);
+      $sheet->setCellValue('A' . $row, 'TOTALS');
+      $sheet->getStyle('A' . $row . ':L' . $row)->getFont()->setBold(true);
+      $sheet->getStyle('A' . $row . ':L' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->setCellValue('M' . $row, $totalNetKg);
+      $sheet->setCellValue('N' . $row, '-');
+      $sheet->setCellValue('O' . $row, $totalAmount);
+      $sheet->setCellValue('P' . $row, '-');
+      $sheet->getStyle('M' . $row . ':P' . $row)->getFont()->setBold(true);
+
       // Style headers
       $highestCol = $sheet->getHighestColumn();
       $sheet->getStyle("A{$headerRow}:{$highestCol}{$headerRow}")
@@ -3155,6 +3231,11 @@ class PdfController extends commonController
    {
       $data = $this->getExpectedDispatchReportQuery($request);
 
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
+
       // Resolve filter IDs to names
       $filterNames = [];
       if ($request->filter_company) {
@@ -3176,15 +3257,20 @@ class PdfController extends commonController
          'isRemoteEnabled' => true,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'))->setPaper('a4', 'landscape');
       return $pdf->download('pending_sample_purchase_report_' . date('Ymd_His') . '.pdf');
       // return $pdf->stream('pending_sample_purchase_report_' . date('Ymd_His') . '.pdf');
-      return view($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames'));
+      return view($this->version . '.admin.order.pendingsamplepurchasereportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg', 'totalAmount'));
    }
 
    public function pendingSamplePurchaseReportExcel(Request $request)
    {
       $data = $this->getExpectedDispatchReportQuery($request);
+
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('net_kg');
+      $totalAmount = $data->sum('amount');
 
       // Excel export using PhpSpreadsheet
       $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -3196,9 +3282,8 @@ class PdfController extends commonController
       $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
       $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-      // Report date
       $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
-      $sheet->mergeCells('A2:P2');
+      $sheet->setCellValue('P2', 'Total Records: ' . $data->count());
 
       // Filters
       $filterText = '';
@@ -3263,6 +3348,17 @@ class PdfController extends commonController
          $sheet->setCellValue('P' . $row, $item->credit_days ?? ' ');
          $row++;
       }
+
+      // Add totals row
+      $sheet->mergeCells('A' . $row . ':L' . $row);
+      $sheet->setCellValue('A' . $row, 'TOTALS');
+      $sheet->getStyle('A' . $row . ':L' . $row)->getFont()->setBold(true);
+      $sheet->getStyle('A' . $row . ':L' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->setCellValue('M' . $row, $totalNetKg);
+      $sheet->setCellValue('N' . $row, '-');
+      $sheet->setCellValue('O' . $row, $totalAmount);
+      $sheet->setCellValue('P' . $row, '-');
+      $sheet->getStyle('M' . $row . ':P' . $row)->getFont()->setBold(true);
 
       // Style headers
       $highestCol = $sheet->getHighestColumn();
@@ -3331,6 +3427,10 @@ class PdfController extends commonController
             ];
          });
 
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('total_net_kg');
+
       // Resolve filter IDs to names
       $filterNames = [];
       if ($request->filter_company) {
@@ -3348,7 +3448,7 @@ class PdfController extends commonController
          'isRemoteEnabled' => true,
       ];
 
-      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.turnoverreportpdf', compact('data', 'filterNames'))->setPaper('a4', 'landscape');
+      $pdf = PDF::setOptions($options)->loadView($this->version . '.admin.order.turnoverreportpdf', compact('data', 'filterNames', 'totalRecords', 'totalNetKg'))->setPaper('a4', 'landscape');
       return $pdf->download('turnover_report_' . date('Ymd_His') . '.pdf');
    }
 
@@ -3392,6 +3492,10 @@ class PdfController extends commonController
             ];
          });
 
+      // Calculate totals
+      $totalRecords = $data->count();
+      $totalNetKg = $data->sum('total_net_kg');
+
       // Excel export using PhpSpreadsheet
       $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
       $sheet = $spreadsheet->getActiveSheet();
@@ -3404,7 +3508,7 @@ class PdfController extends commonController
 
       // Report date
       $sheet->setCellValue('A2', 'Generated on: ' . date('d-m-Y H:i:s'));
-      $sheet->mergeCells('A2:C2');
+      $sheet->setCellValue('C2', 'Total Records: ' . $data->count());
 
       // Filters
       $filterText = '';
@@ -3447,6 +3551,14 @@ class PdfController extends commonController
          $sheet->setCellValue('C' . $row, $item['total_net_kg'] ?? ' ');
          $row++;
       }
+
+      // Add totals row
+      $sheet->mergeCells('A' . $row . ':B' . $row);
+      $sheet->setCellValue('A' . $row, 'TOTALS');
+      $sheet->getStyle('A' . $row . ':B' . $row)->getFont()->setBold(true);
+      $sheet->getStyle('A' . $row . ':B' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+      $sheet->setCellValue('C' . $row, $totalNetKg);
+      $sheet->getStyle('C' . $row)->getFont()->setBold(true);
 
       // Style headers
       $highestCol = $sheet->getHighestColumn();

@@ -172,6 +172,22 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
                     </tr>
                 </thead>
             </table>
+            <table id="totals_table" class="table table-bordered table-striped mt-3" style="width: 100%; font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th>Total Records</th>
+                        <th>Total Net Kg</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="total_records">-</td>
+                        <td id="total_net_kg">-</td>
+                        <td id="total_amount">-</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -236,11 +252,19 @@ $(document).ready(function () {
                 },
 
                 dataSrc: function (json) {
-                   
+
                     if (json.message) {
                         Toast.fire({ icon: 'error', title: json.message || 'Something went wrong!' });
                     }
                     global_response = json;
+
+                    // Update totals
+                    if (json.totals) {
+                        $('#total_records').text(json.totals.total_records || 0);
+                        $('#total_net_kg').text(json.totals.total_net_kg || 0);
+                        $('#total_amount').text(parseFloat(json.totals.total_amount || 0).toFixed(2));
+                    }
+
                     return json.data;
                 },
                 complete: () => {
@@ -351,13 +375,13 @@ $(document).ready(function () {
                     }
                 },
                 { data: 'expected_dispatch_date',  name: 'expected_dispatch_date',  orderable: true,  searchable: true,  defaultContent: '-' },
-                { data: 'totalNetKg',     name: 'totalNetKg',     orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'net_kg',     name: 'net_kg',     orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'rate',   name: 'rate',   orderable: true,  searchable: true,  defaultContent: '-' , render: (data) => {
                         if (!data) return '-';
                         let s = data.length > 20 ? data.substring(0, 20) + '...' : data;
                         return `<span data-toggle="tooltip" data-original-title="${data}">${s}</span>`;
                     },},
-                { data: 'final_amount',   name: 'final_amount',   orderable: true,  searchable: true,  defaultContent: '-' },
+                { data: 'amount',   name: 'amount',   orderable: true,  searchable: true,  defaultContent: '-' },
                 { data: 'credit_days',    name: 'credit_days',    orderable: true,  searchable: true,  defaultContent: '-' },
             ],
             pagingType: 'full_numbers',
