@@ -1184,6 +1184,18 @@ class orderController extends commonController
                         ->unique()
                         ->values()
                         ->implode(', '),
+                    'company_ids' => $details
+                        ->map(fn($item) => $item->company_id ?? '')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'company_emails' => $details
+                        ->map(fn($item) => ['id' => $item->company_id, 'email' => $item->company_email])
+                        ->unique(fn($item) => $item['id'])
+                        ->values()
+                        ->pluck('email')
+                        ->map(fn($email) => $email ?? 'null')
+                        ->implode(', '),
                     'garden_names' => $details
                         ->filter(fn($item) => !empty($item->garden_name))
                         ->pluck('garden_name', 'garden_id')
@@ -1352,6 +1364,7 @@ class orderController extends commonController
                 'grades.grade as grade_name',
                 'companymasters.id as company_id',
                 'companymasters.company_name as company_name',
+                'companymasters.email as company_email',
                 'broker_purchases.id as broker_purchase_id',
                 'broker_purchases.source as broker_purchase_source',
             )
@@ -1400,6 +1413,18 @@ class orderController extends commonController
                         ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->unique()
                         ->values()
+                        ->implode(', '),
+                    'company_ids' => $details
+                        ->map(fn($item) => $item->company_id ?? '')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'company_emails' => $details
+                        ->map(fn($item) => ['id' => $item->company_id, 'email' => $item->company_email])
+                        ->unique(fn($item) => $item['id'])
+                        ->values()
+                        ->pluck('email')
+                        ->map(fn($email) => $email ?? 'null')
                         ->implode(', '),
                     'garden_names' => $details
                         ->filter(fn($item) => !empty($item->garden_name))
@@ -1536,6 +1561,7 @@ class orderController extends commonController
                 'grades.grade as grade_name',
                 'companymasters.id as company_id',
                 'companymasters.company_name as company_name',
+                'companymasters.email as company_email',
                 'broker_purchases.id as broker_purchase_id',
                 'broker_purchases.source as broker_purchase_source',
             )
@@ -1584,6 +1610,18 @@ class orderController extends commonController
                         ->map(fn($item) => $item->company_name ?? '  -  ')
                         ->unique()
                         ->values()
+                        ->implode(', '),
+                    'company_ids' => $details
+                        ->map(fn($item) => $item->company_id ?? '')
+                        ->unique()
+                        ->values()
+                        ->implode(', '),
+                    'company_emails' => $details
+                        ->map(fn($item) => ['id' => $item->company_id, 'email' => $item->company_email])
+                        ->unique(fn($item) => $item['id'])
+                        ->values()
+                        ->pluck('email')
+                        ->map(fn($email) => $email ?? 'null')
                         ->implode(', '),
                     'garden_names' => $details
                         ->filter(fn($item) => !empty($item->garden_name))

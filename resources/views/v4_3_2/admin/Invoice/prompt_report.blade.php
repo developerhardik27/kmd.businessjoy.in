@@ -285,17 +285,18 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Email for Buyer: <span id="modalBuyerName"></span></h5>
+                <h5 class="modal-title">Enter Buyer Email</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="emailForm">
-                    <input type="hidden" id="modalBuyerId" name="modalBuyerId">
-                    <div class="form-group">
-                        <label for="buyerEmail">Buyer Email</label>
-                        <input type="email" class="form-control" id="buyerEmail" name="buyerEmail" required>
-                    </div>
-                </form>
+                <div class="form-group">
+                    <label>Buyer Name: <span id="modalBuyerName"></span></label>
+                </div>
+                <div class="form-group">
+                    <label for="buyerEmail">Email Address *</label>
+                    <input type="email" class="form-control" id="buyerEmail" placeholder="Enter email address" required>
+                    <input type="hidden" id="modalBuyerId">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -671,25 +672,26 @@ $(document).ready(function () {
         let groupedData = {};
         selectedRows.forEach(row => {
             let buyerName = row.customer || 'Unknown';
+            let buyerId = row.customer_id || '';
             let buyerEmail = row.customer_email || '';
-            
-            if (!groupedData[buyerName]) {
-                groupedData[buyerName] = {
+
+            if (!groupedData[buyerId]) {
+                groupedData[buyerId] = {
+                    buyerId: buyerId,
                     buyerName: buyerName,
                     buyerEmail: buyerEmail,
                     rows: []
                 };
             }
-            groupedData[buyerName].rows.push(row);
+            groupedData[buyerId].rows.push(row);
         });
 
         // Convert to buyers object
         let buyers = {};
         Object.values(groupedData).forEach(group => {
-            let buyerKey = group.buyerName.toLowerCase().replace(/\s+/g, '_');
-            if (!buyers[buyerKey]) {
-                buyers[buyerKey] = {
-                    id: buyerKey,
+            if (!buyers[group.buyerId]) {
+                buyers[group.buyerId] = {
+                    id: group.buyerId,
                     name: group.buyerName,
                     email: group.buyerEmail,
                     rows: group.rows
@@ -701,21 +703,38 @@ $(document).ready(function () {
         console.log('Buyers Array:', Object.values(buyers));
         console.log('Selected Rows Count:', selectedRows.length);
 
-        // Check if any buyer is missing email directly from grouped data
-        let missingEmailBuyers = Object.values(buyers).filter(b => !b.email || b.email.trim() === '');
+        // Store buyers globally for email collection
+        window.allBuyers = buyers;
+        window.missingEmailBuyers = Object.values(buyers).filter(b => !b.email || b.email.trim() === '');
+        window.currentMissingIndex = 0;
 
-        if (missingEmailBuyers.length > 0) {
+        // Check if any buyer is missing email
+        if (window.missingEmailBuyers.length > 0) {
             // Show modal for first buyer with missing email
-            let buyer = missingEmailBuyers[0];
-            $('#modalBuyerName').text(buyer.name);
-            $('#modalBuyerId').val(buyer.id);
-            $('#buyerEmail').val('');
-            $('#emailModal').modal('show');
+            showEmailModalForBuyer();
         } else {
             // All buyers have emails, proceed to send mail
             sendMailToBuyers(buyers);
         }
     });
+
+    /* ── Show Email Modal for Buyer ── */
+    function showEmailModalForBuyer() {
+        // Recalculate missing email buyers from current state
+        window.missingEmailBuyers = Object.values(window.allBuyers).filter(b => !b.email || b.email.trim() === '');
+
+        if (window.missingEmailBuyers.length === 0) {
+            // All emails collected, proceed to send mail
+            sendMailToBuyers(window.allBuyers);
+            return;
+        }
+
+        let buyer = window.missingEmailBuyers[0];
+        $('#modalBuyerName').text(buyer.name + ' (' + (window.missingEmailBuyers.length) + ' remaining)');
+        $('#modalBuyerId').val(buyer.id);
+        $('#buyerEmail').val('');
+        $('#emailModal').modal('show');
+    }
 
     /* ── Send Mail to Buyers ── */
     function sendMailToBuyers(buyers) {
@@ -777,58 +796,37 @@ $(document).ready(function () {
             return;
         }
 
-        // Update the buyer email in the grouped data and retry
-        let table = $('#reportTable').DataTable();
-        let selectedRows = [];
-        selectedRowIds.forEach(id => {
-            let row = table.rows().indexes().filter(function(idx) {
-                return table.row(idx).data().id == id;
-            });
-            if (row.length > 0) {
-                selectedRows.push(table.row(row[0]).data());
+        loadershow();
+        $.ajax({
+            type: 'PUT',
+            url: "{{ route('party.update_email', '__id__') }}".replace('__id__', buyerId),
+            data: {
+                _token: $('input[name="_token"]').val(),
+                email: email,
+                token: API_TOKEN,
+                user_id: USER_ID,
+                company_id: COMPANY_ID
+            },
+            success: function(response) {
+                loaderhide();
+                if (response.status == 200) {
+                    // Update the email in the global buyers object
+                    if (window.allBuyers[buyerId]) {
+                        window.allBuyers[buyerId].email = email;
+                    }
+                    $('#emailModal').modal('hide');
+                    Toast.fire({ icon: 'success', title: 'Email saved successfully' });
+                    // Show modal for next buyer with missing email
+                    showEmailModalForBuyer();
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message || 'Failed to save email' });
+                }
+            },
+            error: function(xhr) {
+                loaderhide();
+                Toast.fire({ icon: 'error', title: 'Failed to save email' });
             }
         });
-
-        // Group selected rows by buyer again with updated email
-        let groupedData = {};
-        selectedRows.forEach(row => {
-            let buyerName = row.customer || 'Unknown';
-            let buyerEmail = row.customer_email || '';
-            
-            if (!groupedData[buyerName]) {
-                groupedData[buyerName] = {
-                    buyerName: buyerName,
-                    buyerEmail: buyerEmail,
-                    rows: []
-                };
-            }
-            groupedData[buyerName].rows.push(row);
-        });
-
-        // Update the email for the specific buyer
-        let buyers = {};
-        Object.values(groupedData).forEach(group => {
-            let buyerKey = group.buyerName.toLowerCase().replace(/\s+/g, '_');
-            if (!buyers[buyerKey]) {
-                buyers[buyerKey] = {
-                    id: buyerKey,
-                    name: group.buyerName,
-                    email: group.buyerEmail,
-                    rows: group.rows
-                };
-            }
-        });
-
-        // Update the email for the buyer that was just saved
-        if (buyers[buyerId]) {
-            buyers[buyerId].email = email;
-        }
-
-        $('#emailModal').modal('hide');
-        Toast.fire({ icon: 'success', title: 'Email saved successfully' });
-        
-        // Send mail with updated buyers
-        sendMailToBuyers(buyers);
     });
 
     $('#filter_company, #filter_buyer, #filter_payment_status, #filter_credit_days').on('change', function() {

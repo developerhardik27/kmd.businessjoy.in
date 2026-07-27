@@ -160,17 +160,18 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Email for Company: <span id="modalCompanyName"></span></h5>
+                <h5 class="modal-title">Enter Company Email</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="emailForm">
-                    <input type="hidden" id="modalCompanyId" name="modalCompanyId">
-                    <div class="form-group">
-                        <label for="companyEmail">Company Email</label>
-                        <input type="email" class="form-control" id="companyEmail" name="companyEmail" required>
-                    </div>
-                </form>
+                <div class="form-group">
+                    <label>Company Name: <span id="modalCompanyName"></span></label>
+                </div>
+                <div class="form-group">
+                    <label for="companyEmail">Email Address *</label>
+                    <input type="email" class="form-control" id="companyEmail" placeholder="Enter email address" required>
+                    <input type="hidden" id="modalCompanyId">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -727,19 +728,23 @@ $(document).ready(function () {
         let groupedData = {};
         selectedRows.forEach(row => {
             let companyNames = row.company_names ? row.company_names.split(',').map(name => name.trim()) : [];
+            let companyIds = row.company_ids ? row.company_ids.split(',').map(id => id.trim()) : [];
+            let companyEmails = row.company_emails ? row.company_emails.split(',').map(email => email.trim() === 'null' ? '' : email.trim()) : [];
 
-            companyNames.forEach(companyName => {
+            companyNames.forEach((companyName, index) => {
                 if (companyName && companyName !== '  -  ') {
-                    let companyKey = companyName.toLowerCase().replace(/\s+/g, '_');
+                    let companyId = companyIds[index] || companyName.toLowerCase().replace(/\s+/g, '_');
+                    let companyEmail = companyEmails[index] || '';
 
-                    if (!groupedData[companyKey]) {
-                        groupedData[companyKey] = {
+                    if (!groupedData[companyId]) {
+                        groupedData[companyId] = {
+                            companyId: companyId,
                             companyName: companyName,
-                            companyEmail: row.company_email,
+                            companyEmail: companyEmail,
                             rows: []
                         };
                     }
-                    groupedData[companyKey].rows.push(row);
+                    groupedData[companyId].rows.push(row);
                 }
             });
         });
@@ -749,10 +754,9 @@ $(document).ready(function () {
         // Get unique companies from grouped data
         let companies = {};
         Object.values(groupedData).forEach(group => {
-            let companyKey = group.companyName.toLowerCase().replace(/\s+/g, '_');
-            if (!companies[companyKey]) {
-                companies[companyKey] = {
-                    id: companyKey,
+            if (!companies[group.companyId]) {
+                companies[group.companyId] = {
+                    id: group.companyId,
                     name: group.companyName,
                     email: group.companyEmail,
                     rows: group.rows
@@ -762,21 +766,38 @@ $(document).ready(function () {
 
         console.log('Companies Object:', companies);
 
-        // Check if any company is missing email directly from grouped data
-        let missingEmailCompanies = Object.values(companies).filter(c => !c.email || c.email.trim() === '');
+        // Store companies globally for email collection
+        window.allCompanies = companies;
+        window.missingEmailCompanies = Object.values(companies).filter(c => !c.email || c.email.trim() === '');
+        window.currentMissingIndex = 0;
 
-        if (missingEmailCompanies.length > 0) {
+        // Check if any company is missing email
+        if (window.missingEmailCompanies.length > 0) {
             // Show modal for first company with missing email
-            let company = missingEmailCompanies[0];
-            $('#modalCompanyName').text(company.name);
-            $('#modalCompanyId').val(company.id);
-            $('#companyEmail').val('');
-            $('#emailModal').modal('show');
+            showEmailModalForCompany();
         } else {
             // All companies have emails, proceed to send mail
             sendMailToCompanies(companies);
         }
     });
+
+    /* ── Show Email Modal for Company ── */
+    function showEmailModalForCompany() {
+        // Recalculate missing email companies from current state
+        window.missingEmailCompanies = Object.values(window.allCompanies).filter(c => !c.email || c.email.trim() === '');
+
+        if (window.missingEmailCompanies.length === 0) {
+            // All emails collected, proceed to send mail
+            sendMailToCompanies(window.allCompanies);
+            return;
+        }
+
+        let company = window.missingEmailCompanies[0];
+        $('#modalCompanyName').text(company.name + ' (' + (window.missingEmailCompanies.length) + ' remaining)');
+        $('#modalCompanyId').val(company.id);
+        $('#companyEmail').val('');
+        $('#emailModal').modal('show');
+    }
 
     /* ── Save Email and Send Mail ── */
     $('#saveEmailBtn').on('click', function () {
@@ -788,31 +809,73 @@ $(document).ready(function () {
             return;
         }
 
+        // First fetch current company data to get all required fields
         loadershow();
         $.ajax({
-            type: 'POST',
-            url: "{{ route('companymaster.update', '__id__') }}".replace('__id__', companyId),
+            type: 'GET',
+            url: "{{ route('companymaster.edit', '__id__') }}".replace('__id__', companyId),
             data: {
-                _token: $('input[name="_token"]').val(),
-                email: email,
                 token: API_TOKEN,
-                user_id: USER_ID,
-                company_id: COMPANY_ID
+                company_id: COMPANY_ID,
+                user_id: USER_ID
             },
-            success: function(response) {
-                loaderhide();
+            success: function (response) {
                 if (response.status == 200) {
-                    $('#emailModal').modal('hide');
-                    Toast.fire({ icon: 'success', title: 'Email saved successfully' });
-                    // Retry sending mail
-                    $('#sendMailBtn').click();
+                    let data = response.companymaster;
+                    let gardenId = response.gardenId;
+
+                    // Now update with all required fields, only changing email
+                    $.ajax({
+                        type: 'PUT',
+                        url: "{{ route('companymaster.update', '__id__') }}".replace('__id__', companyId),
+                        data: {
+                            _token: $('input[name="_token"]').val(),
+                            token: API_TOKEN,
+                            user_id: USER_ID,
+                            company_id: COMPANY_ID,
+                            company_name: data.company_name,
+                            email: email,
+                            contact_person_name: data.contact_person_name,
+                            mobile_1: data.mobile_1,
+                            mobile_2: data.mobile_2,
+                            country: data.country_id,
+                            state: data.state_id,
+                            city: data.city_id,
+                            pincode: data.pincode,
+                            address: data.address,
+                            gst_no: data.gst_no,
+                            pan: data.pan,
+                            garden_id: gardenId,
+                            brokerage: data.brokerage
+                        },
+                        success: function (updateResponse) {
+                            loaderhide();
+                            if (updateResponse.status == 200) {
+                                // Update the email in the global companies object
+                                if (window.allCompanies[companyId]) {
+                                    window.allCompanies[companyId].email = email;
+                                }
+                                $('#emailModal').modal('hide');
+                                Toast.fire({ icon: 'success', title: 'Email saved successfully' });
+                                // Show modal for next company with missing email
+                                showEmailModalForCompany();
+                            } else {
+                                Toast.fire({ icon: 'error', title: updateResponse.message || 'Failed to save email' });
+                            }
+                        },
+                        error: function (xhr) {
+                            loaderhide();
+                            Toast.fire({ icon: 'error', title: 'Failed to save email' });
+                        }
+                    });
                 } else {
-                    Toast.fire({ icon: 'error', title: response.message || 'Failed to save email' });
+                    loaderhide();
+                    Toast.fire({ icon: 'error', title: response.message || 'Failed to fetch company data' });
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 loaderhide();
-                Toast.fire({ icon: 'error', title: 'Failed to save email' });
+                Toast.fire({ icon: 'error', title: 'Failed to fetch company data' });
             }
         });
     });

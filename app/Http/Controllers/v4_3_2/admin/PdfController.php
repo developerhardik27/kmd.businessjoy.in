@@ -2103,7 +2103,7 @@ class PdfController extends commonController
             })->values();
       }
       // dd($grouped);
-      Log::info($grouped);
+      // Log::info($grouped);
       if ($grouped->isEmpty()) {
          return $this->successresponse(500, 'message', 'Not genrate pdf data is Empty!');
       }

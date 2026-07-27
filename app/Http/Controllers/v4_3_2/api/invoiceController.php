@@ -634,6 +634,7 @@ class invoiceController extends commonController
                 'city.city_name',
                 'companymasters.id as garden_company_id',
                 'companymasters.company_name as garden_company_name',
+                'companymasters.email as company_email',
                 'companymasters.brokerage as brokerage',
                 'credit_data.credit_days',
                 DB::raw("DATE_FORMAT(credit_data.order_created_at, '%d-%m-%Y') as credit_date"),
