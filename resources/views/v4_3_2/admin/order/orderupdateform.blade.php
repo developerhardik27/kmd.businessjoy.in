@@ -345,7 +345,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     <!-- RIGHT SIDE DATE -->
     <div style="min-width:220px;">
         <label class="f-label">Order Date <span class="req">*</span></label>
-        <input type="date" class="f-ctrl" name="order_date" id="order_date">
+        <input type="date" class="f-ctrl" name="order_date" id="order_date" max="">
         <span class="f-err" id="error-order_date"></span>
     </div>
 
@@ -940,6 +940,16 @@ $(document).ready(function () {
     async function init() {
         loadershow();
         try {
+            // Set max attribute for order_date to prevent future dates
+            const $dateField = document.getElementById('order_date');
+            if ($dateField) {
+                const now = new Date();
+                const today = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0');
+                $dateField.setAttribute('max', today);
+            }
+
             await Promise.all([ fetchGardens(), fetchGrade(), fetchBuyers(), fetchTransports(), fetchreference() ]);
             await loaddata();
         } catch (e) { handleAjaxError(e); }

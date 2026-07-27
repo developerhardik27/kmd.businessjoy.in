@@ -754,7 +754,7 @@ class invoiceController extends commonController
                 'transport_id' => 'nullable',
                 "sample_ids" => 'nullable',
                 'inv_number' => 'required',
-                'invoice_date' => 'required',
+                'invoice_date' => 'required|date|before_or_equal:today',
                 'consignment_date' => 'nullable',
                 'consignment_number' => 'nullable',
                 'HSN' => 'nullable',
@@ -774,6 +774,8 @@ class invoiceController extends commonController
                 'updated_at',
                 'is_active',
                 'is_deleted'
+            ], [
+                'invoice_date.before_or_equal' => 'Invoice date cannot be in the future. Please select today or a past date.',
             ]);
 
             if ($validator->fails()) {
@@ -1324,7 +1326,7 @@ class invoiceController extends commonController
                 'companymaster_id'    => 'required',
                 'transport_id'        => 'nullable',
                 'inv_number'          => 'required',
-                'invoice_date'        => 'required',
+                'invoice_date'        => 'required|date|before_or_equal:today',
                 'consignment_date'    => 'nullable',
                 'consignment_number'  => 'nullable',
                 'HSN'                 => 'nullable',
@@ -1336,6 +1338,8 @@ class invoiceController extends commonController
                 "gst"                 => 'nullable|numeric',
                 "currency"            => 'required|numeric',
                 "tax_type"            => 'required|numeric',
+            ], [
+                'invoice_date.before_or_equal' => 'Invoice date cannot be in the future. Please select today or a past date.',
             ]);
 
             if ($validator->fails()) {

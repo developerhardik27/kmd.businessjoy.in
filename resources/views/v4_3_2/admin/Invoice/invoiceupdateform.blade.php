@@ -544,7 +544,7 @@ textarea.f-ctrl { resize: vertical; min-height: 70px; }
                 </div>
                 <div class="col-sm-4 mb-3" id="inv_date_div">
                     <label class="f-label">Invoice Date <span class="req">*</span></label>
-                    <input type="date" class="f-ctrl" id="invoice_date" name="invoice_date">
+                    <input type="date" class="f-ctrl" id="invoice_date" name="invoice_date" max="">
                     <span class="f-err" id="error-invoice_date"></span>
                 </div>
                 <div class="col-sm-4 mb-3">
@@ -1028,6 +1028,16 @@ async function getoverduedays() {
 
 /* ── init ────────────────────────────────── */
 $(document).ready(async function() {
+    // Set max attribute for invoice_date to prevent future dates
+    const $dateField = document.getElementById('invoice_date');
+    if ($dateField) {
+        const now = new Date();
+        const today = now.getFullYear() + '-' +
+            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(now.getDate()).padStart(2, '0');
+        $dateField.setAttribute('max', today);
+    }
+
     // Show confirmation modal on page load
     $('#confirmationModal').modal('show');
 

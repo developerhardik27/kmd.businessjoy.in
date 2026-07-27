@@ -537,7 +537,7 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
         <!-- RIGHT SIDE DATE -->
         <div style="min-width:220px;">
             <label class="f-label">Order Date <span class="req">*</span></label>
-            <input type="date" class="f-ctrl" name="order_date" id="order_date">
+            <input type="date" class="f-ctrl" name="order_date" id="order_date" max="">
             <span class="f-err" id="error-order_date"></span>
         </div>
 
@@ -684,6 +684,9 @@ body { font-family: var(--font) !important; background: var(--c-bg) !important; 
     const today = now.getFullYear() + '-' +
         String(now.getMonth() + 1).padStart(2, '0') + '-' +
         String(now.getDate()).padStart(2, '0');
+
+    // Set max attribute to today's date to prevent future dates
+    $dateField.setAttribute('max', today);
 
     let storedDay  = localStorage.getItem('order_default_day');
     let storedDate = localStorage.getItem('order_default_date');

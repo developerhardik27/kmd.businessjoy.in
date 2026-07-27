@@ -1024,6 +1024,12 @@ class PdfController extends commonController
             'filter_date_to'           => 'orders.created_at',
         ];
 
+        // Handle contact person filter (comma-separated company IDs)
+        if (!empty($request->filter_contact_person) && $request->filter_contact_person !== '') {
+            $companyIds = explode(',', $request->filter_contact_person);
+            $order->whereIn('company_garden.company_id', $companyIds);
+        }
+
         // Apply filters (except invoice status, which is handled later)
         foreach ($filters as $requestKey => $column) {
             $value = $request->$requestKey ?? null;

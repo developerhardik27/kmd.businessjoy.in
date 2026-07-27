@@ -77,6 +77,12 @@ class orderController extends commonController
             });
         }
 
+        // Handle contact person filter (comma-separated company IDs)
+        if (!empty($request->filter_contact_person) && $request->filter_contact_person !== '') {
+            $companyIds = explode(',', $request->filter_contact_person);
+            $order->whereIn('company_garden.company_id', $companyIds);
+        }
+
         // -------------------------------------------------------
         // Filters mapping
         // -------------------------------------------------------
@@ -326,11 +332,13 @@ class orderController extends commonController
             'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
-            'order_date'     => 'required|date',
+            'order_date'     => 'required|date|before_or_equal:today',
             'totalNetKg'     => 'required|numeric|min:0',
             'totalAmount'    => 'required|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
             'finalAmount'    => 'required|numeric|min:0',
+        ], [
+            'order_date.before_or_equal' => 'Order date cannot be in the future. Please select today or a past date.',
         ]);
 
         $errors = [];
@@ -489,11 +497,13 @@ class orderController extends commonController
             'transport'      => 'nullable|integer',
             'credit_days'    => 'required|string|in:CD,15,30,45,60,90',
             'discount'       => 'nullable|numeric|min:0|max:100',
-            'order_date'     => 'required|date',
+            'order_date'     => 'required|date|before_or_equal:today',
             'totalNetKg'     => 'required|numeric|min:0',
             'totalAmount'    => 'required|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
             'finalAmount'    => 'required|numeric|min:0',
+        ], [
+            'order_date.before_or_equal' => 'Order date cannot be in the future. Please select today or a past date.',
         ]);
 
         $errors = [];

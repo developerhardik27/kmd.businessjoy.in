@@ -331,6 +331,12 @@
                 </select>
             </div>
             <div class="filter-field">
+                <label>Contact Person</label>
+                <select name="filter_contact_person" class="filter form-control select2" id="filter_contact_person">
+                    <option value="">Select Contact Person</option>
+                </select>
+            </div>
+            <div class="filter-field">
                 <label>Garden</label>
                 <select name="filter_garden" class="filter form-control select2" id="filter_garden" multiple></select>
             </div>
@@ -607,6 +613,7 @@ $('document').ready(function () {
         $('#filter_sample_status').val(null).trigger('change');
         $('#filter_buyer').val(null).trigger('change');
         $('#filter_reference').val(null).trigger('change');
+        $('#filter_contact_person').val(null).trigger('change');
         $('#filter_garden').val(null).trigger('change');
         $('#filter_transport').val(null).trigger('change');
         $('#filter_grade').val(null).trigger('change');
@@ -621,6 +628,7 @@ $('document').ready(function () {
             filter_sample_status: $('#filter_sample_status').val(),
             filter_buyer: $('#filter_buyer').val(),
             filter_reference: $('#filter_reference').val(),
+            filter_contact_person: $('#filter_contact_person').val(),
             filter_garden: $('#filter_garden').val(),
             filter_transport: $('#filter_transport').val(),
             filter_grade: $('#filter_grade').val(),
@@ -643,7 +651,7 @@ $('document').ready(function () {
             var fd = JSON.parse(sessionStorage.getItem('orderFilterData'));
             if (fd) {
                 $.each(fd, function (k, v) { if (v != ' ' && v != null && v != '') $('#' + k).val(v); });
-                $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status,#filter_dispatch_status').trigger('change');
+                $('#filter_company,#filter_transport,#filter_buyer,#filter_reference,#filter_contact_person,#filter_garden,#filter_grade,#filter_invoice_status,#filter_sample_status,#filter_dispatch_status').trigger('change');
                 loaddata();
                 sessionStorage.removeItem('orderFilterData');
             } else {
@@ -688,6 +696,25 @@ $('document').ready(function () {
                 referenceRes.data.forEach(v => $('#filter_reference').append(`<option value="${v.id}">${v.name}</option>`));
             }
             initSelect2('#filter_reference', 'Select Reference');
+
+            // Populate contact person filter from company data
+            if (companyRes.status == 200 && companyRes.data.length) {
+                const contactPersons = {};
+                companyRes.data.forEach(v => {
+                    if (v.contact_person_name && v.contact_person_name.trim() !== '') {
+                        if (!contactPersons[v.contact_person_name]) {
+                            contactPersons[v.contact_person_name] = [];
+                        }
+                        contactPersons[v.contact_person_name].push(v.id);
+                    }
+                });
+
+                Object.keys(contactPersons).forEach(name => {
+                    const companyIds = contactPersons[name].join(',');
+                    $('#filter_contact_person').append(`<option value="${companyIds}">${name}</option>`);
+                });
+            }
+            initSelect2('#filter_contact_person', 'Select Contact Person');
 
             if (gardenRes.status == 200 && gardenRes.data.length) {
                 gardenRes.data.forEach(v => $('#filter_garden').append(`<option value="${v.id}">${v.garden_name}</option>`));
@@ -742,6 +769,7 @@ $('document').ready(function () {
                     d.filter_credit_days_from  = $('#filter_credit_days_from').val();
                     d.filter_credit_days_to    = $('#filter_credit_days_to').val();
                     d.filter_reference  = $('#filter_reference').val();
+                    d.filter_contact_person  = $('#filter_contact_person').val();
                     d.filter_dispatch_status    = $('#filter_dispatch_status').val();
                     d.filter_final_amount_from = $('#filter_final_amount_from').val();
                     d.filter_final_amount_to   = $('#filter_final_amount_to').val();
@@ -986,6 +1014,8 @@ $('document').ready(function () {
         params.filter_invoice_status    = $('#filter_invoice_status').val();
         params.filter_sample_status    = $('#filter_sample_status').val();
         params.filter_grade             = $('#filter_grade').val();
+        params.filter_reference         = $('#filter_reference').val();
+        params.filter_contact_person   = $('#filter_contact_person').val();
         params.filter_credit_days_from  = $('#filter_credit_days_from').val();
         params.filter_credit_days_to    = $('#filter_credit_days_to').val();
         params.filter_final_amount_from = $('#filter_final_amount_from').val();
