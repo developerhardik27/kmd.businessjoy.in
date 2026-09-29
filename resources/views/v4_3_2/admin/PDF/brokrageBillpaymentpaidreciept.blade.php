@@ -1,102 +1,17 @@
 @php
-    //   dd($data);
     $invdata = $data['invoice'];
-    // dd($invdata);
-    // $words = Number::spell($invdata['grand_total']); // convert total amount to words
-
-    $total;
-    $roundof;
-    $sign = '';
-    $withgst = false;
-
-    if ($invdata['gst'] > 0 || $invdata['sgst'] > 0 || $invdata['cgst'] > 0) {
-        $withgst = true; // if invoice created with gst
-    }
-
-    if ($invdata['gst'] != 0) {
-        $total = $invdata['total'] + $invdata['gst'];
-    } elseif ($invdata['sgst'] != 0 && $invdata['cgst'] != 0) {
-        $total = $invdata['total'] + $invdata['sgst'] + $invdata['cgst'];
-    } else {
-        $total = $invdata['total'];
-    }
-
-    //count round off
-    if ($invdata['grandTotalAmount'] > $total) {
-        $value = $invdata['grandTotalAmount'] - $total;
-        $roundof = number_format((float) $value, 2, '.', '');
-        if ($roundof != 0) {
-            $roundof = '+' . $roundof;
-        }
-    } else {
-        $value = $total - $invdata['grandTotalAmount'];
-        $roundof = number_format((float) $value, 2, '.', '');
-        if ($roundof != 0) {
-            $roundof = '-' . $roundof;
-        }
-    }
-
-    // $othersettings = json_decode($othersettings['gstsettings'], true);
-
-    $fixedFirstCols = ['#']; // manual column for serial number with 4% width
-    $fixedWidths = 4; // % width for #
-    $amountColumnWidth = 20; // amount column width (fixed)
-    $totalWidth = $fixedWidths + $amountColumnWidth;
-    $firstRowCols = []; // columns to show in main row
-    $wrappedCols = []; // columns to wrap as separate rows
-    $productscolumn = [
-        [
-            'column_name' => 'Buyer',
-            'column_type' => 'text',
-            'column_width' => '10',
-        ],
-        [
-            'column_name' => 'Bags',
-            'column_type' => 'text',
-            'column_width' => '10',
-        ],
-        [
-            'column_name' => 'Kgs',
-            'column_type' => 'text',
-            'column_width' => '10',
-        ],
-        [
-            'column_name' => 'Brokerage',
-            'column_type' => 'text',
-            'column_width' => '10',
-        ],
-    ];
-    // We assume $productscolumn includes all columns except #.
-    // amount is last column, include it separately always.
-    foreach ($productscolumn as $col) {
-        if ($col['column_name'] === 'amount') {
-            // Always include amount at last, skip here
-            continue;
-        }
-
-        // Check if adding this column exceeds 100%
-        if ($totalWidth + intval($col['column_width']) <= 100) {
-            $totalWidth += intval($col['column_width']);
-            $firstRowCols[] = $col;
-        } else {
-            $wrappedCols[] = $col;
-        }
-    }
-
-    // Always push amount column at the end of first row columns
-    $amountCol = collect($productscolumn)->first(fn($c) => $c['column_name'] === 'amount');
-    if ($amountCol) {
-        $firstRowCols[] = $amountCol;
-    }
-
-    $colspan = count($firstRowCols);
-
     $companydetails = $data['mainCompanyData'];
     $payment = $data['paymentdetail'];
-    function numberToWords($number)
-    {
-        $formatter = new NumberFormatter('en_IN', NumberFormatter::SPELLOUT);
-        return 'Rupees ' . ucfirst($formatter->format($number));
+
+    // GST applied or not (stored invoice values)
+    $withgst = ((float) $invdata['igst'] + (float) $invdata['cgst'] + (float) $invdata['sgst']) > 0;
+
+    if (!function_exists('numberToWords')) {
+        function numberToWords($number)
+        {
+            $formatter = new NumberFormatter('en_IN', NumberFormatter::SPELLOUT);
+            return 'Rupees ' . ucfirst($formatter->format($number));
+        }
     }
 @endphp
 
@@ -350,8 +265,8 @@
                             <tr>
                                 <td><b>GST #</b></td>
                                 <td style="text-align: right;">
-                                    @isset($invdata['gst_no'])
-                                        {{ $invdata['gst_no'] }}
+                                    @isset($companydetails['gst_no'])
+                                        {{ $companydetails['gst_no'] }}
                                     @endisset
                                 </td>
                             </tr>
@@ -373,7 +288,7 @@
                                     <th>Total Amount</th>
                                     <th>Received Amount</th>
                                     <th>TDS</th>
-                                    <th>Pedning Amount</th>
+                                    <th>Pending Amount</th>
                                 </tr>
                                 @foreach ($payment as $value)
                                     <tr>
@@ -409,52 +324,48 @@
                     </tr>
                 </thead>
                  @php
-                        // dd($data['usedInvoices']);
                         $usedInvoices = $data['usedInvoices'] ?? [];
-                        $maxRows = 10;
-                        $companyStateId = $data['mainCompanyData']['state_id'] ?? null;
-                        $buyerStateId = $data['gardenCompanyData']['state_id'] ?? null;
-                        //  $companyStateId = 20;
-                        // $buyerStateId = 21;
-                        $cgst_per = 9;
-                        $sgst_per = 9;
-                        $igst_per = 18;
-                        $cgst = 0;
-                        $sgst = 0;
-                        $igst = 0;
-                        $totalBags = 0;
-                        $totalAmount = 0;
+
+                        // commission per row = (amount - CD%) x brokerage%
+                        $rowComm = [];
                         $totalCommission = 0;
-                        $totalnetkg = 0;
-                        $rowCount = count($usedInvoices);
-                        foreach ($usedInvoices as $row) {
-                            $totalnetkg      += $row['net_kg'] ?? 0;
-                            $totalBags       += $row['bags'] ?? 0;
-                            $totalAmount     += $row['invoice_grand_total'] ?? 0;
-                            $totalCommission += $row['brokerage_total'] ?? 0;
-                        }
-                        if ($companyStateId && $buyerStateId) {
-                            if ($companyStateId == $buyerStateId) {
-                                $cgst = ($totalCommission * $cgst_per) / 100;
-                                $sgst = ($totalCommission * $sgst_per) / 100;
-                                $igst_per = 0;
-                            } else {
-                                $cgst_per = 0;
-                                $sgst_per = 0;
-                                $igst = ($totalCommission * 18) / 100;
-                            }
+                        foreach ($usedInvoices as $k => $row) {
+                            $amt  = (float) ($row['invoice_grand_total'] ?? 0);
+                            $cd   = (float) ($row['discount'] ?? 0);
+                            $brk  = (float) ($row['brokerage'] ?? 0);
+                            $rowComm[$k] = (($amt - ($amt * $cd) / 100) * $brk) / 100;
+                            $totalCommission += $rowComm[$k];
                         }
 
-                        $grandTotal = $totalCommission + $cgst + $sgst + $igst;
-                        $roundedTotal = round($grandTotal);
-                        $roundOff = $roundedTotal - $grandTotal;
+                        // tax values taken from the saved invoice
+                        $subtotal = (float) $invdata['totalamount'];
+                        $cgst     = (float) $invdata['cgst'];
+                        $sgst     = (float) $invdata['sgst'];
+                        $igst     = (float) $invdata['igst'];
+
+                        $cgst_per = $subtotal > 0 ? round(($cgst / $subtotal) * 100, 2) : 0;
+                        $sgst_per = $subtotal > 0 ? round(($sgst / $subtotal) * 100, 2) : 0;
+                        $igst_per = $subtotal > 0 ? round(($igst / $subtotal) * 100, 2) : 0;
+
+                        $roundedTotal = (float) $invdata['grand_total'];
+                        $roundOff     = $roundedTotal - ($subtotal + $cgst + $sgst + $igst);
+
+                        // payment values
+                        $received = 0;
+                        $tdsAmt   = 0;
+                        foreach ($payment as $p) {
+                            $received += (float) ($p['paid_amount'] ?? 0);
+                            $tdsAmt   += (float) ($p['tds_amount'] ?? 0);
+                        }
+                        $settled = $received + $tdsAmt;
+                        $pending = max($roundedTotal - $settled, 0);
                     @endphp
 
                 <tbody>
 
                      @forelse ($usedInvoices as $key => $row)
                         <tr>
-                            <td style="text-align:center;">{{ $key + 1 }}</td>
+                            <td style="text-align:center;">{{ $loop->iteration }}</td>
                             <td style="text-align:center;">{{ $row['garden_names'] ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row['buyer_name'] ?? '-' }}</td>
                             <td style="text-align:center;">{{ $row['inv_no'] ?? '-' }}</td>
@@ -466,12 +377,12 @@
                             <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">
-                                {{ number_format((($row['invoice_grand_total'] ?? 0) * ($row['brokerage'] ?? 0)) / 100, 2) }}
+                                {{ number_format($rowComm[$key] ?? 0, 2) }}
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" style="text-align:center;">No records found</td>
+                            <td colspan="10" style="text-align:center;">No records found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -483,14 +394,14 @@
                             Subtotal
                         </td>
                         <td style="width:15%;" class="right removeborder currencysymbol text-right" id="subtotal">
-                            ₹{{ number_format($totalamount, 2) }}
+                            ₹{{ number_format($subtotal, 2) }}
                         </td>
                     </tr>
                     <tr style="font-size:15px;text-align: right">
                         <td colspan="10" style="text-align: right" class="left removeborder ">
                             IGST({{ $igst_per }}%)
                         </td>
-                        <td style="text-align: right ;width:15%;" class="currencysymbol" id="sgst">
+                        <td style="text-align: right ;width:15%;" class="currencysymbol" id="igst">
                             ₹{{ number_format($igst, 2) }}
                         </td>
                     </tr>
@@ -532,7 +443,7 @@
                             <b>Amount Received</b>
                         </td>
                         <td style="width: 20%;" class="right currencysymbol text-right">
-                            ₹{{ number_format($paid_amount, 2) }}
+                            ₹{{ number_format($received, 2) }}
                         </td>
                     </tr>
                     <tr style="font-size:15px;text-align: right;">
@@ -541,7 +452,7 @@
                         </td>
                         <td style="width: 20%;" class="right currencysymbol text-right">
 
-                            ₹{{ number_format($tds_amount, 2) }}
+                            ₹{{ number_format($tdsAmt, 2) }}
                         </td>
                     </tr>
                     <tr style="font-size:15px;text-align: right;">
@@ -550,7 +461,7 @@
                         </td>
                         <td style="width: 20%;" class="right currencysymbol text-right">
 
-                            ₹{{ number_format($paid_amounts, 2) }}
+                            ₹{{ number_format($settled, 2) }}
                         </td>
                     </tr>
                     <tr style="font-size:15px;text-align: right;">
@@ -559,7 +470,7 @@
                         </td>
                         <td style="width: 20%;" class="right currencysymbol text-right">
                             <b>
-                                ₹{{ number_format($pending_amount, 2) }}</b>
+                                ₹{{ number_format($pending, 2) }}</b>
                         </td>
                     </tr>
                 </tbody>

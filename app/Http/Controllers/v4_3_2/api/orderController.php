@@ -57,6 +57,7 @@ class orderController extends commonController
             })
             ->leftJoin('grades', 'grades.id', 'order_details.grade')
             ->leftJoin('company_garden', 'company_garden.garden_id', '=', 'order_details.garden_id')
+            ->leftJoin('invoices', 'invoices.id', '=', 'order_details.invoice_id')
             ->leftJoin('companymasters', 'companymasters.id', '=', 'company_garden.company_id')
             ->where('orders.is_deleted', 0);
 
@@ -172,6 +173,7 @@ class orderController extends commonController
                 'broker_purchases.id as broker_purchase_id',
                 'broker_purchases.source as broker_purchase_source',
                 'broker_purchases.brokerbill_no as brokerbill_no',
+                'invoices.inv_no as inv_no',
             )
             ->get()
             ->groupBy('order_id')
@@ -234,6 +236,12 @@ class orderController extends commonController
                         ->unique()
                         ->values()
                         ->implode(', '),
+                    'inv_no' => $details
+                    ->filter(fn($item) => !empty($item->inv_no))
+                    ->pluck('inv_no')
+                    ->unique()
+                    ->values()
+                    ->implode(', '),
                     'grades'                 => $details
                         ->filter(fn($item) => !empty($item->grade_name))
                         ->pluck('grade_name')

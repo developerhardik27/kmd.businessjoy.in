@@ -465,7 +465,7 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/orderreport', 'orderreport')->name('order.orderreport')->middleware('checkPermission:teamodule,teadashboard,show');
                 Route::get('/samplereport', 'samplereport')->name('brokerpurchase.samplereport')->middleware('checkPermission:teamodule,brokerpurchase,show');
                 Route::get('/outstanding', 'outstanding')->name('brokragbill.outstanding')->middleware('checkPermission:teamodule,brokeragebill,show');
-                Route::get('/ledger', 'leger')->name('invoice.leger')->middleware('checkPermission:invoicemodule,invoice,show');
+                Route::get('/ledger', 'leger')->name('invoice.ledger')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/prompt-report-export', 'paymentReportExport')->name('prompt_report.export')->middleware('checkPermission:invoicemodule,invoice,show');
                 Route::get('/orderpdf/{id}', 'orderpdf')->name('admin.orderpdf')->middleware('checkPermission:teamodule,order,show');
                 Route::get('/samplepurchase/{id}', 'samplepurchase')->name('admin.samplepurchase')->middleware('checkPermission:teamodule,brokerpurchase,show');

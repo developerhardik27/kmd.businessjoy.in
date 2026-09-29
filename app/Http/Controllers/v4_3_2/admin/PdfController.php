@@ -1334,6 +1334,7 @@ class PdfController extends commonController
                'broker_bill_payment_details.paid_type',
                'broker_bill_payment_details.paid_amount',
                'broker_bill_payment_details.pending_amount',
+               'broker_bill_payment_details.tds_amount',
                'companymasters.company_name',
 
                // Lot numbers from broker_purchases
@@ -1422,9 +1423,12 @@ class PdfController extends commonController
                      'paid_type'      => $item->paid_type,
                      'paid_amount'    => $item->paid_amount,
                      'pending_amount' => $item->pending_amount,
+                     'tds_amount'     => $item->tds_amount,
                   ])->toArray(),
                ];
          })
+         ->values()
+         ->sortBy('invoice_no')
          ->values();
       // dd($list);
       if ($list->isEmpty()) {
@@ -1463,88 +1467,60 @@ class PdfController extends commonController
 
          $html  = '<table border="1" cellpadding="5" cellspacing="0">';
          $html .= '<tr>
-               <th colspan="15" style="font-size:30px; font-weight:bold; text-align:center;">
+               <th colspan="10" style="font-size:30px; font-weight:bold; text-align:center;">
                   Outstanding - Date: ' . date('d-m-Y') . '
                </th>
          </tr>';
 
          $html .= '<tr style="background:#f0f0f0; font-weight:bold;">
                <th>#</th>
-               <th>Invoice No</th>
-               <th>Invoice Date</th>
-               <th>Company</th>
-               <th>Garden</th>
-               <th>Buyer</th>
-               <th>Net KG</th>
-               <th>Brokerage (%)</th>
-               <th>Payment Date</th>
-               <th>Receipt No</th>
-               <th>Transaction ID</th>
-               <th>Paid By</th>
-               <th>Type</th>
-               <th>Paid Amt</th>
-               <th>Balance</th>
+               <th>INVOICE-NUMBER</th>
+               <th>DATE</th>
+               <th>COMPANY</th>
+               <th>GARDEN</th>
+               <th>KGS</th>
+               <th>BASIC-VALUE</th>
+               <th>GST</th>
+               <th>TOTAL BILL-AMOUNT</th>
+               <th>TDS</th>
+               <th>RECEIVABLE-AMOUNT</th>
          </tr>';
 
          $srNo = 1;
 
          foreach ($list as $invoice) {
                $grandTotal = $invoice['grand_total'] ?? 0;
+               $totalAmount = $invoice['totalamount'] ?? 0;
+               $igst = $invoice['igst'] ?? 0;
+               $cgst = $invoice['cgst'] ?? 0;
+               $sgst = $invoice['sgst'] ?? 0;
+               $totalGst = $igst + $cgst + $sgst;
 
-               // fix: calculate $due once per invoice, not per payment row
-               $totalPaid = collect($invoice['details'] ?? [])
-                  ->sum('paid_amount');
+               // Sum up all payment details from multiple payment records
+               $paymentDetails = collect($invoice['details'] ?? []);
 
-               $due = $grandTotal - $totalPaid;
+               $totalPaid = $paymentDetails->sum('paid_amount');
+               $totalTds = $paymentDetails->sum('tds_amount');
 
-               $payments = array_values(array_filter(
-                  $invoice['details'] ?? [],
-                  fn($d) => !empty($d['receipt_number'])
-               ));
+               // Get the latest pending amount from the most recent payment record
+               $latestPending = $paymentDetails->last()['pending_amount'] ?? $grandTotal;
 
-               $baseRow = [
-                  $invoice['invoice_no']   ?? '-',
-                  $invoice['invoice_date'] ?? '-',
-                  $invoice['company_name'] ?? '-',
-                  $invoice['garden_name']  ?? '-',
-                  $invoice['buyer_names']  ?? '-',
-                  $invoice['net_kg']       ?? 0,
-                  ($invoice['brokerage']   ?? 0) . '%',
-               ];
+               // Or calculate final receivable amount: grand_total - total_paid - total_tds
+               $finalReceivable = $grandTotal - $totalPaid - $totalTds;
 
-               if (empty($payments)) {
-                  $html .= '<tr>
-                     <td>' . $srNo++ . '</td>
-                     <td>' . implode('</td><td>', $baseRow) . '</td>
-                     <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-                     <td>0</td>
-                     <td>' . $due . '</td>
-                  </tr>';
-               } else {
-                  foreach ($payments as $detail) {
-                     $paymentDate = '-';
-
-                     if (!empty($detail['datetime'])) {
-                           try {
-                              $paymentDate = \Carbon\Carbon::parse($detail['datetime'])->format('d-m-Y');
-                           } catch (\Exception $e) {
-                              $paymentDate = '-';
-                           }
-                     }
-
-                     $html .= '<tr>
-                           <td>' . $srNo++ . '</td>
-                           <td>' . implode('</td><td>', $baseRow) . '</td>
-                           <td>' . $paymentDate . '</td>
-                           <td>' . ($detail['receipt_number'] ?? '-') . '</td>
-                           <td>' . ($detail['transaction_id']  ?? '-') . '</td>
-                           <td>' . ($detail['paid_by']         ?? '-') . '</td>
-                           <td>' . ($detail['paid_type']       ?? '-') . '</td>
-                           <td>' . ($detail['paid_amount']     ?? 0)   . '</td>
-                           <td>' . ($detail['pending_amount']  ?? $due). '</td>
-                     </tr>';
-                  }
-               }
+               $html .= '<tr>
+                  <td>' . $srNo++ . '</td>
+                  <td>' . ($invoice['invoice_no']   ?? '-') . '</td>
+                  <td>' . ($invoice['invoice_date'] ?? '-') . '</td>
+                  <td>' . ($invoice['company_name'] ?? '-') . '</td>
+                  <td>' . ($invoice['garden_name']  ?? '-') . '</td>
+                  <td>' . ($invoice['net_kg']       ?? 0)   . '</td>
+                  <td>' . number_format($totalAmount, 2)      . '</td>
+                  <td>' . number_format($totalGst, 2)         . '</td>
+                  <td>' . number_format($grandTotal, 2)       . '</td>
+                  <td>' . number_format($totalTds, 2)         . '</td>
+                  <td>' . number_format($finalReceivable, 2)  . '</td>
+               </tr>';
          }
 
          $html .= '</table>';
@@ -1967,6 +1943,8 @@ class PdfController extends commonController
                $join->on('broker_totals.invoice_id', '=', 'invoices.id');
          })
            ->leftJoin('mng_col','mng_col.invoice_id','=','invoices.id')
+           ->leftJoin('order_details', 'order_details.id', '=', 'mng_col.order_detail_id')
+           ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
          ->select(
                'invoices.*',
                DB::raw("DATE_FORMAT(invoices.inv_date, '%d-%m-%Y') as inv_date_formatted"),
@@ -1980,11 +1958,11 @@ class PdfController extends commonController
          ->where('invoices.is_deleted', 0)
          ->groupBy(
                'invoices.id',
+               'invoices.inv_date',
                'customer_party.name',
                'transport_party.name',
                'companymasters.company_name',
                'broker_totals.brokerbill_no',
-               'invoices.inv_date',
                'invoices.inv_no',
                'invoices.consignment_number',
                'invoices.consignment_date',
@@ -2029,6 +2007,8 @@ class PdfController extends commonController
          'filter_company'        => 'invoices.company_details_id',
          'filter_buyer'          => 'invoices.customer_id',
          'filter_payment_status' => 'invoices.status',
+         'filter_date_from' => 'invoices.inv_date',
+         'filter_date_to' => 'invoices.inv_date',
       ];
 
       foreach ($filters as $requestKey => $column) {
@@ -2037,7 +2017,8 @@ class PdfController extends commonController
          if (isset($value)) {
                if (
                   $requestKey == 'filter_net_kg_from' || $requestKey == 'filter_net_kg_to' ||
-                  $requestKey == 'filter_bags_from'   || $requestKey == 'filter_bags_to'
+                  $requestKey == 'filter_bags_from'   || $requestKey == 'filter_bags_to' ||
+                  $requestKey == 'filter_date_from'   || $requestKey == 'filter_date_to'
                ) {
                   $operator = strpos($requestKey, 'from') !== false ? '>=' : '<=';
                   $invoices->where($column, $operator, $value);
@@ -2059,6 +2040,18 @@ class PdfController extends commonController
                $invoices->whereNull('broker_totals.brokerbill_no');
          }
       }
+      $invoices->selectRaw("
+         CASE
+            WHEN UPPER(TRIM(MAX(orders.credit_days))) = 'CD'
+                  THEN DATE_ADD(invoices.inv_date, INTERVAL 10 DAY)
+            WHEN TRIM(MAX(orders.credit_days)) REGEXP '^[0-9]+$'
+                  THEN DATE_ADD(
+                     invoices.inv_date,
+                     INTERVAL CAST(MAX(orders.credit_days) AS UNSIGNED) DAY
+                  )
+            ELSE NULL
+         END AS prompt_date
+      ");
 
       $invoices = $invoices->orderBy('invoices.inv_date', 'desc')->get();
 
@@ -2181,7 +2174,11 @@ class PdfController extends commonController
 
                         <td>'.htmlspecialchars($invoice['inv_date_formatted'] ?? '-').'</td>
 
-                        <td>-</td>
+                        <td>'.(
+                           !empty($invoice['prompt_date'])
+                              ? \Carbon\Carbon::parse($invoice['prompt_date'])->format('d-m-Y')
+                              : '-'
+                        ).'</td>
 
                         <td>'.($invoice['total_packages'] ?? 0).'</td>
 

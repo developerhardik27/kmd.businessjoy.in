@@ -541,10 +541,21 @@
                         $totalnetkg = 0;
                         $rowCount = count($usedInvoices);
                         foreach ($usedInvoices as $row) {
-                            $totalnetkg      += $row['net_kg'] ?? 0;
-                            $totalBags       += $row['bags'] ?? 0;
-                            $totalAmount     += $row['invoice_grand_total'] ?? 0;
-                            $totalCommission += $row['brokerage_total'] ?? 0;
+                            $totalnetkg += $row['net_kg'] ?? 0;
+                            $totalBags += $row['bags'] ?? 0;
+
+                            // Calculate discount amount and subtract it from invoice grand total
+                            $invoiceGrandTotal = $row['invoice_grand_total'] ?? 0;
+                            $discountPercentage = $row['discount'] ?? 0;
+                            $discountAmount = ($invoiceGrandTotal * $discountPercentage) / 100;
+                            $finalAmount = $invoiceGrandTotal - $discountAmount;
+
+                            // Add discounted amount to total
+                            $totalAmount += $finalAmount;
+
+                            // Calculate brokerage on discounted amount
+                            $brokerageAmount = ($finalAmount * ($row['brokerage'] ?? 0)) / 100;
+                            $totalCommission += $brokerageAmount;
                         }
                         if ($companyStateId && $buyerStateId) {
                             if ($companyStateId == $buyerStateId) {
@@ -576,10 +587,28 @@
                                 </td>
                                 <td style="text-align:center;">{{ $row['bags'] ?? 0 }}</td>
                                 <td style="text-align:center;">{{ number_format($row['net_kg'] ?? 0, 3) }}</td>
-                                <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
-                                <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
+                                @php
+                                    $invoiceGrandTotal = $row['invoice_grand_total'] ?? 0;
+                                    $discountPercentage = $row['discount'] ?? 0;
+
+                                    // Discount amount
+                                    $discountAmount = ($invoiceGrandTotal * $discountPercentage) / 100;
+
+                                    // Final invoice amount after discount
+                                    $finalAmount = $invoiceGrandTotal - $discountAmount;
+
+                                    // Brokerage calculated after discount
+                                    $brokerageAmount = ($finalAmount * ($row['brokerage'] ?? 0)) / 100;
+                                @endphp
+
                                 <td style="text-align:center;">
-                                    {{ number_format((($row['invoice_grand_total'] ?? 0) * ($row['brokerage'] ?? 0)) / 100, 2) }}
+                                    {{ number_format($discountPercentage, 2) }}%
+                                </td>
+                                <td style="text-align:center;">
+                                    {{ number_format($finalAmount, 2) }}
+                                </td>
+                                <td style="text-align:center;">
+                                    {{ number_format($brokerageAmount, 2) }}
                                 </td>
                             </tr>
                         @empty

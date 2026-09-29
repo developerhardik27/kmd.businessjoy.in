@@ -883,6 +883,9 @@ $('document').ready(function () {
                                 ${data}
                             </button>`;
                         }
+                        if (data == 'Invoices Created') {
+                            return row.inv_no || '-';
+                        }
                         return data;
                     }
                 },

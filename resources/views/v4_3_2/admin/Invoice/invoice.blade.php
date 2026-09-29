@@ -13,137 +13,236 @@
 @section('style')
     <style>
         .ui-widget-header { background: #1518b117 !important; border: 1px solid #e1ded9 !important; }
-.btn-info { background-color: #253566 !important; border-color: #253566 !important; color: white; }
-.btn-info:hover { background-color: #39519b !important; color: rgb(255,255,255); }
-.btn-success { background-color: #67d5a5d9 !important; border-color: var(--iq-success) !important; color: black !important; }
-.btn-success:hover { background-color: #16d07ffa !important; border-color: var(--iq-success) !important; color: rgb(250,250,250) !important; }
-.select2-results__options { max-height: 150px !important; overflow-y: auto !important; }
+        .btn-info { background-color: #253566 !important; border-color: #253566 !important; color: white; }
+        .btn-info:hover { background-color: #39519b !important; color: rgb(255,255,255); }
+        .btn-success { background-color: #67d5a5d9 !important; border-color: var(--iq-success) !important; color: black !important; }
+        .btn-success:hover { background-color: #16d07ffa !important; border-color: var(--iq-success) !important; color: rgb(250,250,250) !important; }
+        .select2-results__options { max-height: 150px !important; overflow-y: auto !important; }
 
-/* ───────── FILTER BAR ───────── */
-.filter-bar {
-    background: #fff; border: 1px solid #dde3ef;
-    border-radius: 10px; padding: 14px 18px; margin-bottom: 14px;
-}
-.filter-bar-header {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 11px; font-weight: 600; color: #6b7280;
-    text-transform: uppercase; letter-spacing: .05em;
-    margin-bottom: 12px; padding-bottom: 10px;
-    border-bottom: 1px solid #eaecf2;
-}
-.filter-bar-inner { display: flex; align-items: flex-end; gap: 10px; }
-
-/* ───────── SCROLL AREA ───────── */
-.filter-scroll-area {
-    display: flex; align-items: flex-start; gap: 0;
-    overflow-x: auto; flex: 1; padding-bottom: 4px;
-    scrollbar-width: thin; scrollbar-color: #d1d5db transparent;
-}
-.filter-scroll-area::-webkit-scrollbar { height: 4px; }
-.filter-scroll-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-
-/* ───────── FILTER FIELD ───────── */
-.filter-field {
-    flex: 0 0 180px; min-width: 180px;
-    padding: 10px 12px; box-sizing: border-box;
-    border-right: 1px solid #eaecf2;
-}
-.filter-field:first-child { border-radius: 8px 0 0 8px; }
-.filter-field:last-child  { border-radius: 0 8px 8px 0; border-right: none; }
-
-/* Alternating: odd = white, even = grey */
-.filter-scroll-area .filter-field:nth-child(odd)  { background-color: #ffffff; }
-.filter-scroll-area .filter-field:nth-child(even) { background-color: rgba(0,0,0,.04); }
-
-/* Labels */
-.filter-field label {
-    display: block; font-size: 10.5px; font-weight: 600;
-    color: #6b7280; text-transform: uppercase;
-    letter-spacing: .05em; margin-bottom: 6px; white-space: nowrap;
-}
-
-/* Inputs */
-.filter-field .form-control {
-    height: 34px; font-size: 13px; border-radius: 6px;
-    border: 1px solid #d1d5db; width: 100%;
-    box-sizing: border-box; background: transparent !important;
-}
-.filter-field .form-control:focus {
-    border-color: #3b5bdb;
-    box-shadow: 0 0 0 2px rgba(59,91,219,.1); outline: none;
-}
-
-/* Select2 */
-.filter-field .select2-container { width: 100% !important; }
-.filter-field .select2-container--default .select2-selection--single {
-    height: 34px !important; border-radius: 6px !important;
-    border: 1px solid #d1d5db !important; background: transparent !important;
-    display: flex !important; align-items: center;
-}
-.filter-field .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 32px !important; font-size: 13px !important; padding-left: 10px !important;
-}
-.filter-field .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px !important; }
-.filter-field .select2-container--default .select2-selection--multiple {
-    min-height: 34px !important; height: auto !important;
-    border-radius: 6px !important; border: 1px solid #d1d5db !important;
-    background: transparent !important; padding: 2px 4px !important;
-}
-.filter-field .select2-container--default.select2-container--focus .select2-selection--single,
-.filter-field .select2-container--default.select2-container--focus .select2-selection--multiple {
-    border-color: #3b5bdb !important; box-shadow: 0 0 0 2px rgba(59,91,219,.1) !important;
-}
-.filter-field .select2-selection__choice {
-    background: #3b5bdb !important; border: none !important; color: #fff !important;
-    border-radius: 5px !important; font-size: 12px !important;
-    padding: 2px 8px !important; margin: 2px !important;
-}
-.filter-field .select2-selection__choice__remove { color: #fff !important; margin-right: 4px !important; }
-
-/* ───────── ACTION BUTTONS ───────── */
-.filter-actions-fixed {
-    flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px;
-    padding-left: 12px; border-left: 1px solid #eaecf2;
-}
-.filter-actions-fixed .btn {
-    height: 34px; font-size: 12.5px; font-weight: 600; border-radius: 7px;
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 5px; white-space: nowrap; width: 90px; margin: 0;
-}
-
-/* ───────── ACTION BAR ───────── */
-.action-bar > div { flex: 1; }
-.action-bar > div:nth-child(2) { text-align: center; }
-.action-bar > div:nth-child(3) { text-align: right; }
-
-/* ───────── MOBILE ───────── */
-@media (max-width: 576px) {
-    .filter-bar-inner { flex-direction: column; align-items: stretch; }
-    .filter-scroll-area { flex-direction: column; overflow-x: visible; gap: 6px; }
-    .filter-field {
-        flex: 1 1 100%; min-width: 100%;
-        border-right: none; border-radius: 8px !important;
+ /* ───────── FILTER BAR ───────── */
+    .filter-bar {
+        background: #fff;
+        border: 1px solid #dde3ef;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+    }
+    .filter-bar-header {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
         border-bottom: 1px solid #eaecf2;
     }
-    .filter-field{
-            flex: 1 1 100%; min-width: 100%;
-            border-right: none; border-radius: 8px !important;
+    .filter-bar-inner {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    /* ───────── SCROLL AREA ───────── */
+    .filter-scroll-area {
+        display: flex;
+        align-items: flex-start;
+        gap: 0;
+        overflow-x: auto;
+        flex: 1;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db transparent;
+    }
+    .filter-scroll-area::-webkit-scrollbar { height: 4px; }
+    .filter-scroll-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+    /* ───────── FILTER FIELD ───────── */
+    .filter-field {
+        flex: 0 0 160px;
+        min-width: 160px;
+        padding: 10px 12px;
+        border-radius: 0;
+        box-sizing: border-box;
+        border-right: 1px solid #eaecf2;
+    }
+    .filter-field:last-child { border-right: none; }
+    /* Range fields wider */
+    .filter-field.range-field {
+        flex: 0 0 260px;
+        min-width: 260px;
+    }
+
+    /* Alternating background — odd WHITE, even GREY */
+    .filter-scroll-area .filter-field:nth-child(odd) {
+        background-color: #ffffff;
+    }
+    .filter-scroll-area .filter-field:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+    /* First and last get rounded corners */
+    .filter-scroll-area .filter-field:first-child { border-radius: 8px 0 0 8px; }
+    .filter-scroll-area .filter-field:last-child  { border-radius: 0 8px 8px 0; }
+    .filter-scroll-area .filter-field:only-child  { border-radius: 8px; }
+
+    /* Labels */
+    .filter-field label {
+        display: block;
+        font-size: 10.5px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: 6px;
+        white-space: nowrap;
+    }
+
+    /* Inputs */
+    .filter-field .form-control {
+        height: 34px;
+        font-size: 13px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        width: 100%;
+        box-sizing: border-box;
+        background: transparent !important;
+    }
+    .filter-field .form-control:focus {
+        border-color: #3b5bdb;
+        box-shadow: 0 0 0 2px rgba(59,91,219,.1);
+        outline: none;
+    }
+    /* Select2 */
+    .filter-field .select2-container {
+        width: 100% !important;
+    }
+    .filter-field .select2-selection--single,
+    .filter-field .select2-selection--multiple {
+        border-radius: 6px !important;
+        border: 1px solid #d1d5db !important;
+        background-color: transparent !important;
+        min-height: 34px !important;
+        box-sizing: border-box;
+    }
+    .filter-field .select2-container--default .select2-selection--single {
+        height: 34px !important;
+        display: flex !important;
+        align-items: center;
+    }
+    .filter-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        font-size: 13px !important;
+        padding-left: 10px !important;
+    }
+    .filter-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 32px !important;
+    }
+    .filter-field .select2-container--default.select2-container--focus .select2-selection--single,
+    .filter-field .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #3b5bdb !important;
+        box-shadow: 0 0 0 2px rgba(59,91,219,.1) !important;
+    }
+    /* Tags */
+    .filter-field .select2-selection__choice {
+        background: #3b5bdb !important;
+        border: none !important;
+        color: #fff !important;
+        border-radius: 5px !important;
+        font-size: 12px !important;
+        padding: 2px 8px !important;
+        margin: 2px !important;
+    }
+    .filter-field .select2-selection__choice__remove {
+        color: #fff !important;
+        margin-right: 4px !important;
+    }
+    /* ───────── RANGE GROUP ───────── */
+    .range-group {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    .range-item {
+        flex: 1;
+        min-width: 0;
+    }
+    .range-item input.form-control {
+        width: 100% !important;
+        height: 34px;
+        font-size: 12px;
+        padding: 4px 6px;
+        box-sizing: border-box;
+        min-width: 0;
+        background: transparent !important;
+    }
+    .range-sep {
+        font-size: 12px;
+        color: #9ca3af;
+        flex-shrink: 0;
+    }
+    /* ───────── ACTION BUTTONS ───────── */
+    .filter-actions-fixed {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding-left: 12px;
+        border-left: 1px solid #eaecf2;
+    }
+    .filter-actions-fixed .btn {
+        height: 34px;
+        font-size: 12.5px;
+        font-weight: 600;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+        width: 90px;
+        margin: 0;
+    }
+    /* ───────── ACTION BAR ───────── */
+    .action-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+    .action-bar .btn {
+        height: 32px;
+        font-size: 12.5px;
+        font-weight: 600;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    /* ───────── MOBILE ───────── */
+    @media (max-width: 576px) {
+        .filter-bar-inner { flex-direction: column; align-items: stretch; }
+        .filter-scroll-area { flex-direction: column; overflow-x: visible; gap: 6px; }
+        .filter-field {
+            flex: 1 1 100%;
+            min-width: 100%;
+            border-right: none;
+            border-radius: 8px !important;
             border-bottom: 1px solid #eaecf2;
         }
         .filter-field .select2-container { width: 100% !important; }
-          .range-group {
+        .range-group {
             gap: 6px;
         }
-
         .range-sep {
-            display: none; /* hide the dash on mobile */
+            display: none;
         }
-
         .range-item input.form-control {
-            width: 100%; /* full width */
+            width: 100%;
         }
-
-        /* Adjust filter-field for mobile */
         .filter-field.range-field {
             flex: 1 1 100%;
             min-width: 100%;
@@ -151,14 +250,10 @@
             border-radius: 8px !important;
             border-bottom: 1px solid #eaecf2;
         }
-        .filter-field .select2-container { width: 100% !important; }
-        .filter-actions-fixed {
-            flex-direction: row; border-left: none;
-            border-top: 1px solid #eaecf2; padding-left: 0; padding-top: 10px;
-        }
         .filter-actions-fixed .btn { flex: 1; width: auto; }
-        .action-bar { flex-direction: column; }
-        .action-bar > div { text-align: left !important; }
+        .action-bar { flex-direction: column; align-items: stretch; }
+        .action-bar .btn { justify-content: center; }
+        .filter-field .range-field { max-width:350px;}
     }
     </style>
 @endsection
@@ -205,6 +300,18 @@
                     <option value="0">Pending</option>
                     <option value="1">Bill Generated</option>
                 </select>
+            </div>
+            <div class="filter-field range-field">
+                <label>Invoice Date From <span class="m-2"></span> Invoice Date To</label>
+                <div class="range-group">
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_date_from" name="filter_date_from" placeholder="From">
+                    </div>
+                    <span class="range-sep">—</span>
+                    <div class="range-item">
+                        <input type="date" class="form-control filter" id="filter_date_to" name="filter_date_to" placeholder="To">
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -376,6 +483,7 @@
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Commission <br> Bill Status</th>
+                <th>Commission <br> Bill No</th>
                 <th>Invoice</th>
                 <th>Payment</th>
                 <th>Action</th>
@@ -570,6 +678,8 @@
         function resetFilters() {
             // Reset Select2 dropdowns
             $('#filter_payment_status').val(null).trigger('change');
+            $('#filter_date_from').val('');
+            $('#filter_date_to').val('');
             $('#filter_commission_bill_status').val(null).trigger('change');
             $('#filter_company').val(null).trigger('change');
             $('#filter_buyer').val(null).trigger('change');
@@ -581,7 +691,9 @@
                 filter_payment_status: $('#filter_payment_status').val(),
                 filter_commission_bill_status: $('#filter_commission_bill_status').val(),
                 filter_company: $('#filter_company').val(),
-                filter_buyer: $('#filter_buyer').val()
+                filter_buyer: $('#filter_buyer').val(),
+                filter_date_from: $('#filter_date_from').val(),
+                filter_date_to: $('#filter_date_to').val(),
             };
             sessionStorage.setItem('invoiceFilterData', JSON.stringify(filterData));
         }
@@ -822,14 +934,36 @@
         // ════════════════════════════════════════════════════════════════════════════
         // CHECKBOX SELECTION — same-company validation + bulk button
         // ════════════════════════════════════════════════════════════════════════════
+        // Enable "select all" only when a company filter is applied AND rows have checkboxes
+        function syncSelectAll() {
+            let hasCompany = !!appliedCompany;
+            let total      = $('.invoice-checkbox').length;
+            $('#selectAllCheckbox')
+                .prop('disabled', !(hasCompany && total > 0))
+                .prop('checked', false);
+            $('#bulkGeneratePdfBtn').addClass('d-none').removeData('selected-rows');
+            $('#bulkSelectionCount').text('0');
+        }
 
-        $(document).on('change', '.invoice-checkbox', function () {
-            updateBulkGenerateBtn($(this));
-        });
+        // Keep header checkbox in sync when user ticks rows manually
+        function refreshSelectAllState() {
+            let total   = $('.invoice-checkbox').length;
+            let checked = $('.invoice-checkbox:checked').length;
+            $('#selectAllCheckbox').prop('checked', total > 0 && total === checked);
+        }
 
         $('#data').on('change', '#selectAllCheckbox', function () {
+            if (!appliedCompany) {
+                $(this).prop('checked', false);
+                Toast.fire({ icon: 'error', title: 'Please apply a Company filter first' });
+                return;
+            }
             $('.invoice-checkbox').prop('checked', $(this).is(':checked'));
             updateBulkGenerateBtn();
+        });
+
+        $(document).on('change', '.invoice-checkbox', function () {
+            refreshSelectAllState();
         });
 
         /**
@@ -854,8 +988,13 @@
 
             if (!sameCompany) {
                 Toast.fire({ icon: 'error', title: 'Please select invoices from the same company only' });
-                if (changedCb) { changedCb.prop('checked', false); }
-                updateBulkGenerateBtn(); // re-evaluate
+                if (changedCb) {
+                    changedCb.prop('checked', false);
+                } else {
+                    // came from "select all" → clear everything
+                    $('.invoice-checkbox, #selectAllCheckbox').prop('checked', false);
+                }
+                updateBulkGenerateBtn();
                 return;
             }
 
@@ -973,9 +1112,11 @@
         // DATATABLE
         // ════════════════════════════════════════════════════════════════════════════
         let table  = '';
+        let appliedCompany = null;   // ← ADD: company filter that was actually applied
         var search = {!! json_encode($search) !!};
 
         function loaddata() {
+            
             table = $('#data').DataTable({
                 language  : { lengthMenu: '_MENU_ &nbsp;Entries per page' },
                 pageLength: 25,
@@ -987,13 +1128,16 @@
                     type: 'GET',
                     url : "{{ route('invoice.inv_list') }}",
                     data: function (d) {
-                        d.user_id               = USER_ID;
-                        d.company_id            = COMPANY_ID;
-                        d.token                 = API_TOKEN;
+                        d.user_id  = USER_ID;
+                        d.company_id = COMPANY_ID;
+                        d.token    = API_TOKEN;
                         d.filter_payment_status = $('#filter_payment_status').val();
                         d.filter_commission_bill_status = $('#filter_commission_bill_status').val();
-                        d.filter_company        = $('#filter_company').val();
-                        d.filter_buyer          = $('#filter_buyer').val();
+                        d.filter_company = $('#filter_company').val();
+                        d.filter_buyer   = $('#filter_buyer').val();
+                        d.filter_date_to   = $('#filter_date_to').val();
+                        d.filter_date_from   = $('#filter_date_from').val();
+                        appliedCompany   = d.filter_company;   // ← ADD
                     },
                     dataSrc: function (json) {
                          $('#pdfBtn').removeClass('d-none');
@@ -1105,6 +1249,16 @@
                             }
                             else{
                                     return `<span class="badge badge-warning">Pending</span>`;
+                            }
+                        }
+                    },
+                    {data: 'broker_bill_invoice_no', name: 'broker_bill_invoice_no', orderable: false, searchable: false, defaultContent: '-',
+                        render: function (data, type, row) {
+                            if (row.broker_bill_invoice_no) {
+                                return row.broker_bill_invoice_no;
+                            }
+                            else{
+                                    return `-`;
                             }
                         }
                     },
@@ -1270,7 +1424,7 @@
                 pagingType  : "full_numbers",
                 drawCallback: function () {
                     $('[data-toggle="tooltip"]').tooltip({ boundary: 'window', offset: '0, 10' });
-
+                    syncSelectAll();
                     if ($('#jumpToPageWrapper').length === 0) {
                         $(".dt-paging").after(`
                             <div id="jumpToPageWrapper" class="d-flex align-items-center ml-3" style="gap:5px;">
@@ -1306,11 +1460,13 @@
             params.filter_commission_bill_status = $('#filter_commission_bill_status').val();
             params.filter_buyer          = $('#filter_buyer').val();
             params.filter_company        = $('#filter_company').val();
+            params.filter_date_from      = $('#filter_date_from').val();
+            params.filter_date_to        = $('#filter_date_to').val();
             params.type                     = type;
-            let url = "{{ route('invoice.leger') }}" + '?' + $.param(params);
+            let url = "{{ route('invoice.ledger') }}" + '?' + $.param(params);
             loadershow();
             $.ajax({
-                type: 'GET', url: "{{ route('invoice.leger') }}", data: params,
+                type: 'GET', url: "{{ route('invoice.ledger') }}", data: params,
                 success: function () { 
                     if (type === 'pdf') {
                     window.open(url, '_blank');   // stream in new tab

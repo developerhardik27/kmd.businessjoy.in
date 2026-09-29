@@ -312,14 +312,15 @@ class invoiceController extends commonController
             ->groupBy('invoice_id');
 
         // -------------------
-        // 2️⃣ Subquery for garden IDs from broker_purchases
-        $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases')
+        $gardenSub = DB::connection('dynamic_connection')->table('broker_purchases as bp')
+            ->leftJoin('broker_bill_invoice as bbi', 'bbi.id', '=', 'bp.brokerbill_no')
             ->select(
-                'invoice_id',
-                DB::raw("GROUP_CONCAT(DISTINCT garden_id ORDER BY garden_id SEPARATOR ',') as garden_ids"),
-                DB::raw("GROUP_CONCAT(DISTINCT brokerbill_no ORDER BY id SEPARATOR ',') as brokerbill_no") // optional
+                'bp.invoice_id',
+                DB::raw("GROUP_CONCAT(DISTINCT bp.garden_id ORDER BY bp.garden_id SEPARATOR ',') as garden_ids"),
+                DB::raw("GROUP_CONCAT(DISTINCT bp.brokerbill_no ORDER BY bp.id SEPARATOR ',') as brokerbill_no"),
+                DB::raw("GROUP_CONCAT(DISTINCT bbi.invoice_no ORDER BY bbi.invoice_no SEPARATOR ',') as broker_bill_invoice_no")
             )
-            ->groupBy('invoice_id');
+            ->groupBy('bp.invoice_id');
 
         // -------------------
         // 3️⃣ Main Invoice Query
@@ -359,6 +360,8 @@ class invoiceController extends commonController
             'filter_company'        => 'invoices.company_details_id',
             'filter_buyer'          => 'invoices.customer_id',
             'filter_payment_status' => 'invoices.status',
+            'filter_date_from'      => 'invoices.inv_date',
+            'filter_date_to'        => 'invoices.inv_date',
         ];
 
         foreach ($filters as $requestKey => $column) {
@@ -402,7 +405,8 @@ class invoiceController extends commonController
                 // Aggregated fields
                 'mc_totals.line_total',
                 'broker_totals.garden_ids',
-                'broker_totals.brokerbill_no'
+                'broker_totals.brokerbill_no',
+                'broker_totals.broker_bill_invoice_no'
             )
             ->where('invoices.is_deleted', 0)
             ->orderBy('invoices.inv_date', 'desc');
@@ -660,7 +664,8 @@ class invoiceController extends commonController
         // Calculate expected payment date for each invoice
         $invoice->transform(function ($item) {
             if ($item->inv_date && $item->credit_days) {
-                $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($item->credit_days);
+                $creditDays = strtoupper(trim($item->credit_days)) === 'CD'? 10: (int) $item->credit_days;
+                $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($creditDays);
                 $item->expected_payment_date = $expectedDate->format('d-m-Y');
             } else {
                 $item->expected_payment_date = '-';
@@ -1186,10 +1191,20 @@ class invoiceController extends commonController
                             $rate = $row['Rate_per_kg'] ?? 0;
                             $netKg = $row['Net_Weight_Kgs'] ?? 0;
                             $calculatedAmount = $rate * $netKg;
-
+                            $discountAmount = 0;
+                            if (isset($row['order_detail_id']) && $row['order_detail_id']) {
+                                $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                                if ($orderDetail) {
+                                    $order = $this->orderModel::find($orderDetail->order_id);
+                                    if ($order && isset($order->discount) && $order->discount > 0) {
+                                        $discountPercentage = $order->discount;
+                                        $discountAmount = ($calculatedAmount * $discountPercentage) / 100;
+                                    }
+                                }
+                            }
                             // Add additional columns and their values
                             $dynamicdata['invoice_id'] = $inv_id;
-                            $dynamicdata['amount'] = $calculatedAmount;
+                            $dynamicdata['amount'] = $calculatedAmount - $discountAmount;
                             $dynamicdata['created_by'] = $data['user_id'];
                             $dynamicdata['order_detail_id'] = $row['order_detail_id'];
                             // Add more columns as needed
@@ -1524,9 +1539,19 @@ class invoiceController extends commonController
                     $rate = $row['Rate_per_kg'] ?? 0;
                     $netKg = $row['Net_Weight_Kgs'] ?? 0;
                     $calculatedAmount = $rate * $netKg;
-
+                    $discountAmount = 0;
+                    if (isset($row['order_detail_id']) && $row['order_detail_id']) {
+                        $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                        if ($orderDetail) {
+                            $order = $this->orderModel::find($orderDetail->order_id);
+                            if ($order && isset($order->discount) && $order->discount > 0) {
+                                $discountPercentage = $order->discount;
+                                $discountAmount = ($calculatedAmount * $discountPercentage) / 100;
+                            }
+                        }
+                    }
                     $dynamicdata['invoice_id'] = $invoiceId; // ✅ Use $invoiceId not $id
-                    $dynamicdata['amount']     = $calculatedAmount;
+                    $dynamicdata['amount']     = $calculatedAmount - $discountAmount;
                     $dynamicdata['order_detail_id'] = $row['order_detail_id'] ?? null;
                     $dynamicdata['updated_by'] = $data['user_id'];
 
