@@ -691,24 +691,24 @@ class invoiceBulkController extends invoiceController
     /** Human readable "why did this invoice change" */
     private function buildReasons($inv, float $total, float $grand, array $mngColChanges, array $brokerChanges): array
     {
-        $reasons = [];
+        $reasons      = [];
+        $formulaLines = [];
 
         foreach ($mngColChanges as $m) {
             $id = $m['mng_col_id'];
 
             if (abs($m['difference']) > self::TOL) {
-                if ($m['discount_pct'] > 0 && abs($m['old_amount'] - $m['calculated']) <= 0.005) {
-                    $reasons[] = "Line #{$id}: saved amount had NO discount (Rate × Net Kg). Order discount {$m['discount_pct']}% is now applied.";
-                } else {
-                    $reasons[] = "Line #{$id}: amount recalculated from Rate × Net Weight"
-                        . ($m['discount_pct'] > 0 ? " with {$m['discount_pct']}% order discount." : '.');
-                }
+                $reasons[] = "Line #{$id}: amount " . number_format($m['old_amount'], 2) . ' → ' . number_format($m['new_amount'], 2)
+                    . ($m['discount_pct'] > 0 ? " (Rate × Net Kg minus {$m['discount_pct']}% order discount)." : ' (Rate × Net Kg).');
             }
 
             if (!empty($m['columns'])) {
-                $cols = implode(', ', array_column($m['columns'], 'column'));
-                $reasons[] = "Line #{$id}: formula updated column(s): {$cols}.";
+                $formulaLines[] = "#{$id}";
             }
+        }
+
+        if ($formulaLines) {
+            $reasons[] = 'Formula columns filled (amount not affected) on line(s): ' . implode(', ', $formulaLines) . '.';
         }
 
         foreach ($brokerChanges as $b) {
@@ -716,13 +716,16 @@ class invoiceBulkController extends invoiceController
                 $reasons[] = "Broker purchase created for order detail #{$b['order_detail_id']} (invoice_grand_total " . number_format($b['new'], 2) . ').';
             } else {
                 $reasons[] = "Broker purchase #{$b['broker_purchase_id']}: invoice_grand_total "
-                    . number_format($b['old'], 2) . ' → ' . number_format($b['new'], 2)
-                    . ' (now equals Rate × Net Kg − discount).';
+                    . number_format($b['old'], 2) . ' → ' . number_format($b['new'], 2) . '.';
             }
         }
 
-        $totalSame = abs($total - (float) $inv->total) <= self::TOL;
-        if (empty($mngColChanges) && empty($brokerChanges) && $totalSame && abs($grand - (float) $inv->grand_total) > self::TOL) {
+        $totalSame = abs($total - (float) $inv->total) <= self::IGNORE_DIFF;
+        $grandSame = abs($grand - (float) $inv->grand_total) <= self::IGNORE_DIFF;
+
+        if ($totalSame && $grandSame && (!empty($mngColChanges) || !empty($brokerChanges))) {
+            array_unshift($reasons, 'Invoice total and grand total are NOT changed (they already included the discount). Only line amount / broker purchase values were stored without discount and are now corrected to match.');
+        } elseif (empty($mngColChanges) && empty($brokerChanges) && $totalSame && abs($grand - (float) $inv->grand_total) > self::TOL) {
             $reasons[] = 'Only roundoff: saved grand total was not a whole number. Edit page always rounds it.';
         }
 

@@ -724,13 +724,15 @@ function showChangeDetails(invoiceId) {
         <table class="change-details-table"><thead><tr><th>Line ID</th><th>Old Amount</th><th>New Amount</th><th>Difference</th></tr></thead><tbody>`;
         mc.forEach(m => {
             const d = m.new_amount - m.old_amount;
+            const amountChanged = Math.abs(d) > 1;
             let extra = '';
-            if (m.discount_pct > 0) extra += `<span class="disc-tag">order discount ${esc(m.discount_pct)}%</span>`;
+            if (amountChanged && m.discount_pct > 0) extra += `<span class="disc-tag">order discount ${esc(m.discount_pct)}%</span>`;
+            if (!amountChanged) extra += `<span class="disc-tag">amount same, formula columns only</span>`;
             if (m.columns && m.columns.length) {
                 extra += '<div class="col-diff">' + m.columns.map(k => `${esc(k.column)}: ${esc(k.old)} → ${esc(k.new)}`).join('<br>') + '</div>';
             }
             html += `<tr><td>${esc(m.mng_col_id)}${extra}</td><td>${money(m.old_amount)}</td><td>${money(m.new_amount)}</td>
-                     <td class="${d >= 0 ? 'num-up' : 'num-down'}">${signed(d)}</td></tr>`;
+                     <td class="${amountChanged ? (d >= 0 ? 'num-up' : 'num-down') : ''}">${amountChanged ? signed(d) : '-'}</td></tr>`;
         });
         html += `</tbody></table>`;
     } else {
