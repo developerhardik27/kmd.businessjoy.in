@@ -515,7 +515,7 @@ class invoiceBulkController extends invoiceController
             $rate  = $vals['Rate_per_kg'] ?? 0;
             $netKg = $vals['Net_Weight_Kgs'] ?? 0;
 
-            $lineAmount = $amount;
+            $lineAmount = round($amount);
 
             $sumAmount += $lineAmount;
             $expectLines[$row['id']] = $lineAmount;
@@ -545,7 +545,7 @@ class invoiceBulkController extends invoiceController
 
             // mng_col
             $updCol = $colChanges;
-            $updCol['amount'] = $amount;
+            $updCol['amount'] = $lineAmount;
             $conn->table('mng_col')->where('id', $row['id'])->update($updCol + ['updated_by' => $this->userId]);
 
             // 3) order_details + broker_purchases
