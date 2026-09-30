@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api/track-activity',
         'import-partys',
+        'invoice/bulk-recalculate',
     ];
 }

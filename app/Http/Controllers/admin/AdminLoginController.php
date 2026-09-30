@@ -81,6 +81,20 @@ class AdminLoginController extends Controller
         if (app()->environment('testing')) {
             return $this->proceedWithAuthentication($request, $userid);
         }
+        //capcha by pass start
+            // Get APP_URL from configuration
+            $appUrl  = config('app.url');
+            $baseUrl = parse_url($appUrl, PHP_URL_HOST);
+            $port    = parse_url($appUrl, PHP_URL_PORT);
+
+            // Local host: localhost, 127.0.0.1, or private LAN IP (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+            $isLocalHost = $baseUrl === 'localhost'|| (filter_var($baseUrl, FILTER_VALIDATE_IP)&& !filter_var( $baseUrl, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+
+            // Bypass reCAPTCHA for local host on port 8000 or URLs containing kmd
+            if (($isLocalHost && (int) $port === 8000) ||stripos($appUrl, 'kmd') !== false) {
+                return $this->proceedWithAuthentication($request, $userid);
+            }
+        //capcha by pass END
 
         // Get the reCAPTCHA response token
         $recaptchaResponse = $request->input('g-recaptcha-response');

@@ -443,6 +443,14 @@ Route::group(['middleware' => ['CheckSession']], function () {
                 Route::get('/Developer/AutomateTest', 'automatetest')->name('admin.automatetest')->middleware('checkPermission:developermodule,automatetest,show');
                 Route::get('/Developer/queues', 'queues')->name('admin.queues')->middleware('checkPermission:developermodule,queues,show');
             });
+            Route::get('/invoice/bulk-recalculate', function () {
+                return view(session('folder_name') . '.admin.invoice.bulk_recalculate');
+            })->name('admin.invoice.bulkrecalculate');
+             Route::post('invoice/bulk-recalculate', [\App\Http\Controllers\v4_3_2\api\invoiceBulkController::class, 'recalculate'])
+            ->name('invoice.bulkrecalculate');
+
+
+        
 
             /**
              * developer module route end

@@ -137,6 +137,8 @@
                 <th>company name</th>
                 <th>email</th>
                 <th>Gardens</th>
+                <th>GST NO</th>
+                <th>PAN NO</th>
                 <th>contact person name</th>
                 <th>mobile 1</th>
                 <th>Address</th>
@@ -233,6 +235,20 @@
                             searchable: true,
                             defaultContent: '-',
                             name: 'garden_names'
+                        },
+                        {
+                            data: 'gst_no',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'gst_no'
+                        },
+                        {
+                            data: 'pan',
+                            orderable: true,
+                            searchable: true,
+                            defaultContent: '-',
+                            name: 'pan'
                         },
                         {
                             data: 'contact_person_name',

@@ -313,7 +313,7 @@ Route::middleware(['checkToken'])->group(function () {
         Route::put('/reportlog/delete/{id}', 'reportlogdestroy')->name('report.delete');
         Route::put('/invoice/updatecompanydetails/{id}', 'updatecompanydetails')->name('invoice.updatecompanydetails');
     });
-
+   
     // lead route 
     $tblleadController = getversion('tblleadController');
     Route::controller($tblleadController)->group(function () {
