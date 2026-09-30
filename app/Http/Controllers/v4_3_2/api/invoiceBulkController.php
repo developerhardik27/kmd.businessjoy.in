@@ -73,7 +73,7 @@ class invoiceBulkController extends invoiceController
         // same condition eligibleInvoices() uses to exclude an invoice
         $billed = array_flip(
             $this->brokerpurchaseModel::whereBetween('invoice_id', [$from, $to])
-                ->whereNull('brokerbill_no')
+                ->whereNotNull('brokerbill_no')
                 ->pluck('invoice_id')->unique()->all()
         );
 
@@ -293,7 +293,7 @@ class invoiceBulkController extends invoiceController
                 $q->select(DB::raw(1))
                     ->from('broker_purchases')
                     ->whereColumn('broker_purchases.invoice_id', 'invoices.id')
-                    ->whereNull('broker_purchases.brokerbill_no');
+                    ->whereNotNull('broker_purchases.brokerbill_no');
             });
     }
 
