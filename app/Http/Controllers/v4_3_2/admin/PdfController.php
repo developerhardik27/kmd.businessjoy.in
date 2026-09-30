@@ -2357,14 +2357,16 @@ class PdfController extends commonController
 
       // Calculate expected payment date for each invoice
       $invoices->transform(function ($item) {
-         if ($item->inv_date && $item->credit_days) {
-               $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($item->credit_days);
-               $item->expected_payment_date = $expectedDate->format('d-m-Y');
-         } else {
-               $item->expected_payment_date = '-';
-         }
-         return $item;
-      });
+      if ($item->inv_date && $item->credit_days) {
+         $days = strtolower($item->credit_days) == 'cd' ? 10 : (int) $item->credit_days;
+         $expectedDate = \Carbon\Carbon::parse($item->inv_date)->addDays($days);
+         $item->expected_payment_date = $expectedDate->format('d-m-Y');
+      } else {
+         $item->expected_payment_date = '-';
+      }
+
+      return $item;
+   });
 
       // Calculate totals
       $totalRecords = $invoices->count();
