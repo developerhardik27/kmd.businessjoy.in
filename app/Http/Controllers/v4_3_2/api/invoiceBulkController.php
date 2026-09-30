@@ -58,6 +58,44 @@ class invoiceBulkController extends invoiceController
      *  from_id     (optional)         start of range (inclusive)
      *  to_id       (optional)         end of range (inclusive)
      */
+
+    /** For IDs in [from..to] that were NOT picked for processing, say WHY. */
+    private function explainNotEligible(int $from, int $to, array $foundIds): array
+    {
+        if ($from > $to) { [$from, $to] = [$to, $from]; }
+        if (($to - $from) > 5000) { $to = $from + 5000; }   // safety limit
+
+        $found = array_flip($foundIds);
+
+        $rows = $this->invoiceModel::whereBetween('id', [$from, $to])
+            ->get(['id', 'inv_no', 'is_deleted'])->keyBy('id');
+
+        // same condition eligibleInvoices() uses to exclude an invoice
+        $billed = array_flip(
+            $this->brokerpurchaseModel::whereBetween('invoice_id', [$from, $to])
+                ->whereNotNull('brokerbill_no')
+                ->pluck('invoice_id')->unique()->all()
+        );
+
+        $out = [];
+        for ($id = $from; $id <= $to; $id++) {
+            if (isset($found[$id])) {
+                continue; // processed normally
+            }
+
+            if (!isset($rows[$id])) {
+                $out[] = ['id' => $id, 'inv_no' => '-', 'reason' => 'Invoice ID not found (no invoice with this ID)'];
+            } elseif ((int) $rows[$id]->is_deleted === 1) {
+                $out[] = ['id' => $id, 'inv_no' => $rows[$id]->inv_no, 'reason' => 'Invoice is deleted (is_deleted = 1)'];
+            } elseif (isset($billed[$id])) {
+                $out[] = ['id' => $id, 'inv_no' => $rows[$id]->inv_no, 'reason' => 'Brokerage bill already generated (broker purchase is linked to this invoice)'];
+            } else {
+                $out[] = ['id' => $id, 'inv_no' => $rows[$id]->inv_no, 'reason' => 'Not eligible (unknown reason)'];
+            }
+        }
+
+        return $out;
+    }
     public function recalculate(Request $request)
     {
         @set_time_limit(0);
@@ -139,12 +177,16 @@ class invoiceBulkController extends invoiceController
         $skipped   = [];
         $failed    = [];
 
-        if ($singleId && $invoices->isEmpty()) {
-            $skipped[] = [
-                'id'     => (int) $singleId,
-                'inv_no' => '-',
-                'reason' => 'Invoice not found, deleted, or brokerage bill already generated',
-            ];
+        if ($singleId) {
+            $skipped = array_merge(
+                $skipped,
+                $this->explainNotEligible((int) $singleId, (int) $singleId, $invoices->pluck('id')->all())
+            );
+        } elseif ($fromId && $toId) {
+            $skipped = array_merge(
+                $skipped,
+                $this->explainNotEligible($fromId, $toId, $invoices->pluck('id')->all())
+            );
         }
 
         foreach ($invoices as $inv) {
@@ -213,15 +255,13 @@ class invoiceBulkController extends invoiceController
                 $failed[] = ['id' => $inv->id, 'inv_no' => $inv->inv_no, 'error' => $e->getMessage()];
             }
         }
-
+        usort($skipped, fn ($a, $b) => $a['id'] <=> $b['id']);
         $nextLastId = $invoices->isEmpty() ? $lastId : (int) $invoices->last()->id;
-        $done = true;
-        if (!$singleId && !($fromId && $toId)) {
-            // Only check for more invoices in cursor mode (not single or range)
+
+        if ($singleId || ($fromId && $toId)) {
+            $done = true;   // single or range: fully handled in this one request
+        } else {
             $done = !$this->eligibleInvoices()->where('id', '>', $nextLastId)->exists();
-        } elseif ($fromId && $toId) {
-            // In range mode, we're done when we've processed up to to_id
-            $done = $nextLastId >= $toId;
         }
 
         return response()->json([
