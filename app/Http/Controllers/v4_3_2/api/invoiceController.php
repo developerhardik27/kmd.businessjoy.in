@@ -1037,6 +1037,18 @@ class invoiceController extends commonController
                             $rate = $row['Rate_per_kg'] ?? 0;
                             $netKg = $row['Net_Weight_Kgs'] ?? 0;
                             $calculatedAmount = $rate * $netKg;
+                            $discountAmount = 0;
+                            // ✅ Apply discount if order_detail_id exists
+                            if (isset($row['order_detail_id']) && $row['order_detail_id']) {
+                                $orderDetail = $this->order_detailModel::where('id', $row['order_detail_id'])->first();
+                                if ($orderDetail) {
+                                    $order = $this->orderModel::find($orderDetail->order_id);
+                                    if ($order && isset($order->discount) && $order->discount > 0) {
+                                        $discountPercentage = $order->discount;
+                                        $discountAmount = ($calculatedAmount * $discountPercentage) / 100;
+                                    }
+                                }
+                            }
 
                             $garden_id = $this->gardenModel::where('garden_name', $row['Garden'])->where('is_deleted', 0)->value('id');
                             $grade_id  = $this->gradesModel::where('grade', $row['Grade'])->where('is_deleted', 0)->value('id');
@@ -1061,7 +1073,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
-                                    'invoice_grand_total' => $calculatedAmount,
+                                    'invoice_grand_total' => $calculatedAmount - $discountAmount,
                                     'brokerage' => $get_borkrage,
                                     'invoice_id'   => $invoice,
                                     'updated_by'   => $user_id,
@@ -1115,7 +1127,7 @@ class invoiceController extends commonController
                                     'shortage'     => $row['shortage'],
                                     'final_net_kg' => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                                     'rate'         => $row['Rate_per_kg'],
-                                    'invoice_grand_total' => $calculatedAmount,
+                                    'invoice_grand_total' => $calculatedAmount - $discountAmount,
                                     'order_detail_id' => $row['order_detail_id'],
                                     'invoice_id'   => $invoice,
                                     'source'       => 'invoice',
@@ -1241,12 +1253,26 @@ class invoiceController extends commonController
                             if (!empty($ids)) {
                                 $getdata = $this->mngcolModel::where('invoice_id', $invoice)->get();
                                 foreach ($getdata as $item) {
+                                    // ✅ Apply discount to invoice_grand_total if order_detail_id exists
+                                    $finalAmount = $item->amount;
+                                    if (isset($item->order_detail_id) && $item->order_detail_id) {
+                                        $orderDetail = $this->order_detailModel::where('id', $item->order_detail_id)->first();
+                                        if ($orderDetail) {
+                                            $order = $this->orderModel::find($orderDetail->order_id);
+                                            if ($order && isset($order->discount) && $order->discount > 0) {
+                                                $discountPercentage = $order->discount;
+                                                $discountAmount = ($item->amount * $discountPercentage) / 100;
+                                                $finalAmount = $item->amount - $discountAmount;
+                                            }
+                                        }
+                                    }
+
                                     $dataupdate = $this->brokerpurchaseModel::where('invoice_no', $item->Invoice_no)
                                         ->update([
                                             'shortage' => $item->shortage,
                                             'net_kg' => $item->Net_Weight_Kgs,
                                             'final_net_kg' => $item->shortage + $item->Net_Weight_Kgs,
-                                            'invoice_grand_total' => $item->amount,
+                                            'invoice_grand_total' => $finalAmount,
                                         ]);
                                 }
                             }
@@ -1566,6 +1592,9 @@ class invoiceController extends commonController
                     $get_brokrage = $this->companymastersModel::where('id', $company_id)->value('brokerage');
                     $user_id     = $data['user_id'];
 
+                    // ✅ Calculate final amount with discount
+                    $finalAmount = $calculatedAmount - $discountAmount;
+
                     $existing = $this->brokerpurchaseModel::where('order_detail_id', $row['order_detail_id'])->first();
 
                     if ($existing) {
@@ -1577,7 +1606,7 @@ class invoiceController extends commonController
                             'shortage'            => $row['shortage'],
                             'final_net_kg'        => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                             'rate'                => $row['Rate_per_kg'],
-                            'invoice_grand_total' => $calculatedAmount,
+                            'invoice_grand_total' => $finalAmount,
                             'brokerage'           => $get_brokrage,
                             'invoice_id'          => $invoiceId, // ✅ Fixed
                             'updated_by'          => $user_id,
@@ -1625,7 +1654,7 @@ class invoiceController extends commonController
                             'shortage'            => $row['shortage'],
                             'final_net_kg'        => $row['No_Of_Pkags'] * $row['Net_Oty_Per_Pkg'],
                             'rate'                => $row['Rate_per_kg'],
-                            'invoice_grand_total' => $calculatedAmount,
+                            'invoice_grand_total' => $finalAmount,
                             'order_detail_id'     => $row['order_detail_id'],
                             'invoice_id'          => $invoiceId, // ✅ Fixed
                             'source'              => 'invoice',

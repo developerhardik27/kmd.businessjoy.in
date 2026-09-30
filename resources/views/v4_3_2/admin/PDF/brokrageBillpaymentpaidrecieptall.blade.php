@@ -327,17 +327,16 @@
                         $rowCount = count($usedInvoices);
                         $maxRows = $rowCount;
 
-                        // commission per row = (amount - CD%) x brokerage%
+                        // commission per row = invoice grand total x brokerage%
                         $rowComm = [];
                         foreach ($usedInvoices as $k => $row) {
                             $amt  = (float) ($row['invoice_grand_total'] ?? 0);
-                            $cd   = (float) ($row['discount'] ?? 0);
                             $brk  = (float) ($row['brokerage'] ?? 0);
-                            $comm = (($amt - ($amt * $cd) / 100) * $brk) / 100;
+                            $comm = (float) ($row['brokerage_total'] ?? (($amt * $brk) / 100));
                             $rowComm[$k] = $comm;
 
-                            $totalnetkg      += $row['net_kg'] ?? 0;
-                            $totalBags       += $row['bags'] ?? 0;
+                            $totalnetkg      += (float) ($row['net_kg'] ?? 0);
+                            $totalBags       += (float) ($row['bags'] ?? 0);
                             $totalAmount     += $amt;
                             $totalCommission += $comm;
                         }
@@ -382,7 +381,7 @@
                             <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">
-                                {{ number_format($rowComm[$key] ?? 0, 2) }}
+                                {{ number_format($row['brokerage_total'] ?? 0, 2)}}
                             </td>
                         </tr>
                     @empty

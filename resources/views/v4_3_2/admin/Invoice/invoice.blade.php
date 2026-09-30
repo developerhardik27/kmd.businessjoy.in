@@ -945,6 +945,36 @@
             $('#bulkSelectionCount').text('0');
         }
 
+        // Enhanced checkbox change handler to show button for single selection
+        $(document).on('change', '.invoice-checkbox', function () {
+            refreshSelectAllState();
+            let checked = $('.invoice-checkbox:checked');
+
+            // Show button for single selection without company filter requirement
+            if (checked.length === 1) {
+                let selectedRows = [];
+                checked.each(function () {
+                    selectedRows.push({
+                        garden_ids        : $(this).data('garden-ids'),
+                        company_details_id: $(this).data('company-details-id'),
+                        line_total        : parseFloat($(this).data('line-total'))  || 0,
+                        brokerage         : parseFloat($(this).data('brokerage'))   || 0,
+                        invoice_id        : $(this).data('invoice-id'),
+                    });
+                });
+
+                $('#bulkGeneratePdfBtn').html('<i class="ri-file-add-line"></i> Generate Bill <span id="bulkSelectionCount" class="badge badge-light ml-1">1</span>');
+                $('#bulkGeneratePdfBtn').removeClass('d-none').data('selected-rows', selectedRows);
+            } else if (checked.length > 1) {
+                // For multiple selections, use the original validation logic
+                updateBulkGenerateBtn($(this));
+            } else {
+                // No selection
+                $('#bulkGeneratePdfBtn').addClass('d-none').removeData('selected-rows');
+                $('#bulkSelectionCount').text('0');
+            }
+        });
+
         // Keep header checkbox in sync when user ticks rows manually
         function refreshSelectAllState() {
             let total   = $('.invoice-checkbox').length;
@@ -960,10 +990,6 @@
             }
             $('.invoice-checkbox').prop('checked', $(this).is(':checked'));
             updateBulkGenerateBtn();
-        });
-
-        $(document).on('change', '.invoice-checkbox', function () {
-            refreshSelectAllState();
         });
 
         /**
@@ -1009,7 +1035,9 @@
                 });
             });
 
-            $('#bulkSelectionCount').text(selectedRows.length);
+            // Update button text based on selection count
+            let buttonText = checked.length === 1 ? 'Generate Bill' : 'Commission Bill';
+            $('#bulkGeneratePdfBtn').html('<i class="ri-file-add-line"></i> ' + buttonText + ' <span id="bulkSelectionCount" class="badge badge-light ml-1">' + selectedRows.length + '</span>');
             $('#bulkGeneratePdfBtn').removeClass('d-none').data('selected-rows', selectedRows);
         }
 

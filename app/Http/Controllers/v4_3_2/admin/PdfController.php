@@ -456,7 +456,7 @@ class PdfController extends commonController
          "invoice" => $invoice,
          'paymentdetail' => $paymentdetail,
       ];
-      //  dd($data);
+      
       $options = [
          'isPhpEnabled' => true,
          'isHtml5ParserEnabled' => true,

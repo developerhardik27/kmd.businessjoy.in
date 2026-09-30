@@ -334,7 +334,8 @@
                             $cd   = (float) ($row['discount'] ?? 0);
                             $brk  = (float) ($row['brokerage'] ?? 0);
                             $rowComm[$k] = (($amt - ($amt * $cd) / 100) * $brk) / 100;
-                            $totalCommission += $rowComm[$k];
+                            $comm = (float) ($row['brokerage_total'] ?? (($amt * $brk) / 100));
+                            $totalCommission += $comm;
                         }
 
                         // tax values taken from the saved invoice
@@ -377,7 +378,7 @@
                             <td style="text-align:center;">{{ number_format($row['discount'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">{{ number_format($row['invoice_grand_total'] ?? 0, 2) }}</td>
                             <td style="text-align:center;">
-                                {{ number_format($rowComm[$key] ?? 0, 2) }}
+                                {{ number_format($row['brokerage_total'] ?? 0, 2)}}
                             </td>
                         </tr>
                     @empty

@@ -548,7 +548,7 @@
                             $invoiceGrandTotal = $row['invoice_grand_total'] ?? 0;
                             $discountPercentage = $row['discount'] ?? 0;
                             $discountAmount = ($invoiceGrandTotal * $discountPercentage) / 100;
-                            $finalAmount = $invoiceGrandTotal - $discountAmount;
+                            $finalAmount = $invoiceGrandTotal;
 
                             // Add discounted amount to total
                             $totalAmount += $finalAmount;
@@ -595,7 +595,7 @@
                                     $discountAmount = ($invoiceGrandTotal * $discountPercentage) / 100;
 
                                     // Final invoice amount after discount
-                                    $finalAmount = $invoiceGrandTotal - $discountAmount;
+                                    $finalAmount = $invoiceGrandTotal;
 
                                     // Brokerage calculated after discount
                                     $brokerageAmount = ($finalAmount * ($row['brokerage'] ?? 0)) / 100;
